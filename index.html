@@ -419,6 +419,17 @@ document.addEventListener("DOMContentLoaded", () => {
     activarEventosFocusInputs(); // ← También lo aplicas a los nuevos inputs
   };
 });
+// Asegura que cada vez que un input obtiene foco por tabulación, se marque su fila como activa
+document.addEventListener("keydown", function (e) {
+  if (e.key === "Tab") {
+    setTimeout(() => {
+      const activeInput = document.activeElement;
+      if (activeInput && activeInput.tagName === "INPUT") {
+        activarFilaDesdeInput(activeInput);
+      }
+    }, 10); // pequeño retardo para esperar el nuevo foco
+  }
+});
 
 </script>
 
