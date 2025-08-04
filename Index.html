@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<!-- saved from url=(0068)file:///C:/Users/jgamon/Downloads/calculadora_de_boletos%20F0.2.html -->
+<html lang="es"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <title>Calculadora de Boletos</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f7f4f1;
+      color: #333;
+      padding: 20px;
+      padding-bottom: 240px;
+    }
+    h1 {
+      color: #800000;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: center;
+    }
+    th {
+      background-color: #f0e6e6;
+    }
+    button {
+      margin: 5px;
+      padding: 8px 16px;
+      background-color: #800000;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #a00000;
+    }
+    .resumen-fija {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background-color: #f0e6e6;
+      display: flex;
+      justify-content: space-around;
+      padding: 20px;
+      border-top: 2px solid #800000;
+      z-index: 100;
+      box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+    }
+    .columna {
+      flex: 1;
+      max-width: 400px;
+      padding: 10px;
+    }
+    .columna h3 {
+      color: #800000;
+      margin-top: 0;
+    }
+    .botones-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 7px;
+      margin-top: 15px;
+    }
+	tr.activa {
+  background-color: #ffe0e0 !important;
+  border: 2px solid #800000;
+}
+  </style>
+</head>
+<body>
+  <h1>Calculadora de Boletos</h1>
+  <label>Nombre del Evento:
+    <input type="text" id="nombreEvento" placeholder="Ej. Festival Cultural">
+  </label>
+
+  <table id="tablaBoletos">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Cantidad</th>
+        <th>Localidad</th>
+        <th>Precio Unitario</th>
+        <th>Total (MXN)</th>
+      </tr>
+    </thead>
+    <tbody id="cuerpoTabla">
+      
+    <tr class="">
+        <td>1</td>
+        <td><input type="number" value="0" onchange="actualizarTotales()"></td>
+        <td><input type="text" onchange="actualizarTotales()"></td>
+        <td><input type="number" value="0" onchange="actualizarTotales()"></td>
+        <td class="totalFila">$0.00</td>
+      </tr></tbody>
+    <tbody><tr id="filaTotales">
+      <td colspan="2"><strong>Total de boletos:</strong> <span id="totalBoletos">0</span></td>
+      <td colspan="2"><strong>Promedio Precio Unitario:</strong> <span id="promedioPrecioUnitario">$0.00</span></td>
+      <td><strong>Suma Total:</strong> <span id="sumaTotalBoletos">$0.00</span></td>
+    </tr>
+  </tbody></table>
+
+  <div class="botones-grid">
+    <button onclick="agregarFila()">Agregar Fila</button>
+    <button onclick="eliminarFilaSeleccionada()">Eliminar Fila Activa</button>
+    <button onclick="agregarColumnaCantidad()">Agregar Otra Columna de Cantidad</button>
+    <button onclick="eliminarColumnasCantidadExtra()">Eliminar Columnas de Cantidad Extra</button>
+    <button onclick="ordenarPorPrecio()">Ordenar por Precio Unitario (Mayor a Menor)</button>
+    	<div >
+	</div>
+	
+	
+
+	
+	<button onclick="guardarDatos()">Guardar datos en archivo TXT</button>
+	<button onclick="document.getElementById(&#39;archivoInput&#39;).click()">Cargar datos desde archivo TXT</button>
+    <input type="file" id="archivoInput" accept=".txt" style="display:none" onchange="cargarArchivo()">
+  </div>
+
+  <div class="resumen-fija">
+    <div class="columna">
+      <h3>M U N I C I P I O</h3>
+      Interventores: <input type="number" id="interventores1" value="1" onchange="actualizarTotales()"><br>
+      Honorarios: <input type="number" id="honorarios1" value="1248" onchange="actualizarTotales()"><br>
+      Impuesto (%): <input type="number" id="impuesto1" value="6" onchange="actualizarTotales()"><br>
+      <p id="honorariosTotales1">Honorarios Totales: $1,248.00</p>
+      <p id="montoImpuesto1">Impuesto: $0.00</p>
+      <p id="totalCobrar1">Total a Cobrar: $1,248.00</p>
+    </div>
+    <div class="columna">
+      <h3>E S T A D O</h3>
+      Interventores: <input type="number" id="interventores2" value="1" onchange="actualizarTotales()"><br>
+      Honorarios: <input type="number" id="honorarios2" value="1500" onchange="actualizarTotales()"><br>
+      Impuesto (%): <input type="number" id="impuesto2" value="5" onchange="actualizarTotales()"><br>
+      <p id="honorariosTotales2">Honorarios Totales: $1,500.00</p>
+      <p id="montoImpuesto2">Impuesto: $0.00</p>
+      <p id="totalCobrar2">Total a Cobrar: $1,500.00</p>
+      <p id="totalCobrarGlobal" style="font-weight: bold;">Total Global a Cobrar: $2,748.00</p>
+    </div>
+  </div>
+
+<script>
+
+function activarFilaDesdeInput(input) {
+  const fila = input.closest("tr");
+  if (!fila) return;
+  document.querySelectorAll("#cuerpoTabla tr").forEach(f => f.classList.remove("activa"));
+  fila.classList.add("activa");
+}
+
+function actualizarTotales() {
+  const filas = document.querySelectorAll("#cuerpoTabla tr");
+  const headers = document.querySelectorAll("#tablaBoletos thead th");
+  let totalGeneral = 0;
+  let sumaPrecios = 0;
+  let totalBoletos = 0;
+
+  filas.forEach(fila => {
+    const celdas = fila.querySelectorAll("td");
+    let cantidad = 0;
+
+    celdas.forEach((celda, idx) => {
+      const header = headers[idx]?.textContent.trim();
+      const input = celda.querySelector("input");
+
+      if ((header === "Cantidad" || header === "Cantidad Extra") && input) {
+        const valor = parseFloat(input.value);
+        if (!isNaN(valor)) {
+          cantidad += valor;
+        }
+      }
+    });
+
+    const precio = parseFloat(celdas[celdas.length - 2].querySelector("input")?.value || 0);
+    const total = cantidad * precio;
+
+    celdas[celdas.length - 1].textContent = formatearMoneda(total);
+    totalGeneral += total;
+    sumaPrecios += precio;
+    totalBoletos += cantidad;
+  });
+
+  document.getElementById("totalBoletos").textContent = totalBoletos;
+  document.getElementById("promedioPrecioUnitario").textContent = formatearMoneda(sumaPrecios / filas.length);
+  document.getElementById("sumaTotalBoletos").textContent = formatearMoneda(totalGeneral);
+
+  [1, 2].forEach(num => {
+    const interventores = parseFloat(document.getElementById(`interventores${num}`).value) || 0;
+    const honorarios = parseFloat(document.getElementById(`honorarios${num}`).value) || 0;
+    const impuesto = parseFloat(document.getElementById(`impuesto${num}`).value) || 0;
+    const honorariosTotales = interventores * honorarios;
+    const montoImpuesto = totalGeneral * (impuesto / 100);
+    const totalCobrar = honorariosTotales + montoImpuesto;
+
+    document.getElementById(`honorariosTotales${num}`).textContent = `Honorarios Totales: ${formatearMoneda(honorariosTotales)}`;
+    document.getElementById(`montoImpuesto${num}`).textContent = `Impuesto: ${formatearMoneda(montoImpuesto)}`;
+    document.getElementById(`totalCobrar${num}`).textContent = `Total a Cobrar: ${formatearMoneda(totalCobrar)}`;
+  });
+
+  const total1 = parseFloat(document.getElementById("totalCobrar1").textContent.replace(/[^\d.-]/g, "")) || 0;
+  const total2 = parseFloat(document.getElementById("totalCobrar2").textContent.replace(/[^\d.-]/g, "")) || 0;
+  document.getElementById("totalCobrarGlobal").textContent = `Total Global a Cobrar: ${formatearMoneda(total1 + total2)}`;
+}
+
+function agregarFila() {
+  const cuerpo = document.getElementById("cuerpoTabla");
+  const nuevaFila = cuerpo.rows[0].cloneNode(true);
+
+  nuevaFila.querySelectorAll("input").forEach(input => {
+    input.value = "0";
+    input.addEventListener("input", actualizarTotales);
+  });
+
+  nuevaFila.querySelector(".totalFila").textContent = "$0.00";
+  nuevaFila.cells[0].textContent = cuerpo.rows.length + 1;
+
+  // Marcar como fila activa y quitar activo de las otras
+  document.querySelectorAll("#cuerpoTabla tr").forEach(f => f.classList.remove("activa"));
+  nuevaFila.classList.add("activa");
+
+  // Activar selección al hacer clic en la nueva fila
+  nuevaFila.onclick = function () {
+    document.querySelectorAll("#cuerpoTabla tr").forEach(f => f.classList.remove("activa"));
+    this.classList.add("activa");
+  };
+
+  cuerpo.appendChild(nuevaFila);
+  actualizarTotales();
+
+  // Colocar cursor en campo "Cantidad" y seleccionar valor
+  const inputCantidad = nuevaFila.cells[1].querySelector("input");
+  if (inputCantidad) {
+    inputCantidad.focus();
+    inputCantidad.select();
+  }
+}
+
+function eliminarFilaSeleccionada() {
+  const filaActiva = document.querySelector("#cuerpoTabla tr.activa");
+  if (!filaActiva) {
+    alert("Selecciona una fila primero haciendo clic sobre ella.");
+    return;
+  }
+  filaActiva.remove();
+  const filas = document.querySelectorAll("#cuerpoTabla tr");
+  filas.forEach((fila, index) => {
+    fila.cells[0].textContent = index + 1;
+  });
+  actualizarTotales();
+}
+
+function agregarColumnaCantidad() {
+  const tabla = document.getElementById("tablaBoletos");
+  const encabezado = tabla.querySelector("thead tr");
+  const filas = tabla.querySelectorAll("tbody tr");
+
+  const nuevaCol = document.createElement("th");
+  nuevaCol.textContent = "Cantidad Extra";
+  encabezado.insertBefore(nuevaCol, encabezado.children[2]);
+
+  filas.forEach(fila => {
+    const celda = document.createElement("td");
+    const input = document.createElement("input");
+    input.type = "number";
+    input.value = 0;
+    input.onchange = actualizarTotales;
+    celda.appendChild(input);
+    fila.insertBefore(celda, fila.children[2]);
+  });
+}
+
+function eliminarColumnasCantidadExtra() {
+  const tabla = document.getElementById("tablaBoletos");
+  const encabezado = tabla.querySelector("thead tr");
+  const filas = tabla.querySelectorAll("tbody tr");
+
+  const indices = [];
+  encabezado.querySelectorAll("th").forEach((th, index) => {
+    if (th.textContent === "Cantidad Extra") {
+      indices.push(index);
+    }
+  });
+
+  indices.reverse().forEach(index => {
+    encabezado.deleteCell(index);
+    filas.forEach(fila => {
+      const valor = parseFloat(fila.cells[index].querySelector("input")?.value || 0);
+      const celdaBase = fila.cells[1].querySelector("input");
+      if (celdaBase) celdaBase.value = parseFloat(celdaBase.value || 0) + valor;
+      fila.deleteCell(index);
+    });
+  });
+
+  actualizarTotales();
+}
+
+function ordenarPorPrecio() {
+  const cuerpo = document.getElementById("cuerpoTabla");
+  const filas = Array.from(cuerpo.querySelectorAll("tr"));
+
+  const filasOrdenadas = filas.sort((a, b) => {
+    const precioA = parseFloat(a.cells[a.cells.length - 2].querySelector("input").value) || 0;
+    const precioB = parseFloat(b.cells[b.cells.length - 2].querySelector("input").value) || 0;
+    return precioB - precioA;
+  });
+
+  cuerpo.innerHTML = "";
+  filasOrdenadas.forEach((fila, index) => {
+    fila.cells[0].textContent = index + 1;
+    cuerpo.appendChild(fila);
+  });
+
+  actualizarTotales();
+}
+
+function guardarDatos() {
+  let contenido = "Nombre del Evento: " + document.getElementById("nombreEvento").value + "\n\n";
+  const filas = document.querySelectorAll("#cuerpoTabla tr");
+
+  filas.forEach((fila, i) => {
+    const celdas = fila.querySelectorAll("td");
+    const cantidad = celdas[1].querySelector("input").value;
+    const localidad = celdas[2].querySelector("input").value;
+    const precio = celdas[3].querySelector("input").value;
+    contenido += `Fila ${i + 1}: Cantidad=${cantidad}, Localidad="${localidad}", Precio=${precio}\n`;
+  });
+
+  [1, 2].forEach(num => {
+    contenido += `\nColumna ${num}:\n`;
+    contenido += `Interventores=${document.getElementById(`interventores${num}`).value}\n`;
+    contenido += `Honorarios=${document.getElementById(`honorarios${num}`).value}\n`;
+    contenido += `Impuesto=${document.getElementById(`impuesto${num}`).value}%\n`;
+  });
+
+  const blob = new Blob([contenido], { type: "text/plain" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = (document.getElementById("nombreEvento").value || "boletos") + ".txt";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function cargarArchivo() {
+  const archivo = document.getElementById("archivoInput").files[0];
+  if (!archivo) return;
+  const lector = new FileReader();
+  lector.onload = function(e) {
+    const contenido = e.target.result;
+    const lineas = contenido.split("\n").filter(l => l.trim() !== "");
+    let filaIdx = 0;
+
+    lineas.forEach((linea, i) => {
+      if (linea.startsWith("Nombre del Evento:")) {
+        document.getElementById("nombreEvento").value = linea.split(":")[1].trim();
+      } else if (linea.startsWith("Fila")) {
+        const partes = linea.split(":")[1].split(",");
+        if (filaIdx >= document.querySelectorAll("#cuerpoTabla tr").length) agregarFila();
+        const fila = document.querySelectorAll("#cuerpoTabla tr")[filaIdx];
+        const cantidad = partes[0].split("=")[1].trim();
+        const localidad = partes[1].split("=")[1].replace(/\"/g, '').trim();
+        const precio = partes[2].split("=")[1].trim();
+        fila.cells[1].querySelector("input").value = cantidad;
+        fila.cells[2].querySelector("input").value = localidad;
+        fila.cells[3].querySelector("input").value = precio;
+        filaIdx++;
+      } else if (linea.includes("Interventores=")) {
+        const num = i < lineas.length / 2 ? 1 : 2;
+        document.getElementById(`interventores${num}`).value = linea.split("=")[1];
+      } else if (linea.includes("Honorarios=")) {
+        const num = i < lineas.length / 2 ? 1 : 2;
+        document.getElementById(`honorarios${num}`).value = linea.split("=")[1];
+      } else if (linea.includes("Impuesto=")) {
+        const num = i < lineas.length / 2 ? 1 : 2;
+        document.getElementById(`impuesto${num}`).value = linea.split("=")[1].replace("%", "");
+      }
+    });
+    actualizarTotales();
+  };
+  lector.readAsText(archivo);
+}
+function formatearMoneda(valor) {
+  return "$" + valor.toLocaleString("es-MX", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+// Habilita selección de fila activa para las filas ya cargadas
+document.querySelectorAll("#cuerpoTabla tr").forEach(fila => {
+  fila.onclick = function () {
+    document.querySelectorAll("#cuerpoTabla tr").forEach(f => f.classList.remove("activa"));
+    this.classList.add("activa");
+  };
+});
+document.querySelectorAll("#cuerpoTabla tr input").forEach(input => {
+  input.addEventListener("focus", () => activarFilaDesdeInput(input));
+});
+function activarEventosFocusInputs() {
+  document.querySelectorAll("#cuerpoTabla tr input").forEach(input => {
+    input.addEventListener("focus", () => activarFilaDesdeInput(input));
+  });
+}
+document.addEventListener("DOMContentLoaded", () => {
+  function activarFilaPorHover(fila) {
+    document.querySelectorAll("#cuerpoTabla tr").forEach(f => f.classList.remove("activa"));
+    fila.classList.add("activa");
+  }
+
+  
+  activarEventosHover();
+  activarEventosFocusInputs(); // ← Este es el que activa el enfoque por teclado
+
+  // Reaplicar eventos cuando agregas nuevas filas
+  const originalAgregarFila = agregarFila;
+  agregarFila = function () {
+    originalAgregarFila();
+    activarEventosHover();
+    activarEventosFocusInputs(); // ← También lo aplicas a los nuevos inputs
+  };
+});
+
+</script>
+
+
+</body></html>
