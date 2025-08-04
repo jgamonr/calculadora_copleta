@@ -39,18 +39,16 @@
       background-color: #a00000;
     }
     .resumen-fija {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      background-color: #f0e6e6;
-      display: flex;
-      justify-content: space-around;
-      padding: 20px;
-      border-top: 2px solid #800000;
-      z-index: 100;
-      box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
-    }
+  position: static;
+  margin-top: 30px;
+  width: 100%;
+  background-color: #f0e6e6;
+  display: flex;
+  justify-content: space-around;
+  padding: 20px;
+  border-top: 2px solid #800000;
+  box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+}
     .columna {
       flex: 1;
       max-width: 400px;
@@ -69,6 +67,12 @@
 	tr.activa {
   background-color: #ffe0e0 !important;
   border: 2px solid #800000;
+}
+
+.resumen-fija.minimizada {
+  height: 30px;
+  overflow: hidden;
+  padding: 5px 20px;
 }
   </style>
 </head>
@@ -430,8 +434,23 @@ document.addEventListener("keydown", function (e) {
     }, 10); // pequeño retardo para esperar el nuevo foco
   }
 });
+document.getElementById("toggleResumen").addEventListener("click", function () {
+  const resumen = document.querySelector(".resumen-fija");
+  resumen.classList.toggle("minimizada");
+  this.textContent = resumen.classList.contains("minimizada") ? "Maximizar" : "Minimizar";
+});
+ const btnToggle = document.getElementById("toggleResumen");
+  const resumen = document.querySelector(".resumen-fija");
 
+  btnToggle.addEventListener("click", () => {
+    if (resumen.style.display === "none") {
+      resumen.style.display = "flex";
+      btnToggle.textContent = "Ocultar resumen";
+    } else {
+      resumen.style.display = "none";
+      btnToggle.textContent = "Mostrar resumen";
+    }
+  });
 </script>
-
 
 </body></html>
