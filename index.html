@@ -128,22 +128,26 @@
   <div class="resumen-fija">
     <div class="columna">
       <h3>M U N I C I P I O</h3>
-      Interventores: <input type="number" id="interventores1" value="1" onchange="actualizarTotales()"><br>
-      Honorarios: <input type="number" id="honorarios1" value="1248" onchange="actualizarTotales()"><br>
-      Impuesto (%): <input type="number" id="impuesto1" value="6" onchange="actualizarTotales()"><br>
-      <p id="honorariosTotales1">Honorarios Totales: $1,248.00</p>
-      <p id="montoImpuesto1">Impuesto: $0.00</p>
-      <p id="totalCobrar1">Total a Cobrar: $1,248.00</p>
+Interventores: <input type="number" id="interventores1" value="1" onchange="actualizarTotales()"><br>
+Honorarios: <input type="number" id="honorarios1" value="1248" onchange="actualizarTotales()"><br>
+Impuesto (%): <input type="number" id="impuesto1" value="6" onchange="actualizarTotales()"><br>
+Porcentaje sobre ingreso (%): <input type="number" id="porcentajeIngreso1" value="100" onchange="actualizarTotales()"><br>
+<p id="honorariosTotales1">Honorarios Totales: $1,248.00</p>
+<p id="montoImpuesto1">Impuesto: $0.00</p>
+<p id="montoPorcentaje1">Sobre ingreso: $0.00</p>
+<p id="totalCobrar1">Total a Cobrar: $1,248.00</p>
     </div>
     <div class="columna">
       <h3>E S T A D O</h3>
-      Interventores: <input type="number" id="interventores2" value="1" onchange="actualizarTotales()"><br>
-      Honorarios: <input type="number" id="honorarios2" value="1500" onchange="actualizarTotales()"><br>
-      Impuesto (%): <input type="number" id="impuesto2" value="5" onchange="actualizarTotales()"><br>
-      <p id="honorariosTotales2">Honorarios Totales: $1,500.00</p>
-      <p id="montoImpuesto2">Impuesto: $0.00</p>
-      <p id="totalCobrar2">Total a Cobrar: $1,500.00</p>
-      <p id="totalCobrarGlobal" style="font-weight: bold;">Total Global a Cobrar: $2,748.00</p>
+Interventores: <input type="number" id="interventores2" value="1" onchange="actualizarTotales()"><br>
+Honorarios: <input type="number" id="honorarios2" value="1500" onchange="actualizarTotales()"><br>
+Impuesto (%): <input type="number" id="impuesto2" value="5" onchange="actualizarTotales()"><br>
+Porcentaje sobre ingreso (%): <input type="number" id="porcentajeIngreso2" value="100" onchange="actualizarTotales()"><br>
+<p id="honorariosTotales2">Honorarios Totales: $1,500.00</p>
+<p id="montoImpuesto2">Impuesto: $0.00</p>
+<p id="montoPorcentaje2">Sobre ingreso: $0.00</p>
+<p id="totalCobrar2">Total a Cobrar: $1,500.00</p>
+
     </div>
   </div>
 
@@ -193,17 +197,22 @@ function actualizarTotales() {
   document.getElementById("sumaTotalBoletos").textContent = formatearMoneda(totalGeneral);
 
   [1, 2].forEach(num => {
-    const interventores = parseFloat(document.getElementById(`interventores${num}`).value) || 0;
-    const honorarios = parseFloat(document.getElementById(`honorarios${num}`).value) || 0;
-    const impuesto = parseFloat(document.getElementById(`impuesto${num}`).value) || 0;
-    const honorariosTotales = interventores * honorarios;
-    const montoImpuesto = totalGeneral * (impuesto / 100);
-    const totalCobrar = honorariosTotales + montoImpuesto;
+  const interventores = parseFloat(document.getElementById(`interventores${num}`).value) || 0;
+  const honorarios = parseFloat(document.getElementById(`honorarios${num}`).value) || 0;
+  const impuesto = parseFloat(document.getElementById(`impuesto${num}`).value) || 0;
+  const porcentajeIngreso = parseFloat(document.getElementById(`porcentajeIngreso${num}`).value) || 0;
 
-    document.getElementById(`honorariosTotales${num}`).textContent = `Honorarios Totales: ${formatearMoneda(honorariosTotales)}`;
-    document.getElementById(`montoImpuesto${num}`).textContent = `Impuesto: ${formatearMoneda(montoImpuesto)}`;
-    document.getElementById(`totalCobrar${num}`).textContent = `Total a Cobrar: ${formatearMoneda(totalCobrar)}`;
-  });
+  const honorariosTotales = interventores * honorarios;
+  const montoImpuesto = totalGeneral * (impuesto / 100);
+  const montoSobreIngreso = totalGeneral * (porcentajeIngreso / 100);
+  const totalCobrar = honorariosTotales + montoImpuesto + montoSobreIngreso;
+
+  document.getElementById(`honorariosTotales${num}`).textContent = `Honorarios Totales: ${formatearMoneda(honorariosTotales)}`;
+  document.getElementById(`montoImpuesto${num}`).textContent = `Impuesto: ${formatearMoneda(montoImpuesto)}`;
+  document.getElementById(`montoPorcentaje${num}`).textContent = `Sobre ingreso: ${formatearMoneda(montoSobreIngreso)}`;
+  document.getElementById(`totalCobrar${num}`).textContent = `Total a Cobrar: ${formatearMoneda(totalCobrar)}`;
+});
+
 
   const total1 = parseFloat(document.getElementById("totalCobrar1").textContent.replace(/[^\d.-]/g, "")) || 0;
   const total2 = parseFloat(document.getElementById("totalCobrar2").textContent.replace(/[^\d.-]/g, "")) || 0;
@@ -323,8 +332,9 @@ function ordenarPorPrecio() {
 
 function guardarDatos() {
   let contenido = "Nombre del Evento: " + document.getElementById("nombreEvento").value + "\n\n";
-  const filas = document.querySelectorAll("#cuerpoTabla tr");
 
+  // Guardar filas de boletos
+  const filas = document.querySelectorAll("#cuerpoTabla tr");
   filas.forEach((fila, i) => {
     const celdas = fila.querySelectorAll("td");
     const cantidad = celdas[1].querySelector("input").value;
@@ -333,13 +343,16 @@ function guardarDatos() {
     contenido += `Fila ${i + 1}: Cantidad=${cantidad}, Localidad="${localidad}", Precio=${precio}\n`;
   });
 
-  [1, 2].forEach(num => {
+  // Guardar columnas de resumen
+  for (let num = 1; num <= 2; num++) {
     contenido += `\nColumna ${num}:\n`;
     contenido += `Interventores=${document.getElementById(`interventores${num}`).value}\n`;
     contenido += `Honorarios=${document.getElementById(`honorarios${num}`).value}\n`;
     contenido += `Impuesto=${document.getElementById(`impuesto${num}`).value}%\n`;
-  });
+    contenido += `PorcentajeIngreso=${document.getElementById(`porcentajeIngreso${num}`).value}%\n`;
+  }
 
+  // Descargar como archivo .txt
   const blob = new Blob([contenido], { type: "text/plain" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
@@ -349,43 +362,41 @@ function guardarDatos() {
   URL.revokeObjectURL(url);
 }
 
-function cargarArchivo() {
-  const archivo = document.getElementById("archivoInput").files[0];
-  if (!archivo) return;
-  const lector = new FileReader();
-  lector.onload = function(e) {
-    const contenido = e.target.result;
-    const lineas = contenido.split("\n").filter(l => l.trim() !== "");
-    let filaIdx = 0;
 
-    lineas.forEach((linea, i) => {
-      if (linea.startsWith("Nombre del Evento:")) {
-        document.getElementById("nombreEvento").value = linea.split(":")[1].trim();
-      } else if (linea.startsWith("Fila")) {
-        const partes = linea.split(":")[1].split(",");
-        if (filaIdx >= document.querySelectorAll("#cuerpoTabla tr").length) agregarFila();
-        const fila = document.querySelectorAll("#cuerpoTabla tr")[filaIdx];
-        const cantidad = partes[0].split("=")[1].trim();
-        const localidad = partes[1].split("=")[1].replace(/\"/g, '').trim();
-        const precio = partes[2].split("=")[1].trim();
-        fila.cells[1].querySelector("input").value = cantidad;
-        fila.cells[2].querySelector("input").value = localidad;
-        fila.cells[3].querySelector("input").value = precio;
-        filaIdx++;
-      } else if (linea.includes("Interventores=")) {
-        const num = i < lineas.length / 2 ? 1 : 2;
-        document.getElementById(`interventores${num}`).value = linea.split("=")[1];
-      } else if (linea.includes("Honorarios=")) {
-        const num = i < lineas.length / 2 ? 1 : 2;
-        document.getElementById(`honorarios${num}`).value = linea.split("=")[1];
-      } else if (linea.includes("Impuesto=")) {
-        const num = i < lineas.length / 2 ? 1 : 2;
-        document.getElementById(`impuesto${num}`).value = linea.split("=")[1].replace("%", "");
-      }
-    });
-    actualizarTotales();
-  };
-  lector.readAsText(archivo);
+function guardarDatos() {
+  let contenido = "Nombre del Evento: " + document.getElementById("nombreEvento").value + "\n\n";
+
+  // Guardar filas de boletos
+  const filas = document.querySelectorAll("#cuerpoTabla tr");
+  filas.forEach((fila, i) => {
+    const celdas = fila.querySelectorAll("td");
+    const cantidad = celdas[1].querySelector("input").value;
+    const localidad = celdas[2].querySelector("input").value;
+    const precio = celdas[3].querySelector("input").value;
+    contenido += `Fila ${i + 1}: Cantidad=${cantidad}, Localidad="${localidad}", Precio=${precio}\n`;
+  });
+
+  // Guardar columnas de resumen
+  for (let num = 1; num <= 2; num++) {
+    contenido += `\nColumna ${num}:\n`;
+    contenido += `Interventores=${document.getElementById(`interventores${num}`).value}\n`;
+    contenido += `Honorarios=${document.getElementById(`honorarios${num}`).value}\n`;
+    contenido += `Impuesto=${document.getElementById(`impuesto${num}`).value}%\n`;
+    contenido += `PorcentajeIngreso=${document.getElementById(`porcentajeIngreso${num}`).value}%\n`;
+  }
+
+  // Descargar como archivo .txt
+  const blob = new Blob([contenido], { type: "text/plain" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = (document.getElementById("nombreEvento").value || "boletos") + ".txt";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function formatearMoneda(valor) {
+  return "$" + valor.toLocaleString("es-MX", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 function formatearMoneda(valor) {
   return "$" + valor.toLocaleString("es-MX", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -451,6 +462,79 @@ document.getElementById("toggleResumen").addEventListener("click", function () {
       btnToggle.textContent = "Mostrar resumen";
     }
   });
+
+
+
+function cargarArchivo() {
+  const input = document.getElementById("archivoInput");
+  if (!input.files.length) return;
+
+  const archivo = input.files[0];
+  const lector = new FileReader();
+
+  lector.onload = function (e) {
+    const contenido = e.target.result;
+    const lineas = contenido.split(/\r?\n/);
+
+    // Limpiar tabla antes de cargar
+    const cuerpo = document.getElementById("cuerpoTabla");
+    cuerpo.innerHTML = "";
+    let filaNum = 1;
+
+    lineas.forEach((linea, index) => {
+      if (linea.startsWith("Nombre del Evento:")) {
+        document.getElementById("nombreEvento").value = linea.split(":")[1].trim();
+      }
+
+      if (linea.startsWith("Fila ")) {
+        const match = linea.match(/Cantidad=(\d+), Localidad="(.*?)", Precio=(\d+)/);
+        if (match) {
+          const nuevaFila = document.createElement("tr");
+          nuevaFila.classList.remove("activa");
+          nuevaFila.innerHTML = `
+            <td>${filaNum++}</td>
+            <td><input type="number" value="${match[1]}" onchange="actualizarTotales()"></td>
+            <td><input type="text" value="${match[2]}" onchange="actualizarTotales()"></td>
+            <td><input type="number" value="${match[3]}" onchange="actualizarTotales()"></td>
+            <td class="totalFila">$0.00</td>
+          `;
+          nuevaFila.onclick = function () {
+            document.querySelectorAll("#cuerpoTabla tr").forEach(f => f.classList.remove("activa"));
+            this.classList.add("activa");
+          };
+          cuerpo.appendChild(nuevaFila);
+        }
+      }
+
+      if (linea.startsWith("Columna ")) {
+        const columna = linea.includes("2") ? 2 : 1;
+        for (let i = 1; i <= 4; i++) {
+          const valor = lineas[index + i].split("=")[1].replace("%", "").trim();
+          if (lineas[index + i].startsWith("Interventores=")) {
+            document.getElementById(`interventores${columna}`).value = valor;
+          } else if (lineas[index + i].startsWith("Honorarios=")) {
+            document.getElementById(`honorarios${columna}`).value = valor;
+          } else if (lineas[index + i].startsWith("Impuesto=")) {
+            document.getElementById(`impuesto${columna}`).value = valor;
+          } else if (lineas[index + i].startsWith("PorcentajeIngreso=")) {
+            document.getElementById(`porcentajeIngreso${columna}`).value = valor;
+          }
+        }
+      }
+    });
+
+    activarEventosFocusInputs(); // activar comportamiento de selección
+    actualizarTotales();
+  };
+
+  lector.readAsText(archivo);
+}
+
+
+
+
+
+
 </script>
 
 </body></html>
