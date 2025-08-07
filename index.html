@@ -132,9 +132,10 @@ Interventores: <input type="number" id="interventores1" value="1" onchange="actu
 Honorarios: <input type="number" id="honorarios1" value="1248" onchange="actualizarTotales()"><br>
 Impuesto (%): <input type="number" id="impuesto1" value="6" onchange="actualizarTotales()"><br>
 Porcentaje sobre ingreso (%): <input type="number" id="porcentajeIngreso1" value="100" onchange="actualizarTotales()"><br>
-<p id="honorariosTotales1">Honorarios Totales: $1,248.00</p>
-<p id="montoImpuesto1">Impuesto: $0.00</p>
 <p id="montoPorcentaje1">Sobre ingreso: $0.00</p>
+
+<p id="montoImpuesto1">Impuesto: $0.00</p>
+<p id="honorariosTotales1">Honorarios Totales: $1,248.00</p>
 <p id="totalCobrar1">Total a Cobrar: $1,248.00</p>
     </div>
     <div class="columna">
@@ -143,9 +144,10 @@ Interventores: <input type="number" id="interventores2" value="1" onchange="actu
 Honorarios: <input type="number" id="honorarios2" value="1500" onchange="actualizarTotales()"><br>
 Impuesto (%): <input type="number" id="impuesto2" value="5" onchange="actualizarTotales()"><br>
 Porcentaje sobre ingreso (%): <input type="number" id="porcentajeIngreso2" value="100" onchange="actualizarTotales()"><br>
-<p id="honorariosTotales2">Honorarios Totales: $1,500.00</p>
-<p id="montoImpuesto2">Impuesto: $0.00</p>
 <p id="montoPorcentaje2">Sobre ingreso: $0.00</p>
+
+<p id="montoImpuesto2">Impuesto: $0.00</p>
+<p id="honorariosTotales2">Honorarios Totales: $1,500.00</p>
 <p id="totalCobrar2">Total a Cobrar: $1,500.00</p>
 
     </div>
@@ -215,8 +217,8 @@ function actualizarTotales() {
 
 
   const total1 = parseFloat(document.getElementById("totalCobrar1").textContent.replace(/[^\d.-]/g, "")) || 0;
-  const total2 = parseFloat(document.getElementById("totalCobrar2").textContent.replace(/[^\d.-]/g, "")) || 0;
-  document.getElementById("totalCobrarGlobal").textContent = `Total Global a Cobrar: ${formatearMoneda(total1 + total2)}`;
+const total2 = parseFloat(document.getElementById("totalCobrar2").textContent.replace(/[^\d.-]/g, "")) || 0;
+document.getElementById("totalCobrarGlobal").textContent = formatearMoneda(total1 + total2);
 }
 
 function agregarFila() {
@@ -536,5 +538,7 @@ function cargarArchivo() {
 
 
 </script>
-
+<div style="margin-top: 20px; padding: 15px; background-color: #f0e6e6; border: 2px solid #800000;">
+  <h3 style="margin: 0; color: #800000;">Total Global a Cobrar: <span id="totalCobrarGlobal">$0.00</span></h3>
+</div>
 </body></html>
