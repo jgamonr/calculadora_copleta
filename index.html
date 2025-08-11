@@ -207,7 +207,8 @@ function actualizarTotales() {
   const honorariosTotales = interventores * honorarios;
   const montoImpuesto = totalGeneral * (impuesto / 100);
   const montoSobreIngreso = totalGeneral * (porcentajeIngreso / 100);
-  const totalCobrar = honorariosTotales + montoImpuesto + montoSobreIngreso;
+  const totalCobrar = honorariosTotales + montoImpuesto;
+
 
   document.getElementById(`honorariosTotales${num}`).textContent = `Honorarios Totales: ${formatearMoneda(honorariosTotales)}`;
   document.getElementById(`montoImpuesto${num}`).textContent = `Impuesto: ${formatearMoneda(montoImpuesto)}`;
