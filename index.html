@@ -198,21 +198,26 @@ function actualizarTotales() {
   document.getElementById("promedioPrecioUnitario").textContent = formatearMoneda(sumaPrecios / filas.length);
   document.getElementById("sumaTotalBoletos").textContent = formatearMoneda(totalGeneral);
 
-  [1, 2].forEach(num => {
+[1, 2].forEach(num => {
   const interventores = parseFloat(document.getElementById(`interventores${num}`).value) || 0;
   const honorarios = parseFloat(document.getElementById(`honorarios${num}`).value) || 0;
   const impuesto = parseFloat(document.getElementById(`impuesto${num}`).value) || 0;
   const porcentajeIngreso = parseFloat(document.getElementById(`porcentajeIngreso${num}`).value) || 0;
 
   const honorariosTotales = interventores * honorarios;
-  const montoImpuesto = totalGeneral * (impuesto / 100);
+
+  // Base correcta: "Sobre ingreso" = totalGeneral * porcentajeIngreso
   const montoSobreIngreso = totalGeneral * (porcentajeIngreso / 100);
+
+  // Impuesto calculado SOBRE el "Sobre ingreso", no sobre el total general
+  const montoImpuesto = montoSobreIngreso * (impuesto / 100);
+
+  // Total a Cobrar = Impuesto + Honorarios (según tus ejemplos)
   const totalCobrar = honorariosTotales + montoImpuesto;
 
-
-  document.getElementById(`honorariosTotales${num}`).textContent = `Honorarios Totales: ${formatearMoneda(honorariosTotales)}`;
-  document.getElementById(`montoImpuesto${num}`).textContent = `Impuesto: ${formatearMoneda(montoImpuesto)}`;
   document.getElementById(`montoPorcentaje${num}`).textContent = `Sobre ingreso: ${formatearMoneda(montoSobreIngreso)}`;
+  document.getElementById(`montoImpuesto${num}`).textContent = `Impuesto: ${formatearMoneda(montoImpuesto)}`;
+  document.getElementById(`honorariosTotales${num}`).textContent = `Honorarios Totales: ${formatearMoneda(honorariosTotales)}`;
   document.getElementById(`totalCobrar${num}`).textContent = `Total a Cobrar: ${formatearMoneda(totalCobrar)}`;
 });
 
@@ -453,9 +458,10 @@ document.getElementById("toggleResumen").addEventListener("click", function () {
   resumen.classList.toggle("minimizada");
   this.textContent = resumen.classList.contains("minimizada") ? "Maximizar" : "Minimizar";
 });
- const btnToggle = document.getElementById("toggleResumen");
-  const resumen = document.querySelector(".resumen-fija");
+const btnToggle = document.getElementById("toggleResumen");
+const resumen = document.querySelector(".resumen-fija");
 
+if (btnToggle && resumen) {
   btnToggle.addEventListener("click", () => {
     if (resumen.style.display === "none") {
       resumen.style.display = "flex";
@@ -465,6 +471,8 @@ document.getElementById("toggleResumen").addEventListener("click", function () {
       btnToggle.textContent = "Mostrar resumen";
     }
   });
+}
+
 
 
 
@@ -490,7 +498,7 @@ function cargarArchivo() {
       }
 
       if (linea.startsWith("Fila ")) {
-        const match = linea.match(/Cantidad=(\d+), Localidad="(.*?)", Precio=(\d+)/);
+        const match = linea.match(/Cantidad=([\d.]+), Localidad="(.*?)", Precio=([\d.]+)/);
         if (match) {
           const nuevaFila = document.createElement("tr");
           nuevaFila.classList.remove("activa");
@@ -536,6 +544,14 @@ function cargarArchivo() {
 
 
 
+function activarEventosHover() {
+  document.querySelectorAll("#cuerpoTabla tr").forEach(fila => {
+    fila.addEventListener("mouseover", () => {
+      document.querySelectorAll("#cuerpoTabla tr").forEach(f => f.classList.remove("activa"));
+      fila.classList.add("activa");
+    });
+  });
+}
 
 
 </script>
@@ -543,3 +559,4 @@ function cargarArchivo() {
   <h3 style="margin: 0; color: #800000;">Total Global a Cobrar: <span id="totalCobrarGlobal">$0.00</span></h3>
 </div>
 </body></html>
+
