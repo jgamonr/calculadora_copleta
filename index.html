@@ -431,14 +431,14 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   
-  activarEventosHover();
+  //activarEventosHover();
   activarEventosFocusInputs(); // ← Este es el que activa el enfoque por teclado
 
   // Reaplicar eventos cuando agregas nuevas filas
   const originalAgregarFila = agregarFila;
   agregarFila = function () {
     originalAgregarFila();
-    activarEventosHover();
+  //  activarEventosHover();
     activarEventosFocusInputs(); // ← También lo aplicas a los nuevos inputs
   };
 });
@@ -544,14 +544,14 @@ function cargarArchivo() {
 
 
 
-function activarEventosHover() {
-  document.querySelectorAll("#cuerpoTabla tr").forEach(fila => {
-    fila.addEventListener("mouseover", () => {
-      document.querySelectorAll("#cuerpoTabla tr").forEach(f => f.classList.remove("activa"));
-      fila.classList.add("activa");
-    });
-  });
-}
+//function activarEventosHover() {
+  //document.querySelectorAll("#cuerpoTabla tr").forEach(fila => {
+    //fila.addEventListener("mouseover", () => {
+      //document.querySelectorAll("#cuerpoTabla tr").forEach(f => f.classList.remove("activa"));
+     // fila.classList.add("activa");
+    //});
+  //});
+//}
 
 
 </script>
