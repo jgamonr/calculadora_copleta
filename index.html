@@ -276,7 +276,6 @@
                 <div class="field"><label>Interventores estado</label><input id="stateInterventorCount" type="number" min="0" value="0" /></div>
                 <div class="field"><label>Honorario estado</label><input id="stateInterventorFeePerPerson" type="number" step="0.01" value="0" /></div>
               </div>
-              <div class="field"><label>Cargos administrativos estado</label><input id="stateAdminCharge" type="number" step="0.01" value="0" /></div>
               <div class="field"><label>Multas estado</label><input id="stateFineAmount" type="number" step="0.01" value="0" /></div>
               <div class="softbox">
                 <div class="row-between"><span>Promedio localidades pagadas</span><strong id="avgPaidLocality"></strong></div>
@@ -294,12 +293,10 @@
                 <div class="field"><label>Interventores municipio</label><input id="municipalInterventorCount" type="number" min="0" value="1" /></div>
                 <div class="field"><label>Honorario municipio</label><input id="municipalInterventorFeePerPerson" type="number" step="0.01" value="0" /></div>
               </div>
-              <div class="field"><label>Cargos administrativos municipio</label><input id="municipalAdminCharge" type="number" step="0.01" value="0" /></div>
               <div class="field"><label>Multas municipio</label><input id="municipalFineAmount" type="number" step="0.01" value="0" /></div>
               <div class="softbox">
                 <div class="row-between"><span>Base antes del factor</span><strong id="municipalBaseBefore"></strong></div>
                 <div class="row-between"><span>Base impuesto municipio</span><strong id="municipalTaxBase"></strong></div>
-                <div class="row-between"><span>Total administrativo municipio</span><strong id="municipalAdministrative"></strong></div>
               </div>
             </div></div>
           </div></div>
@@ -393,11 +390,9 @@
       municipalIncomeFactor: 1,
       stateInterventorCount: 0,
       stateInterventorFeePerPerson: 0,
-      stateAdminCharge: 0,
       stateFineAmount: 0,
       municipalInterventorCount: 1,
       municipalInterventorFeePerPerson: 0,
-      municipalAdminCharge: 0,
       municipalFineAmount: 0,
       selectedRowId: null,
       categories: [
@@ -502,13 +497,13 @@
       const municipalTaxAmount = municipalTaxBase * (n(state.municipalTaxRate)/100);
       const totalStateInterventorFee = n(state.stateInterventorCount) * n(state.stateInterventorFeePerPerson);
       const totalMunicipalInterventorFee = n(state.municipalInterventorCount) * n(state.municipalInterventorFeePerPerson);
-      const totalStateAdministrative = totalStateInterventorFee + n(state.stateAdminCharge) + n(state.stateFineAmount);
-      const totalMunicipalAdministrative = totalMunicipalInterventorFee + n(state.municipalAdminCharge) + n(state.municipalFineAmount);
+      const totalStateAdministrative = totalStateInterventorFee + n(state.stateFineAmount);
+      const totalMunicipalAdministrative = totalMunicipalInterventorFee + n(state.municipalFineAmount);
       const totalTaxes = stateTaxAmount + municipalTaxAmount;
       const totalAdditionalCharges = totalStateAdministrative + totalMunicipalAdministrative;
       const totalCharges = totalTaxes + totalAdditionalCharges;
-      const municipalGovernmentTotal = municipalTaxAmount + totalMunicipalInterventorFee + n(state.municipalAdminCharge) + n(state.municipalFineAmount);
-      const stateGovernmentTotal = stateTaxAmount + totalStateInterventorFee + n(state.stateAdminCharge) + n(state.stateFineAmount);
+      const municipalGovernmentTotal = municipalTaxAmount + totalMunicipalInterventorFee + n(state.municipalFineAmount);
+      const stateGovernmentTotal = stateTaxAmount + totalStateInterventorFee + n(state.stateFineAmount);
       return {
         sortedCategories, incomeCategories, boletosDetallados,
         totalPersons, payingPersons, courtesyPersons, grossIncome,
@@ -536,11 +531,9 @@
         municipalIncomeFactor: state.municipalIncomeFactor,
         stateInterventorCount: state.stateInterventorCount,
         stateInterventorFeePerPerson: state.stateInterventorFeePerPerson,
-        stateAdminCharge: state.stateAdminCharge,
         stateFineAmount: state.stateFineAmount,
         municipalInterventorCount: state.municipalInterventorCount,
         municipalInterventorFeePerPerson: state.municipalInterventorFeePerPerson,
-        municipalAdminCharge: state.municipalAdminCharge,
         municipalFineAmount: state.municipalFineAmount,
         categories: state.categories
       };
@@ -570,11 +563,9 @@
       $('municipalIncomeFactor').value = state.municipalIncomeFactor;
       $('stateInterventorCount').value = state.stateInterventorCount;
       $('stateInterventorFeePerPerson').value = state.stateInterventorFeePerPerson;
-      $('stateAdminCharge').value = state.stateAdminCharge;
       $('stateFineAmount').value = state.stateFineAmount;
       $('municipalInterventorCount').value = state.municipalInterventorCount;
       $('municipalInterventorFeePerPerson').value = state.municipalInterventorFeePerPerson;
-      $('municipalAdminCharge').value = state.municipalAdminCharge;
       $('municipalFineAmount').value = state.municipalFineAmount;
     }
 
@@ -730,7 +721,6 @@ Selecciona Cancelar para agregarlas a las existentes.`);
             <p>Factor multiplicador: x ${n(state.stateIncomeFactor)}</p>
             <p>Interventores: ${n(state.stateInterventorCount)}</p>
             <p>Honorario por interventor: ${formatMoney(state.stateInterventorFeePerPerson)}</p>
-            <p>Cargos administrativos: ${formatMoney(state.stateAdminCharge)}</p>
             <p>Multas: ${formatMoney(state.stateFineAmount)}</p>
             <p>Promedio localidades pagadas: ${formatMoney(calc.averagePaidLocalityPrice)}</p>
             <p>Valor cortesías para estado: ${formatMoney(calc.courtesyEstimatedValueForState)}</p>
@@ -743,7 +733,6 @@ Selecciona Cancelar para agregarlas a las existentes.`);
             <p>Factor multiplicador: x ${n(state.municipalIncomeFactor)}</p>
             <p>Interventores: ${n(state.municipalInterventorCount)}</p>
             <p>Honorario por interventor: ${formatMoney(state.municipalInterventorFeePerPerson)}</p>
-            <p>Cargos administrativos: ${formatMoney(state.municipalAdminCharge)}</p>
             <p>Multas: ${formatMoney(state.municipalFineAmount)}</p>
             <p>Base impuesto municipio: ${formatMoney(calc.municipalTaxBase)}</p>
           </div>
@@ -783,10 +772,6 @@ Selecciona Cancelar para agregarlas a las existentes.`);
               <td class="right">${formatMoney(calc.totalStateInterventorFee)}</td>
             </tr>
             <tr>
-              <td>Cargos administrativos</td>
-              <td class="right">${formatMoney(state.municipalAdminCharge)}</td>
-              <td class="right">${formatMoney(state.stateAdminCharge)}</td>
-            </tr>
             <tr>
               <td>Multas</td>
               <td class="right">${formatMoney(state.municipalFineAmount)}</td>
@@ -873,7 +858,7 @@ Selecciona Cancelar para agregarlas a las existentes.`);
     function bindTaxInputs() {
       [
         'stateTaxRate','municipalTaxRate','stateIncomeFactor','municipalIncomeFactor','stateInterventorCount','stateInterventorFeePerPerson',
-        'stateAdminCharge','stateFineAmount','municipalInterventorCount','municipalInterventorFeePerPerson','municipalAdminCharge','municipalFineAmount'
+        'stateFineAmount','municipalInterventorCount','municipalInterventorFeePerPerson','municipalFineAmount'
       ].forEach(id => {
         $(id).oninput = e => { state[id] = n(e.target.value); render(); };
       });
@@ -1044,7 +1029,6 @@ Selecciona Cancelar para agregarlas a las existentes.`);
         <div class="row-between"><span>Base impuesto</span><strong>${formatMoney(calc.stateTaxBase)}</strong></div>
         <div class="row-between"><span>Importe impuesto</span><strong>${formatMoney(calc.stateTaxAmount)}</strong></div>
         <div class="row-between"><span>Importe honorarios</span><strong>${formatMoney(calc.totalStateInterventorFee)}</strong></div>
-        <div class="row-between"><span>Importe cargo admvo.</span><strong>${formatMoney(state.stateAdminCharge)}</strong></div>
         <div class="row-between"><span>Importe multa</span><strong>${formatMoney(state.stateFineAmount)}</strong></div>
       `;
       $('municipalConcentrado').innerHTML = `
@@ -1054,7 +1038,6 @@ Selecciona Cancelar para agregarlas a las existentes.`);
         <div class="row-between"><span>Base impuesto</span><strong>${formatMoney(calc.municipalTaxBase)}</strong></div>
         <div class="row-between"><span>Importe impuesto</span><strong>${formatMoney(calc.municipalTaxAmount)}</strong></div>
         <div class="row-between"><span>Importe honorarios</span><strong>${formatMoney(calc.totalMunicipalInterventorFee)}</strong></div>
-        <div class="row-between"><span>Importe cargo admvo.</span><strong>${formatMoney(state.municipalAdminCharge)}</strong></div>
         <div class="row-between"><span>Importe multa</span><strong>${formatMoney(state.municipalFineAmount)}</strong></div>
       `;
 
@@ -1062,7 +1045,6 @@ Selecciona Cancelar para agregarlas a las existentes.`);
         <div class="section-title" style="font-size:13px;">Municipio</div>
         <div class="row-between"><span>Impuestos</span><strong>${formatMoney(calc.municipalTaxAmount)}</strong></div>
         <div class="row-between"><span>Honorarios</span><strong>${formatMoney(calc.totalMunicipalInterventorFee)}</strong></div>
-        <div class="row-between"><span>Cargos administrativos</span><strong>${formatMoney(state.municipalAdminCharge)}</strong></div>
         <div class="row-between"><span>Multas</span><strong>${formatMoney(state.municipalFineAmount)}</strong></div>
         <div class="row-between"><span><strong>Total municipio</strong></span><strong>${formatMoney(calc.municipalGovernmentTotal)}</strong></div>
       `;
@@ -1070,7 +1052,6 @@ Selecciona Cancelar para agregarlas a las existentes.`);
         <div class="section-title" style="font-size:13px;">Estado</div>
         <div class="row-between"><span>Impuestos</span><strong>${formatMoney(calc.stateTaxAmount)}</strong></div>
         <div class="row-between"><span>Honorarios</span><strong>${formatMoney(calc.totalStateInterventorFee)}</strong></div>
-        <div class="row-between"><span>Cargos administrativos</span><strong>${formatMoney(state.stateAdminCharge)}</strong></div>
         <div class="row-between"><span>Multas</span><strong>${formatMoney(state.stateFineAmount)}</strong></div>
         <div class="row-between"><span><strong>Total estado</strong></span><strong>${formatMoney(calc.stateGovernmentTotal)}</strong></div>
       `;
@@ -1096,7 +1077,6 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       $('stateTaxBase').textContent = formatMoney(calc.stateTaxBase);
       $('municipalBaseBefore').textContent = formatMoney(calc.municipalBaseBeforeFactor);
       $('municipalTaxBase').textContent = formatMoney(calc.municipalTaxBase);
-      $('municipalAdministrative').textContent = formatMoney(calc.totalMunicipalAdministrative);
       $('grossIncomeCard').textContent = formatMoney(calc.grossIncome);
       $('courtesyStateCard').textContent = formatMoney(calc.courtesyEstimatedValueForState);
       $('viewContador').style.display = state.activeTab === 'contador' ? '' : 'none';
