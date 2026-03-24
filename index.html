@@ -5,1040 +5,165 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Control de ingreso a evento</title>
   <style>
-    :root {
-      --bg: #f8fafc;
-      --card: #ffffff;
-      --border: #e2e8f0;
-      --text: #0f172a;
-      --muted: #64748b;
-      --primary: #0f172a;
-      --primary-text: #ffffff;
-      --soft: #f1f5f9;
-      --selected: #e2e8f0;
-      --danger: #b91c1c;
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-    }
-    .wrap {
-      max-width: 1280px;
-      margin: 0 auto;
-      padding: 14px;
-    }
-    h1 { margin: 0 0 6px; font-size: 28px; }
-    p.lead { margin: 0 0 16px; color: var(--muted); }
-    .grid-summary {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
-      margin-bottom: 16px;
-    }
-    .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      box-shadow: 0 1px 2px rgba(0,0,0,.04);
-    }
-    .card .inner { padding: 16px; }
-    .muted { color: var(--muted); font-size: 12px; }
-    .big { font-size: 26px; font-weight: 700; }
-    .tabs, .subtabs {
-      display: inline-flex;
-      gap: 8px;
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 6px;
-      margin-bottom: 16px;
-      flex-wrap: wrap;
-    }
-    button {
-      border: 1px solid var(--border);
-      background: white;
-      color: var(--text);
-      border-radius: 12px;
-      padding: 10px 14px;
-      cursor: pointer;
-      font-weight: 600;
-    }
-    button.active {
-      background: var(--primary);
-      color: var(--primary-text);
-      border-color: var(--primary);
-    }
-    button.small { padding: 6px 10px; font-size: 12px; }
-    button.danger { color: var(--danger); }
-    .layout {
-      display: grid;
-      grid-template-columns: 360px 1fr;
-      gap: 16px;
-    }
-    .section-title {
-      font-size: 16px;
-      font-weight: 700;
-      margin: 0 0 10px;
-    }
-    .stack { display: grid; gap: 12px; }
-    .field { display: grid; gap: 6px; }
-    .field label { font-size: 13px; font-weight: 600; }
-    input, select {
-      width: 100%;
-      padding: 10px 12px;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      background: white;
-      font-size: 14px;
-    }
-    .grid-2, .grid-3, .grid-4 {
-      display: grid;
-      gap: 10px;
-    }
-    .grid-2 { grid-template-columns: repeat(2, 1fr); }
-    .grid-3 { grid-template-columns: repeat(3, 1fr); }
-    .grid-4 { grid-template-columns: repeat(4, 1fr); }
-    .softbox {
-      background: var(--soft);
-      border-radius: 14px;
-      padding: 12px;
-      display: grid;
-      gap: 8px;
-      font-size: 14px;
-    }
-    .row-between {
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      align-items: center;
-    }
-    .toolbar {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .toolbar-left, .toolbar-right {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      align-items: center;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 14px;
-    }
-    th, td {
-      padding: 10px 12px;
-      border-bottom: 1px solid var(--border);
-      text-align: left;
-      vertical-align: middle;
-    }
-    th { font-size: 12px; color: var(--muted); }
-    td.right, th.right { text-align: right; }
-    td.center, th.center { text-align: center; }
-    tr.selected { background: var(--selected); }
-    tr.clickable { cursor: pointer; }
-    .mobile-cards { display: none; }
-    .cat-mobile {
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 10px;
-      background: white;
-      display: grid;
-      gap: 8px;
-    }
-    .totals-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-    .note { font-size: 12px; color: var(--muted); }
-    .count-input {
-      width: 86px;
-      text-align: center;
-      font-weight: 700;
-    }
-    @media (max-width: 980px) {
-      .grid-summary, .layout, .totals-grid { grid-template-columns: 1fr; }
-      .grid-4 { grid-template-columns: 1fr 1fr; }
-    }
-    @media (max-width: 760px) {
-      .desktop-table { display: none; }
-      .mobile-cards { display: grid; gap: 10px; }
-      .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
-      h1 { font-size: 24px; }
-      .toolbar { align-items: stretch; }
-    }
+    :root{--bg:#f8fafc;--card:#fff;--border:#e2e8f0;--text:#0f172a;--muted:#64748b;--soft:#f1f5f9;--primary:#0f172a;--primaryText:#fff;--danger:#b91c1c}
+    *{box-sizing:border-box} body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}
+    .wrap{max-width:1280px;margin:0 auto;padding:14px}.grid{display:grid;gap:12px}.summary{grid-template-columns:repeat(4,1fr)}
+    .layout{display:grid;grid-template-columns:360px 1fr;gap:16px}.card{background:var(--card);border:1px solid var(--border);border-radius:18px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+    .inner{padding:16px}.tabs,.subtabs,.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.tabs,.subtabs{background:#fff;border:1px solid var(--border);border-radius:16px;padding:6px;margin-bottom:16px}
+    button{border:1px solid var(--border);background:#fff;color:var(--text);border-radius:12px;padding:10px 14px;cursor:pointer;font-weight:600}
+    button.active{background:var(--primary);color:var(--primaryText);border-color:var(--primary)} button.small{padding:6px 10px;font-size:12px} button.danger{color:var(--danger)}
+    input,select{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:#fff;font-size:14px}
+    table{width:100%;border-collapse:collapse;font-size:14px} th,td{padding:10px 12px;border-bottom:1px solid var(--border);text-align:left;vertical-align:middle} th{font-size:12px;color:var(--muted)} .right{text-align:right}.center{text-align:center}
+    .soft{background:var(--soft);border-radius:14px;padding:12px}.row-between{display:flex;justify-content:space-between;gap:10px;align-items:center}.count-input{width:86px;text-align:center;font-weight:700}.muted{color:var(--muted);font-size:12px}.big{font-size:26px;font-weight:700}
+    .mobile-cards{display:none}.cat-mobile{border:1px solid var(--border);border-radius:14px;padding:10px;background:#fff;display:grid;gap:8px}.totals-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.selected{background:#e2e8f0}
+    @media (max-width:980px){.summary,.layout,.totals-grid{grid-template-columns:1fr}} @media (max-width:760px){.desktop-table{display:none}.mobile-cards{display:grid;gap:10px}}
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <h1>Control de ingreso a evento</h1>
-    <p class="lead">Lleva conteo manual de asistentes, clasifica tipos de acceso y calcula cargos fiscales y administrativos del evento.</p>
+<div class="wrap">
+  <h1>Control de ingreso a evento</h1>
+  <p class="muted">Lleva conteo manual de asistentes, clasifica tipos de acceso y calcula cargos fiscales y administrativos.</p>
 
-    <div class="grid-summary">
-      <div class="card"><div class="inner"><div class="muted">Total personas</div><div class="big" id="sumTotalPersons">0</div></div></div>
-      <div class="card"><div class="inner"><div class="muted">Pagados</div><div class="big" id="sumPaying">0</div></div></div>
-      <div class="card"><div class="inner"><div class="muted">Ingreso bruto</div><div class="big" id="sumGross">$0.00</div></div></div>
-      <div class="card"><div class="inner"><div class="muted">Cargos totales</div><div class="big" id="sumCharges">$0.00</div></div></div>
-    </div>
+  <div class="grid summary">
+    <div class="card"><div class="inner"><div class="muted">Total personas</div><div class="big" id="sumTotalPersons">0</div></div></div>
+    <div class="card"><div class="inner"><div class="muted">Pagados</div><div class="big" id="sumPaying">0</div></div></div>
+    <div class="card"><div class="inner"><div class="muted">Ingreso bruto</div><div class="big" id="sumGross">$0.00</div></div></div>
+    <div class="card"><div class="inner"><div class="muted">Cargos totales</div><div class="big" id="sumCharges">$0.00</div></div></div>
+  </div>
 
-    <div class="tabs">
-      <button id="tabContador" class="active">Contador manual</button>
-      <button id="tabImpuestos">Impuestos</button>
-    </div>
+  <div class="tabs">
+    <button id="tabContador" class="active" type="button">Contador manual</button>
+    <button id="tabImpuestos" type="button">Impuestos</button>
+  </div>
 
-    <div id="viewContador">
-      <div class="layout">
-        <div class="stack">
-          <div class="card"><div class="inner stack">
-            <div class="section-title">Configuración general</div>
-            <div class="field">
-              <label>Evento</label>
-              <input id="eventName" type="text" placeholder="Nombre del evento" />
-            </div>
-            <div class="field">
-              <label>Precio base de referencia</label>
-              <input id="ticketPrice" type="number" value="250" />
-            </div>
-            <div class="softbox">
-              <div class="row-between"><span>Cortesías / colalidades</span><strong id="courtesyPersonsBox">0</strong></div>
-              <div class="row-between"><span>Ingreso bruto</span><strong id="grossBox">$0.00</strong></div>
-            </div>
-            <button id="resetCountsBtn">Reiniciar contadores</button>
-          </div></div>
-        </div>
-
-        <div class="stack">
-          <div class="card"><div class="inner stack">
-            <div class="section-title">Agregar tipo de acceso</div>
-            <div class="grid-4">
-              <div class="field" style="grid-column: span 2;">
-                <label>Nombre</label>
-                <input id="newCategoryName" placeholder="Ej. Cortesía Invitado Especial" />
-              </div>
-              <div class="field">
-                <label>Precio</label>
-                <input id="newCategoryPrice" type="number" value="0" />
-              </div>
-              <div class="field">
-                <label>&nbsp;</label>
-                <label><input id="newCategoryCourtesy" type="checkbox" /> Es cortesía</label>
-              </div>
-            </div>
-            <div><button id="addCategoryBtn">Agregar tipo</button></div>
-          </div></div>
-
-          <div class="card"><div class="inner stack">
-            <div class="toolbar">
-              <div class="toolbar-left">
-                <div class="section-title" style="margin:0;">Contador manual por categoría</div>
-              </div>
-              <div class="toolbar-right">
-                <button id="sortByPriceBtn" type="button">Ordenar por precio unitario</button>
-                <button id="importTableBtn" type="button">Importar tabla TXT</button>
-                <button id="saveTxtBtn" type="button">Guardar TXT</button>
-                <button id="loadTxtBtn" type="button">Cargar TXT</button>
-                <input id="importTableInput" type="file" accept=".txt,text/plain" style="display:none;" />
-                <input id="loadTxtInput" type="file" accept=".txt,application/json,text/plain" style="display:none;" />
-              </div>
-            </div>
-            <div class="desktop-table"><table>
-              <thead>
-                <tr>
-                  <th>Tipo</th>
-                  <th>Precio</th>
-                  <th>Cortesía</th>
-                  <th class="center">Entradas</th>
-                  <th class="center">Acciones</th>
-                  <th class="right">Subtotal</th>
-                  <th class="right">Eliminar</th>
-                </tr>
-              </thead>
-              <tbody id="categoriesTable"></tbody>
-            </table></div>
-            <div class="mobile-cards" id="categoriesMobile"></div>
-          </div></div>
-        </div>
+  <div id="viewContador">
+    <div class="layout">
+      <div class="grid">
+        <div class="card"><div class="inner grid">
+          <div><strong>Configuración general</strong></div>
+          <div><label>Evento</label><input id="eventName" type="text" placeholder="Nombre del evento"></div>
+          <div><label>Precio base de referencia</label><input id="ticketPrice" type="number" value="250"></div>
+          <div class="soft">
+            <div class="row-between"><span>Cortesías / colalidades</span><strong id="courtesyPersonsBox">0</strong></div>
+            <div class="row-between"><span>Ingreso bruto</span><strong id="grossBox">$0.00</strong></div>
+          </div>
+          <button id="resetCountsBtn" type="button">Reiniciar contadores</button>
+        </div></div>
       </div>
-    </div>
+      <div class="grid">
+        <div class="card"><div class="inner grid">
+          <div><strong>Agregar tipo de acceso</strong></div>
+          <div class="grid" style="grid-template-columns:2fr 1fr 1fr;align-items:end;">
+            <div><label>Nombre</label><input id="newCategoryName" placeholder="Ej. Invitado Especial"></div>
+            <div><label>Precio</label><input id="newCategoryPrice" type="number" value="0"></div>
+            <div><label><input id="newCategoryCourtesy" type="checkbox"> Es cortesía</label></div>
+          </div>
+          <div><button id="addCategoryBtn" type="button">Agregar tipo</button></div>
+        </div></div>
 
-    <div id="viewImpuestos" style="display:none;">
-      <div class="layout">
-        <div class="stack">
-          <div class="card"><div class="inner stack">
-            <div class="section-title">Factores de cálculo</div>
-
-            <div class="card" style="border-radius:14px;"><div class="inner stack" style="padding:12px;">
-              <div class="section-title" style="font-size:14px;">Estado</div>
-              <div class="field"><label>Factor estatal (%)</label><input id="stateTaxRate" type="number" step="0.01" value="4" /></div>
-              <div class="field"><label>Cálculo del impuesto estatal</label><select id="stateTaxMode"><option value="cobrado">Sobre ingreso cobrado</option><option value="total" selected>Sobre ingreso total</option></select></div>
-              <div class="field"><label>Factor multiplicador del ingreso</label><input id="stateIncomeFactor" type="number" step="0.0001" value="1" /></div>
-              <div class="grid-2">
-                <div class="field"><label>Interventores estado</label><input id="stateInterventorCount" type="number" min="0" value="0" /></div>
-                <div class="field"><label>Honorario estado</label><input id="stateInterventorFeePerPerson" type="number" step="0.01" value="0" /></div>
-              </div>
-              <div class="field"><label>Cargos administrativos estado</label><input id="stateAdminCharge" type="number" step="0.01" value="0" /></div>
-              <div class="field"><label>Multas estado</label><input id="stateFineAmount" type="number" step="0.01" value="0" /></div>
-              <div class="softbox">
-                <div class="row-between"><span>Promedio localidades pagadas</span><strong id="avgPaidLocality"></strong></div>
-                <div class="row-between"><span>Valor cortesías para estado</span><strong id="courtesyValueState"></strong></div>
-                <div class="row-between"><span>Base antes del factor</span><strong id="stateBaseBefore"></strong></div>
-                <div class="row-between"><span>Base impuesto estado</span><strong id="stateTaxBase"></strong></div>
-              </div>
-            </div></div>
-
-            <div class="card" style="border-radius:14px;"><div class="inner stack" style="padding:12px;">
-              <div class="section-title" style="font-size:14px;">Municipio</div>
-              <div class="field"><label>Factor municipal (%)</label><input id="municipalTaxRate" type="number" step="0.01" value="2" /></div>
-              <div class="field"><label>Cálculo del impuesto municipal</label><select id="municipalTaxMode"><option value="cobrado" selected>Sobre ingreso cobrado</option><option value="total">Sobre ingreso total</option></select></div>
-              <div class="field"><label>Factor multiplicador del ingreso</label><input id="municipalIncomeFactor" type="number" step="0.0001" value="1" /></div>
-              <div class="grid-2">
-                <div class="field"><label>Interventores municipio</label><input id="municipalInterventorCount" type="number" min="0" value="1" /></div>
-                <div class="field"><label>Honorario municipio</label><input id="municipalInterventorFeePerPerson" type="number" step="0.01" value="0" /></div>
-              </div>
-              <div class="field"><label>Cargos administrativos municipio</label><input id="municipalAdminCharge" type="number" step="0.01" value="0" /></div>
-              <div class="field"><label>Multas municipio</label><input id="municipalFineAmount" type="number" step="0.01" value="0" /></div>
-              <div class="softbox">
-                <div class="row-between"><span>Base antes del factor</span><strong id="municipalBaseBefore"></strong></div>
-                <div class="row-between"><span>Base impuesto municipio</span><strong id="municipalTaxBase"></strong></div>
-                <div class="row-between"><span>Total administrativo municipio</span><strong id="municipalAdministrative"></strong></div>
-              </div>
-            </div></div>
-          </div></div>
-        </div>
-
-        <div class="stack">
-          <div class="card"><div class="inner stack">
-            <div class="section-title">Concentrados</div>
-            <div class="grid-2">
-              <div class="card"><div class="inner"><div class="muted">Ingreso bruto cobrado</div><div class="big" style="font-size:22px;" id="grossIncomeCard"></div></div></div>
-              <div class="card"><div class="inner"><div class="muted">Valor cortesías para estado</div><div class="big" style="font-size:22px;" id="courtesyStateCard"></div></div></div>
+        <div class="card"><div class="inner grid">
+          <div class="toolbar">
+            <strong>Contador manual por categoría</strong>
+            <div class="toolbar">
+              <button id="importTableBtn" type="button">Importar tabla TXT</button>
+              <button id="sortByPriceBtn" type="button">Ordenar por precio unitario</button>
+              <button id="generatePdfBtn" type="button">Generar reporte PDF</button>
+              <button id="saveTxtBtn" type="button">Guardar TXT</button>
+              <button id="loadTxtBtn" type="button">Cargar TXT</button>
+              <input id="importTableInput" type="file" accept=".txt,text/plain" hidden>
+              <input id="loadTxtInput" type="file" accept=".txt,application/json,text/plain" hidden>
             </div>
-
-            <div class="subtabs">
-              <button id="subLocalidades" class="active">Concentrados por localidad</button>
-              <button id="subTotales">Concentrados de totales</button>
-            </div>
-
-            <div id="subViewLocalidades" class="stack">
-              <div class="card"><div class="inner stack">
-                <div class="section-title">Concentrado de asistentes por localidad</div>
-                <div class="overflow"><table>
-                  <thead>
-                    <tr>
-                      <th class="center">Cantidad de asistentes</th>
-                      <th>Localidad</th>
-                      <th class="right">Precio unitario</th>
-                      <th class="right">Multiplicación</th>
-                    </tr>
-                  </thead>
-                  <tbody id="boletosTable"></tbody>
-                </table></div>
-              </div></div>
-
-              <div class="card"><div class="inner stack">
-                <div class="section-title">Concentrado con precio en letra</div>
-                <div class="overflow"><table>
-                  <thead>
-                    <tr>
-                      <th>Cantidad de asistentes</th>
-                      <th>Localidad</th>
-                      <th>Precio unitario</th>
-                      <th>Precio unitario en letra</th>
-                      <th class="right">Total</th>
-                    </tr>
-                  </thead>
-                  <tbody id="incomeTable"></tbody>
-                </table></div>
-              </div></div>
-            </div>
-
-            <div id="subViewTotales" class="stack" style="display:none;">
-              <div class="grid-2">
-                <div class="card"><div class="inner stack">
-                  <div class="section-title">Concentrado estatal</div>
-                  <div class="softbox" id="stateConcentrado"></div>
-                </div></div>
-                <div class="card"><div class="inner stack">
-                  <div class="section-title">Concentrado municipal</div>
-                  <div class="softbox" id="municipalConcentrado"></div>
-                </div></div>
-              </div>
-
-              <div class="card"><div class="inner stack">
-                <div class="section-title">Resumen por nivel de gobierno</div>
-                <div class="totals-grid">
-                  <div class="card"><div class="inner stack" id="municipioResumen"></div></div>
-                  <div class="card"><div class="inner stack" id="estadoResumen"></div></div>
-                  <div class="card"><div class="inner stack" style="background:var(--soft); border-radius:14px;" id="generalResumen"></div></div>
-                </div>
-              </div></div>
-            </div>
-          </div></div>
-        </div>
+          </div>
+          <div class="desktop-table"><table><thead><tr><th>Tipo</th><th>Precio</th><th>Cortesía</th><th class="center">Entradas</th><th class="center">Acciones</th><th class="right">Subtotal</th><th class="right">Eliminar</th></tr></thead><tbody id="categoriesTable"></tbody></table></div>
+          <div class="mobile-cards" id="categoriesMobile"></div>
+        </div></div>
       </div>
     </div>
   </div>
 
-  <script>
-    const state = {
-      activeTab: 'contador',
-      eventName: '',
-      impuestosTab: 'localidades',
-      categorySortDesc: false,
-      ticketPrice: 250,
-      stateTaxRate: 4,
-      municipalTaxRate: 2,
-      stateTaxMode: 'total',
-      municipalTaxMode: 'cobrado',
-      stateIncomeFactor: 1,
-      municipalIncomeFactor: 1,
-      stateInterventorCount: 0,
-      stateInterventorFeePerPerson: 0,
-      stateAdminCharge: 0,
-      stateFineAmount: 0,
-      municipalInterventorCount: 1,
-      municipalInterventorFeePerPerson: 0,
-      municipalAdminCharge: 0,
-      municipalFineAmount: 0,
-      selectedRowId: null,
-      categories: [
-        { id: 1, name: 'General', price: 250, count: 0, courtesy: false },
-        { id: 2, name: 'VIP', price: 450, count: 0, courtesy: false },
-        { id: 3, name: 'Cortesía Prensa', price: 0, count: 0, courtesy: true },
-        { id: 4, name: 'Cortesía Staff', price: 0, count: 0, courtesy: true },
-      ]
-    };
-
-    const $ = (id) => document.getElementById(id);
-    const n = (v) => Number(v || 0);
-
-    function formatMoney(value) {
-      return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(Number(value || 0));
-    }
-
-    function numberToWordsEs(num) {
-      const nnum = Math.floor(Number(num || 0));
-      if (nnum === 0) return 'cero';
-      const units = ['', 'uno', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve'];
-      const teens = ['diez', 'once', 'doce', 'trece', 'catorce', 'quince', 'dieciséis', 'diecisiete', 'dieciocho', 'diecinueve'];
-      const tens = ['', '', 'veinte', 'treinta', 'cuarenta', 'cincuenta', 'sesenta', 'setenta', 'ochenta', 'noventa'];
-      const hundreds = ['', 'ciento', 'doscientos', 'trescientos', 'cuatrocientos', 'quinientos', 'seiscientos', 'setecientos', 'ochocientos', 'novecientos'];
-      function under1000(x) {
-        if (x === 0) return '';
-        if (x === 100) return 'cien';
-        if (x < 10) return units[x];
-        if (x < 20) return teens[x - 10];
-        if (x < 30) return x === 20 ? 'veinte' : `veinti${units[x - 20]}`;
-        if (x < 100) {
-          const t = Math.floor(x / 10);
-          const u = x % 10;
-          return u === 0 ? tens[t] : `${tens[t]} y ${units[u]}`;
-        }
-        const h = Math.floor(x / 100);
-        const rest = x % 100;
-        return rest === 0 ? hundreds[h] : `${hundreds[h]} ${under1000(rest)}`;
-      }
-      if (nnum < 1000) return under1000(nnum);
-      if (nnum < 1000000) {
-        const thousands = Math.floor(nnum / 1000);
-        const rest = nnum % 1000;
-        const thousandText = thousands === 1 ? 'mil' : `${under1000(thousands)} mil`;
-        return rest === 0 ? thousandText : `${thousandText} ${under1000(rest)}`;
-      }
-      const millions = Math.floor(nnum / 1000000);
-      const rest = nnum % 1000000;
-      const millionText = millions === 1 ? 'un millón' : `${numberToWordsEs(millions)} millones`;
-      if (rest === 0) return millionText;
-      if (rest < 1000) return `${millionText} ${under1000(rest)}`;
-      const thousands = Math.floor(rest / 1000);
-      const last = rest % 1000;
-      const thousandText = thousands === 1 ? 'mil' : `${under1000(thousands)} mil`;
-      return last === 0 ? `${millionText} ${thousandText}` : `${millionText} ${thousandText} ${under1000(last)}`;
-    }
-
-    function moneyToWordsEs(value) {
-      const amount = Number(value || 0);
-      const whole = Math.floor(amount);
-      const cents = Math.round((amount - whole) * 100);
-      return `${numberToWordsEs(whole)} pesos ${String(cents).padStart(2, '0')}/100 M.N.`;
-    }
-
-    function getSortedCategories() {
-      const list = [...state.categories];
-      if (state.categorySortDesc) list.sort((a, b) => n(b.price) - n(a.price));
-      return list;
-    }
-
-    function compute() {
-      const sortedCategories = getSortedCategories();
-      const incomeCategories = [...state.categories]
-        .filter(item => n(item.price) > 0 && n(item.count) > 0)
-        .sort((a,b)=>n(b.price)-n(a.price));
-
-      const boletosDetallados = incomeCategories.map(item => ({
-        key: String(item.id),
-        itemId: item.id,
-        cantidadAsistentes: n(item.count),
-        localidad: item.name,
-        precioUnitario: n(item.price),
-        multiplicacion: n(item.count) * n(item.price)
-      }));
-
-      const totalPersons = state.categories.reduce((acc, item) => acc + n(item.count), 0);
-      const payingCategories = state.categories.filter(item => !item.courtesy && n(item.price) > 0);
-      const payingPersons = payingCategories.reduce((acc, item) => acc + n(item.count), 0);
-      const courtesyPersons = state.categories
-        .filter(item => item.courtesy || n(item.price) === 0)
-        .reduce((acc, item) => acc + n(item.count), 0);
-
-      const grossIncome = state.categories.reduce((acc, item) => acc + n(item.price) * n(item.count), 0);
-
-      const averagePaidLocalityPrice = payingCategories.length
-        ? payingCategories.reduce((acc, item) => acc + n(item.price), 0) / payingCategories.length
-        : 0;
-
-      const courtesyEstimatedValueForState = courtesyPersons * averagePaidLocalityPrice;
-      const stateBaseBeforeFactor = state.stateTaxMode === 'total'
-        ? grossIncome + courtesyEstimatedValueForState
-        : grossIncome;
-      const municipalBaseBeforeFactor = grossIncome;
-
-      const stateTaxBase = stateBaseBeforeFactor * n(state.stateIncomeFactor);
-      const municipalTaxBase = municipalBaseBeforeFactor * n(state.municipalIncomeFactor);
-
-      const stateTaxAmount = stateTaxBase * (n(state.stateTaxRate) / 100);
-      const municipalTaxAmount = municipalTaxBase * (n(state.municipalTaxRate) / 100);
-
-      const totalStateInterventorFee = n(state.stateInterventorCount) * n(state.stateInterventorFeePerPerson);
-      const totalMunicipalInterventorFee = n(state.municipalInterventorCount) * n(state.municipalInterventorFeePerPerson);
-
-      const totalStateAdministrative = totalStateInterventorFee + n(state.stateAdminCharge) + n(state.stateFineAmount);
-      const totalMunicipalAdministrative = totalMunicipalInterventorFee + n(state.municipalAdminCharge) + n(state.municipalFineAmount);
-
-      const totalTaxes = stateTaxAmount + municipalTaxAmount;
-      const totalAdditionalCharges = totalStateAdministrative + totalMunicipalAdministrative;
-      const totalCharges = totalTaxes + totalAdditionalCharges;
-
-      const municipalGovernmentTotal =
-        municipalTaxAmount + totalMunicipalInterventorFee + n(state.municipalAdminCharge) + n(state.municipalFineAmount);
-
-      const stateGovernmentTotal =
-        stateTaxAmount + totalStateInterventorFee + n(state.stateAdminCharge) + n(state.stateFineAmount);
-
-      return {
-        sortedCategories, incomeCategories, boletosDetallados,
-        totalPersons, payingPersons, courtesyPersons, grossIncome,
-        averagePaidLocalityPrice, courtesyEstimatedValueForState,
-        stateBaseBeforeFactor, municipalBaseBeforeFactor,
-        stateTaxBase, municipalTaxBase,
-        stateTaxAmount, municipalTaxAmount,
-        totalStateInterventorFee, totalMunicipalInterventorFee,
-        totalStateAdministrative, totalMunicipalAdministrative,
-        totalCharges, municipalGovernmentTotal, stateGovernmentTotal
-      };
-    }
-
-    function getSerializableState() {
-      return {
-        activeTab: state.activeTab,
-        eventName: state.eventName,
-        impuestosTab: state.impuestosTab,
-        categorySortDesc: state.categorySortDesc,
-        ticketPrice: state.ticketPrice,
-        stateTaxRate: state.stateTaxRate,
-        municipalTaxRate: state.municipalTaxRate,
-        stateTaxMode: state.stateTaxMode,
-        municipalTaxMode: state.municipalTaxMode,
-        stateIncomeFactor: state.stateIncomeFactor,
-        municipalIncomeFactor: state.municipalIncomeFactor,
-        stateInterventorCount: state.stateInterventorCount,
-        stateInterventorFeePerPerson: state.stateInterventorFeePerPerson,
-        stateAdminCharge: state.stateAdminCharge,
-        stateFineAmount: state.stateFineAmount,
-        municipalInterventorCount: state.municipalInterventorCount,
-        municipalInterventorFeePerPerson: state.municipalInterventorFeePerPerson,
-        municipalAdminCharge: state.municipalAdminCharge,
-        municipalFineAmount: state.municipalFineAmount,
-        categories: state.categories
-      };
-    }
-
-    function loadSerializableState(data) {
-      const base = getSerializableState();
-      const merged = { ...base, ...data };
-      Object.assign(state, merged);
-      state.categories = Array.isArray(merged.categories)
-        ? merged.categories.map(item => ({
-            id: n(item.id) || Date.now() + Math.random(),
-            name: String(item.name || ''),
-            price: n(item.price),
-            count: Math.max(0, n(item.count)),
-            courtesy: Boolean(item.courtesy)
-          }))
-        : base.categories;
-      state.selectedRowId = null;
-      syncInputsFromState();
-      render();
-    }
-
-    function syncInputsFromState() {
-      $('eventName').value = state.eventName;
-      $('ticketPrice').value = state.ticketPrice;
-      $('stateTaxRate').value = state.stateTaxRate;
-      $('municipalTaxRate').value = state.municipalTaxRate;
-      $('stateTaxMode').value = state.stateTaxMode;
-      $('municipalTaxMode').value = state.municipalTaxMode;
-      $('stateIncomeFactor').value = state.stateIncomeFactor;
-      $('municipalIncomeFactor').value = state.municipalIncomeFactor;
-      $('stateInterventorCount').value = state.stateInterventorCount;
-      $('stateInterventorFeePerPerson').value = state.stateInterventorFeePerPerson;
-      $('stateAdminCharge').value = state.stateAdminCharge;
-      $('stateFineAmount').value = state.stateFineAmount;
-      $('municipalInterventorCount').value = state.municipalInterventorCount;
-      $('municipalInterventorFeePerPerson').value = state.municipalInterventorFeePerPerson;
-      $('municipalAdminCharge').value = state.municipalAdminCharge;
-      $('municipalFineAmount').value = state.municipalFineAmount;
-    }
-
-    function saveTxtFile() {
-      const payload = JSON.stringify(getSerializableState(), null, 2);
-      const blob = new Blob([payload], { type: 'text/plain;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      const safeEventName = (state.eventName || 'contador_ingreso_evento')
-        .trim()
-        .replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ_\- ]/g, '')
-        .replace(/\s+/g, '_');
-      a.download = `${safeEventName}.txt`;
-      a.click();
-      URL.revokeObjectURL(url);
-    }
-
-    function handleLoadTxt(file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        try {
-          const parsed = JSON.parse(String(reader.result || '{}'));
-          loadSerializableState(parsed);
-          alert('Datos cargados correctamente.');
-        } catch (error) {
-          alert('No se pudo cargar el archivo TXT. Verifica que tenga un formato válido.');
-        }
-      };
-      reader.readAsText(file, 'utf-8');
-    }
-
-    function parseTableTxt(text) {
-      const lines = String(text || '')
-        .replace(/\r/g, '')
-        .split('\n')
-        .map(line => line.trim())
-        .filter(Boolean);
-
-      if (lines.length < 2) {
-        throw new Error('El archivo no contiene suficientes filas.');
-      }
-
-      const headers = lines[0].split('\t').map(h => h.trim().toLowerCase());
-      const nameIndex = headers.indexOf('name');
-      const countIndex = headers.indexOf('count');
-      const priceIndex = headers.indexOf('price');
-
-      if (nameIndex === -1 || countIndex === -1 || priceIndex === -1) {
-        throw new Error('El archivo debe incluir las columnas name, count y price.');
-      }
-
-      const imported = [];
-      for (const line of lines.slice(1)) {
-        const cols = line.split('\t');
-        const rawName = (cols[nameIndex] ?? '').trim();
-        const rawCount = Number((cols[countIndex] ?? '').trim());
-        const rawPrice = Number((cols[priceIndex] ?? '').trim());
-
-        if (!rawName) continue;
-
-        imported.push({
-          id: Date.now() + Math.random(),
-          name: rawName,
-          count: Number.isFinite(rawCount) ? Math.max(0, rawCount) : 0,
-          price: Number.isFinite(rawPrice) ? Math.max(0, rawPrice) : 0,
-          courtesy: false
-        });
-      }
-
-      if (!imported.length) {
-        throw new Error('No se encontraron filas válidas para importar.');
-      }
-
-      return imported;
-    }
-
-    function handleImportTableTxt(file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        try {
-          const importedCategories = parseTableTxt(String(reader.result || ''));
-          const replaceAll = confirm('¿Deseas reemplazar las categorías actuales con la tabla importada?\nSelecciona Cancelar para agregarlas a las existentes.');
-          state.categories = replaceAll ? importedCategories : [...state.categories, ...importedCategories];
-          state.selectedRowId = null;
-          render();
-          alert(`Se importaron ${importedCategories.length} localidades desde la tabla.`);
-        } catch (error) {
-          alert(error.message || 'No se pudo importar la tabla TXT.');
-        }
-      };
-      reader.readAsText(file, 'utf-8');
-    }
-
-    function updateCount(id, value) {
-      const item = state.categories.find(i => i.id === id);
-      if (!item) return;
-      item.count = Math.max(0, n(value));
-      render();
-    }
-
-    function promptAddToCount(id) {
-      const item = state.categories.find(i => i.id === id);
-      if (!item) return;
-      const entered = prompt(`¿Cuántas entradas deseas sumar a "${item.name}"?`, '1');
-      if (entered === null) return;
-      const amount = Math.max(0, n(entered));
-      item.count += amount;
-      render();
-    }
-
-    function bindTopInputs() {
-      $('eventName').oninput = e => { state.eventName = e.target.value; };
-      $('ticketPrice').oninput = e => { state.ticketPrice = n(e.target.value); };
-
-      $('newCategoryCourtesy').onchange = e => {
-        $('newCategoryPrice').disabled = e.target.checked;
-        if (e.target.checked) $('newCategoryPrice').value = 0;
-      };
-
-      $('addCategoryBtn').onclick = () => {
-        const name = $('newCategoryName').value.trim();
-        const courtesy = $('newCategoryCourtesy').checked;
-        const price = courtesy ? 0 : n($('newCategoryPrice').value);
-        if (!name) return;
-        state.categories.push({ id: Date.now(), name, price, count: 0, courtesy });
-        $('newCategoryName').value = '';
-        $('newCategoryPrice').value = 0;
-        $('newCategoryCourtesy').checked = false;
-        $('newCategoryPrice').disabled = false;
-        render();
-      };
-
-      $('resetCountsBtn').onclick = () => {
-        if (!confirm('¿Deseas reiniciar todos los contadores?')) return;
-        state.categories = state.categories.map(item => ({ ...item, count: 0 }));
-        state.selectedRowId = null;
-        render();
-      };
-
-      $('sortByPriceBtn').onclick = () => {
-        state.categorySortDesc = !state.categorySortDesc;
-        render();
-      };
-
-      $('importTableBtn').onclick = () => $('importTableInput').click();
-      $('importTableInput').onchange = (e) => {
-        const file = e.target.files && e.target.files[0];
-        if (file) handleImportTableTxt(file);
-        e.target.value = '';
-      };
-
-      $('saveTxtBtn').onclick = saveTxtFile;
-      $('loadTxtBtn').onclick = () => $('loadTxtInput').click();
-      $('loadTxtInput').onchange = (e) => {
-        const file = e.target.files && e.target.files[0];
-        if (file) handleLoadTxt(file);
-        e.target.value = '';
-      };
-    }
-
-    function bindTaxInputs() {
-      [
-        'stateTaxRate','municipalTaxRate','stateIncomeFactor','municipalIncomeFactor',
-        'stateInterventorCount','stateInterventorFeePerPerson',
-        'stateAdminCharge','stateFineAmount',
-        'municipalInterventorCount','municipalInterventorFeePerPerson',
-        'municipalAdminCharge','municipalFineAmount'
-      ].forEach(id => {
-        $(id).oninput = e => { state[id] = n(e.target.value); render(); };
-      });
-
-      $('stateTaxMode').onchange = e => { state.stateTaxMode = e.target.value; render(); };
-      $('municipalTaxMode').onchange = e => { state.municipalTaxMode = e.target.value; render(); };
-    }
-
-    function renderCategories() {
-      const calc = compute();
-      const tbody = $('categoriesTable');
-      const mobile = $('categoriesMobile');
-      tbody.innerHTML = '';
-      mobile.innerHTML = '';
-
-      $('sortByPriceBtn').textContent = state.categorySortDesc ? 'Ordenado: mayor a menor' : 'Ordenar por precio unitario';
-
-      calc.sortedCategories.forEach(item => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td><input data-kind="name" data-id="${item.id}" value="${escapeHtml(item.name)}"></td>
-          <td><input data-kind="price" data-id="${item.id}" type="number" value="${item.price}" ${item.courtesy ? 'disabled' : ''}></td>
-          <td><button type="button" class="small ${item.courtesy ? 'active' : ''}" data-kind="courtesy" data-id="${item.id}">${item.courtesy ? 'Sí' : 'No'}</button></td>
-          <td class="center"><input class="count-input" data-kind="count" data-id="${item.id}" type="number" min="0" value="${item.count}"></td>
-          <td class="center">
-            <button type="button" class="small" data-kind="dec" data-id="${item.id}">-1</button>
-            <button type="button" class="small" data-kind="inc" data-id="${item.id}">+1</button>
-            <button type="button" class="small" data-kind="addPrompt" data-id="${item.id}">+ importe</button>
-          </td>
-          <td class="right"><strong>${formatMoney(n(item.price) * n(item.count))}</strong></td>
-          <td class="right"><button type="button" class="small danger" data-kind="delete" data-id="${item.id}">Eliminar</button></td>
-        `;
-        tbody.appendChild(tr);
-
-        const card = document.createElement('div');
-        card.className = 'cat-mobile';
-        card.innerHTML = `
-          <div class="row-between">
-            <input data-kind="name" data-id="${item.id}" value="${escapeHtml(item.name)}" style="border:0;padding:0;font-weight:600;">
-            <div style="display:flex;gap:6px;align-items:center;">
-              <button type="button" class="small ${item.courtesy ? 'active' : ''}" data-kind="courtesy" data-id="${item.id}">${item.courtesy ? 'Cortesía' : 'De pago'}</button>
-              <button type="button" class="small danger" data-kind="delete" data-id="${item.id}">🗑</button>
+  <div id="viewImpuestos" style="display:none;">
+    <div class="layout">
+      <div class="grid">
+        <div class="card"><div class="inner grid">
+          <div><strong>Factores de cálculo</strong></div>
+          <div class="card"><div class="inner grid">
+            <strong>Estado</strong>
+            <div><label>Factor estatal (%)</label><input id="stateTaxRate" type="number" step="0.01" value="4"></div>
+            <div><label>Cálculo del impuesto estatal</label><select id="stateTaxMode"><option value="cobrado">Sobre ingreso cobrado</option><option value="total" selected>Sobre ingreso total</option></select></div>
+            <div><label>Factor multiplicador del ingreso</label><input id="stateIncomeFactor" type="number" step="0.0001" value="1"></div>
+            <div class="grid" style="grid-template-columns:1fr 1fr;gap:10px;"><div><label>Interventores estado</label><input id="stateInterventorCount" type="number" min="0" value="0"></div><div><label>Honorario estado</label><input id="stateInterventorFeePerPerson" type="number" step="0.01" value="0"></div></div>
+            <div><label>Cargos administrativos estado</label><input id="stateAdminCharge" type="number" step="0.01" value="0"></div>
+            <div><label>Multas estado</label><input id="stateFineAmount" type="number" step="0.01" value="0"></div>
+            <div class="soft">
+              <div class="row-between"><span>Promedio localidades pagadas</span><strong id="avgPaidLocality"></strong></div>
+              <div class="row-between"><span>Valor cortesías para estado</span><strong id="courtesyValueState"></strong></div>
+              <div class="row-between"><span>Base antes del factor</span><strong id="stateBaseBefore"></strong></div>
+              <div class="row-between"><span>Base impuesto estado</span><strong id="stateTaxBase"></strong></div>
             </div>
+          </div></div>
+
+          <div class="card"><div class="inner grid">
+            <strong>Municipio</strong>
+            <div><label>Factor municipal (%)</label><input id="municipalTaxRate" type="number" step="0.01" value="2"></div>
+            <div><label>Cálculo del impuesto municipal</label><select id="municipalTaxMode"><option value="cobrado" selected>Sobre ingreso cobrado</option><option value="total">Sobre ingreso total</option></select></div>
+            <div><label>Factor multiplicador del ingreso</label><input id="municipalIncomeFactor" type="number" step="0.0001" value="1"></div>
+            <div class="grid" style="grid-template-columns:1fr 1fr;gap:10px;"><div><label>Interventores municipio</label><input id="municipalInterventorCount" type="number" min="0" value="1"></div><div><label>Honorario municipio</label><input id="municipalInterventorFeePerPerson" type="number" step="0.01" value="0"></div></div>
+            <div><label>Cargos administrativos municipio</label><input id="municipalAdminCharge" type="number" step="0.01" value="0"></div>
+            <div><label>Multas municipio</label><input id="municipalFineAmount" type="number" step="0.01" value="0"></div>
+            <div class="soft">
+              <div class="row-between"><span>Base antes del factor</span><strong id="municipalBaseBefore"></strong></div>
+              <div class="row-between"><span>Base impuesto municipio</span><strong id="municipalTaxBase"></strong></div>
+              <div class="row-between"><span>Total administrativo municipio</span><strong id="municipalAdministrative"></strong></div>
+            </div>
+          </div></div>
+        </div></div>
+      </div>
+      <div class="grid">
+        <div class="card"><div class="inner grid">
+          <strong>Concentrados</strong>
+          <div class="grid" style="grid-template-columns:1fr 1fr;gap:12px;">
+            <div class="card"><div class="inner"><div class="muted">Ingreso bruto cobrado</div><div class="big" style="font-size:22px;" id="grossIncomeCard"></div></div></div>
+            <div class="card"><div class="inner"><div class="muted">Valor cortesías para estado</div><div class="big" style="font-size:22px;" id="courtesyStateCard"></div></div></div>
           </div>
-          <div class="grid-4" style="align-items:center;">
-            <input data-kind="price" data-id="${item.id}" type="number" value="${item.price}" ${item.courtesy ? 'disabled' : ''}>
-            <button type="button" class="small" data-kind="dec" data-id="${item.id}">-1</button>
-            <button type="button" class="small" data-kind="inc" data-id="${item.id}">+1</button>
-            <input class="count-input" data-kind="count" data-id="${item.id}" type="number" min="0" value="${item.count}">
+          <div class="subtabs"><button id="subLocalidades" class="active" type="button">Concentrados por localidad</button><button id="subTotales" type="button">Concentrados de totales</button></div>
+          <div id="subViewLocalidades" class="grid">
+            <div class="card"><div class="inner grid"><strong>Concentrado de asistentes por localidad</strong><table><thead><tr><th class="center">Cantidad de asistentes</th><th>Localidad</th><th class="right">Precio unitario</th><th class="right">Multiplicación</th></tr></thead><tbody id="boletosTable"></tbody></table></div></div>
+            <div class="card"><div class="inner grid"><strong>Concentrado con precio en letra</strong><table><thead><tr><th>Cantidad de asistentes</th><th>Localidad</th><th>Precio unitario</th><th>Precio unitario en letra</th><th class="right">Total</th></tr></thead><tbody id="incomeTable"></tbody></table></div></div>
           </div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            <button type="button" class="small" data-kind="addPrompt" data-id="${item.id}">Sumar importe</button>
+          <div id="subViewTotales" class="grid" style="display:none;">
+            <div class="grid" style="grid-template-columns:1fr 1fr;gap:12px;"><div class="card"><div class="inner grid"><strong>Concentrado estatal</strong><div class="soft" id="stateConcentrado"></div></div></div><div class="card"><div class="inner grid"><strong>Concentrado municipal</strong><div class="soft" id="municipalConcentrado"></div></div></div></div>
+            <div class="card"><div class="inner grid"><strong>Resumen por nivel de gobierno</strong><div class="totals-grid"><div class="card"><div class="inner grid" id="municipioResumen"></div></div><div class="card"><div class="inner grid" id="estadoResumen"></div></div><div class="card"><div class="inner grid" style="background:var(--soft);border-radius:14px;" id="generalResumen"></div></div></div></div></div>
           </div>
-          <div class="row-between note"><span>Subtotal</span><strong style="color:var(--text)">${formatMoney(n(item.price) * n(item.count))}</strong></div>
-        `;
-        mobile.appendChild(card);
-      });
+        </div></div>
+      </div>
+    </div>
+  </div>
+</div>
 
-      document.querySelectorAll('[data-kind="name"]').forEach(el => {
-        el.onchange = (e) => {
-          const id = n(e.target.dataset.id);
-          const item = state.categories.find(i => i.id === id);
-          if (!item) return;
-          const value = e.target.value;
-          if (!confirm(`¿Deseas cambiar el nombre de la categoría "${item.name}"?`)) { render(); return; }
-          item.name = value;
-          render();
-        };
-      });
-
-      document.querySelectorAll('[data-kind="price"]').forEach(el => {
-        el.oninput = (e) => {
-          const id = n(e.target.dataset.id);
-          const item = state.categories.find(i => i.id === id);
-          if (!item) return;
-          item.price = n(e.target.value);
-          render();
-        };
-      });
-
-      document.querySelectorAll('[data-kind="count"]').forEach(el => {
-        el.oninput = (e) => updateCount(n(e.target.dataset.id), e.target.value);
-      });
-
-      document.querySelectorAll('[data-kind="courtesy"]').forEach(el => {
-        el.onclick = (e) => {
-          e.stopPropagation();
-          const id = n(e.target.dataset.id);
-          const item = state.categories.find(i => i.id === id);
-          if (!item) return;
-          if (!confirm(`¿Deseas cambiar el tipo de acceso de "${item.name}" a ${item.courtesy ? 'de pago' : 'cortesía'}?`)) return;
-          item.courtesy = !item.courtesy;
-          if (item.courtesy) item.price = 0;
-          render();
-        };
-      });
-
-      document.querySelectorAll('[data-kind="delete"]').forEach(el => {
-        el.onclick = (e) => {
-          e.stopPropagation();
-          const id = n(e.target.dataset.id);
-          const item = state.categories.find(i => i.id === id);
-          if (!item) return;
-          if (!confirm(`¿Deseas eliminar la categoría${item.name ? ` "${item.name}"` : ''}?`)) return;
-          state.categories = state.categories.filter(i => i.id !== id);
-          if (state.selectedRowId === id) state.selectedRowId = null;
-          render();
-        };
-      });
-
-      document.querySelectorAll('[data-kind="inc"]').forEach(el => el.onclick = () => {
-        const item = state.categories.find(i => i.id === n(el.dataset.id));
-        if (!item) return;
-        item.count += 1;
-        render();
-      });
-
-      document.querySelectorAll('[data-kind="dec"]').forEach(el => el.onclick = () => {
-        const item = state.categories.find(i => i.id === n(el.dataset.id));
-        if (!item) return;
-        item.count = Math.max(0, item.count - 1);
-        render();
-      });
-
-      document.querySelectorAll('[data-kind="addPrompt"]').forEach(el => el.onclick = () => {
-        promptAddToCount(n(el.dataset.id));
-      });
-    }
-
-    function renderConcentrados(calc) {
-      $('boletosTable').innerHTML = '';
-      if (!calc.boletosDetallados.length) {
-        $('boletosTable').innerHTML = '<tr><td colspan="4" class="center" style="color:var(--muted)">Aún no hay localidades con ingreso.</td></tr>';
-      } else {
-        calc.boletosDetallados.forEach(row => {
-          const tr = document.createElement('tr');
-          tr.className = 'clickable' + (state.selectedRowId === row.itemId ? ' selected' : '');
-          tr.innerHTML = `
-            <td class="center">${row.cantidadAsistentes}</td>
-            <td>${escapeHtml(row.localidad)}</td>
-            <td class="right">${formatMoney(row.precioUnitario)}</td>
-            <td class="right"><strong>${formatMoney(row.multiplicacion)}</strong></td>
-          `;
-          tr.onclick = () => {
-            state.selectedRowId = state.selectedRowId === row.itemId ? null : row.itemId;
-            render();
-          };
-          $('boletosTable').appendChild(tr);
-        });
-      }
-
-      $('incomeTable').innerHTML = '';
-      if (!calc.incomeCategories.length) {
-        $('incomeTable').innerHTML = '<tr><td colspan="5" class="center" style="color:var(--muted)">Aún no hay localidades con ingreso.</td></tr>';
-      } else {
-        calc.incomeCategories.forEach(item => {
-          const total = n(item.price) * n(item.count);
-          const tr = document.createElement('tr');
-          tr.className = 'clickable' + (state.selectedRowId === item.id ? ' selected' : '');
-          tr.innerHTML = `
-            <td>${item.count}</td>
-            <td>${escapeHtml(item.name)}</td>
-            <td>${formatMoney(item.price)}</td>
-            <td style="max-width:320px;white-space:normal;">${moneyToWordsEs(item.price)}</td>
-            <td class="right"><strong>${formatMoney(total)}</strong></td>
-          `;
-          tr.onclick = () => {
-            state.selectedRowId = state.selectedRowId === item.id ? null : item.id;
-            render();
-          };
-          $('incomeTable').appendChild(tr);
-        });
-      }
-
-      $('stateConcentrado').innerHTML = `
-        <div class="row-between"><span>Identificación impuesto</span><strong>EST-001</strong></div>
-        <div class="row-between"><span>Modo cálculo</span><strong>${state.stateTaxMode === 'total' ? 'Ingreso total' : 'Ingreso cobrado'}</strong></div>
-        <div class="row-between"><span>Factor multiplicador</span><strong>× ${n(state.stateIncomeFactor)}</strong></div>
-        <div class="row-between"><span>Base impuesto</span><strong>${formatMoney(calc.stateTaxBase)}</strong></div>
-        <div class="row-between"><span>Importe impuesto</span><strong>${formatMoney(calc.stateTaxAmount)}</strong></div>
-        <div class="row-between"><span>Importe honorarios</span><strong>${formatMoney(calc.totalStateInterventorFee)}</strong></div>
-        <div class="row-between"><span>Importe cargo admvo.</span><strong>${formatMoney(state.stateAdminCharge)}</strong></div>
-        <div class="row-between"><span>Importe multa</span><strong>${formatMoney(state.stateFineAmount)}</strong></div>
-      `;
-
-      $('municipalConcentrado').innerHTML = `
-        <div class="row-between"><span>Identificación impuesto</span><strong>MUN-001</strong></div>
-        <div class="row-between"><span>Modo cálculo</span><strong>${state.municipalTaxMode === 'total' ? 'Ingreso total' : 'Ingreso cobrado'}</strong></div>
-        <div class="row-between"><span>Factor multiplicador</span><strong>× ${n(state.municipalIncomeFactor)}</strong></div>
-        <div class="row-between"><span>Base impuesto</span><strong>${formatMoney(calc.municipalTaxBase)}</strong></div>
-        <div class="row-between"><span>Importe impuesto</span><strong>${formatMoney(calc.municipalTaxAmount)}</strong></div>
-        <div class="row-between"><span>Importe honorarios</span><strong>${formatMoney(calc.totalMunicipalInterventorFee)}</strong></div>
-        <div class="row-between"><span>Importe cargo admvo.</span><strong>${formatMoney(state.municipalAdminCharge)}</strong></div>
-        <div class="row-between"><span>Importe multa</span><strong>${formatMoney(state.municipalFineAmount)}</strong></div>
-      `;
-
-      $('municipioResumen').innerHTML = `
-        <div class="section-title" style="font-size:13px;">Municipio</div>
-        <div class="row-between"><span>Impuestos</span><strong>${formatMoney(calc.municipalTaxAmount)}</strong></div>
-        <div class="row-between"><span>Honorarios</span><strong>${formatMoney(calc.totalMunicipalInterventorFee)}</strong></div>
-        <div class="row-between"><span>Cargos administrativos</span><strong>${formatMoney(state.municipalAdminCharge)}</strong></div>
-        <div class="row-between"><span>Multas</span><strong>${formatMoney(state.municipalFineAmount)}</strong></div>
-        <div class="row-between"><span><strong>Total municipio</strong></span><strong>${formatMoney(calc.municipalGovernmentTotal)}</strong></div>
-      `;
-
-      $('estadoResumen').innerHTML = `
-        <div class="section-title" style="font-size:13px;">Estado</div>
-        <div class="row-between"><span>Impuestos</span><strong>${formatMoney(calc.stateTaxAmount)}</strong></div>
-        <div class="row-between"><span>Honorarios</span><strong>${formatMoney(calc.totalStateInterventorFee)}</strong></div>
-        <div class="row-between"><span>Cargos administrativos</span><strong>${formatMoney(state.stateAdminCharge)}</strong></div>
-        <div class="row-between"><span>Multas</span><strong>${formatMoney(state.stateFineAmount)}</strong></div>
-        <div class="row-between"><span><strong>Total estado</strong></span><strong>${formatMoney(calc.stateGovernmentTotal)}</strong></div>
-      `;
-
-      $('generalResumen').innerHTML = `
-        <div class="section-title" style="font-size:13px;">Total general</div>
-        <div class="row-between"><span>Total municipio</span><strong>${formatMoney(calc.municipalGovernmentTotal)}</strong></div>
-        <div class="row-between"><span>Total estado</span><strong>${formatMoney(calc.stateGovernmentTotal)}</strong></div>
-        <div class="row-between"><span><strong>Total contemplando todo</strong></span><strong style="font-size:20px;">${formatMoney(calc.totalCharges)}</strong></div>
-      `;
-    }
-
-    function render() {
-      const calc = compute();
-      $('sumTotalPersons').textContent = calc.totalPersons;
-      $('sumPaying').textContent = calc.payingPersons;
-      $('sumGross').textContent = formatMoney(calc.grossIncome);
-      $('sumCharges').textContent = formatMoney(calc.totalCharges);
-      $('courtesyPersonsBox').textContent = calc.courtesyPersons;
-      $('grossBox').textContent = formatMoney(calc.grossIncome);
-      $('avgPaidLocality').textContent = formatMoney(calc.averagePaidLocalityPrice);
-      $('courtesyValueState').textContent = formatMoney(calc.courtesyEstimatedValueForState);
-      $('stateBaseBefore').textContent = formatMoney(calc.stateBaseBeforeFactor);
-      $('stateTaxBase').textContent = formatMoney(calc.stateTaxBase);
-      $('municipalBaseBefore').textContent = formatMoney(calc.municipalBaseBeforeFactor);
-      $('municipalTaxBase').textContent = formatMoney(calc.municipalTaxBase);
-      $('municipalAdministrative').textContent = formatMoney(calc.totalMunicipalAdministrative);
-      $('grossIncomeCard').textContent = formatMoney(calc.grossIncome);
-      $('courtesyStateCard').textContent = formatMoney(calc.courtesyEstimatedValueForState);
-
-      $('viewContador').style.display = state.activeTab === 'contador' ? '' : 'none';
-      $('viewImpuestos').style.display = state.activeTab === 'impuestos' ? '' : 'none';
-      $('tabContador').classList.toggle('active', state.activeTab === 'contador');
-      $('tabImpuestos').classList.toggle('active', state.activeTab === 'impuestos');
-      $('subViewLocalidades').style.display = state.impuestosTab === 'localidades' ? '' : 'none';
-      $('subViewTotales').style.display = state.impuestosTab === 'totales' ? '' : 'none';
-      $('subLocalidades').classList.toggle('active', state.impuestosTab === 'localidades');
-      $('subTotales').classList.toggle('active', state.impuestosTab === 'totales');
-
-      renderCategories();
-      renderConcentrados(calc);
-    }
-
-    function escapeHtml(str) {
-      return String(str)
-        .replaceAll('&', '&amp;')
-        .replaceAll('<', '&lt;')
-        .replaceAll('>', '&gt;')
-        .replaceAll('"', '&quot;')
-        .replaceAll("'", '&#039;');
-    }
-
-    $('tabContador').onclick = () => { state.activeTab = 'contador'; render(); };
-    $('tabImpuestos').onclick = () => { state.activeTab = 'impuestos'; render(); };
-    $('subLocalidades').onclick = () => { state.impuestosTab = 'localidades'; render(); };
-    $('subTotales').onclick = () => { state.impuestosTab = 'totales'; render(); };
-
-    bindTopInputs();
-    bindTaxInputs();
-    syncInputsFromState();
-    render();
-  </script>
-</body>
-</html>
+<script>
+const state={activeTab:'contador',eventName:'',impuestosTab:'localidades',categorySortDesc:false,ticketPrice:250,stateTaxRate:4,municipalTaxRate:2,stateTaxMode:'total',municipalTaxMode:'cobrado',stateIncomeFactor:1,municipalIncomeFactor:1,stateInterventorCount:0,stateInterventorFeePerPerson:0,stateAdminCharge:0,stateFineAmount:0,municipalInterventorCount:1,municipalInterventorFeePerPerson:0,municipalAdminCharge:0,municipalFineAmount:0,selectedRowId:null,categories:[{id:1,name:'General',price:250,count:0,courtesy:false},{id:2,name:'VIP',price:450,count:0,courtesy:false},{id:3,name:'Cortesía Prensa',price:0,count:0,courtesy:true},{id:4,name:'Cortesía Staff',price:0,count:0,courtesy:true}]};
+const $=id=>document.getElementById(id); const num=v=>Number(v||0);
+function formatMoney(v){return new Intl.NumberFormat('es-MX',{style:'currency',currency:'MXN'}).format(Number(v||0));}
+function esc(s){return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;');}
+function numberToWordsEs(num){const n=Math.floor(Number(num||0)); if(n===0)return 'cero'; const u=['','uno','dos','tres','cuatro','cinco','seis','siete','ocho','nueve']; const teens=['diez','once','doce','trece','catorce','quince','dieciséis','diecisiete','dieciocho','diecinueve']; const tens=['','','veinte','treinta','cuarenta','cincuenta','sesenta','setenta','ochenta','noventa']; const hundreds=['','ciento','doscientos','trescientos','cuatrocientos','quinientos','seiscientos','setecientos','ochocientos','novecientos']; function under1000(x){if(x===0)return ''; if(x===100)return 'cien'; if(x<10)return u[x]; if(x<20)return teens[x-10]; if(x<30)return x===20?'veinte':`veinti${u[x-20]}`; if(x<100){const t=Math.floor(x/10), uu=x%10; return uu===0?tens[t]:`${tens[t]} y ${u[uu]}`;} const h=Math.floor(x/100), rest=x%100; return rest===0?hundreds[h]:`${hundreds[h]} ${under1000(rest)}`;} if(n<1000)return under1000(n); if(n<1000000){const th=Math.floor(n/1000), rest=n%1000; const txt=th===1?'mil':`${under1000(th)} mil`; return rest===0?txt:`${txt} ${under1000(rest)}`;} const m=Math.floor(n/1000000), rest=n%1000000; const mtxt=m===1?'un millón':`${numberToWordsEs(m)} millones`; if(rest===0)return mtxt; if(rest<1000)return `${mtxt} ${under1000(rest)}`; const th=Math.floor(rest/1000), last=rest%1000; const ttxt=th===1?'mil':`${under1000(th)} mil`; return last===0?`${mtxt} ${ttxt}`:`${mtxt} ${ttxt} ${under1000(last)}`;}
+function moneyToWordsEs(v){const a=Number(v||0), whole=Math.floor(a), cents=Math.round((a-whole)*100); return `${numberToWordsEs(whole)} pesos ${String(cents).padStart(2,'0')}/100 M.N.`;}
+function getSortedCategories(){const list=[...state.categories]; if(state.categorySortDesc)list.sort((a,b)=>num(b.price)-num(a.price)); return list;}
+function compute(){const sortedCategories=getSortedCategories(); const incomeCategories=[...state.categories].filter(i=>num(i.price)>0&&num(i.count)>0).sort((a,b)=>num(b.price)-num(a.price)); const boletosDetallados=incomeCategories.map(i=>({key:String(i.id),itemId:i.id,cantidadAsistentes:num(i.count),localidad:i.name,precioUnitario:num(i.price),multiplicacion:num(i.count)*num(i.price)})); const totalPersons=state.categories.reduce((a,i)=>a+num(i.count),0); const payingCategories=state.categories.filter(i=>!i.courtesy&&num(i.price)>0); const payingPersons=payingCategories.reduce((a,i)=>a+num(i.count),0); const courtesyPersons=state.categories.filter(i=>i.courtesy||num(i.price)===0).reduce((a,i)=>a+num(i.count),0); const grossIncome=state.categories.reduce((a,i)=>a+num(i.price)*num(i.count),0); const averagePaidLocalityPrice=payingCategories.length?payingCategories.reduce((a,i)=>a+num(i.price),0)/payingCategories.length:0; const courtesyEstimatedValueForState=courtesyPersons*averagePaidLocalityPrice; const stateBaseBeforeFactor=state.stateTaxMode==='total'?grossIncome+courtesyEstimatedValueForState:grossIncome; const municipalBaseBeforeFactor=grossIncome; const stateTaxBase=stateBaseBeforeFactor*num(state.stateIncomeFactor); const municipalTaxBase=municipalBaseBeforeFactor*num(state.municipalIncomeFactor); const stateTaxAmount=stateTaxBase*(num(state.stateTaxRate)/100); const municipalTaxAmount=municipalTaxBase*(num(state.municipalTaxRate)/100); const totalStateInterventorFee=num(state.stateInterventorCount)*num(state.stateInterventorFeePerPerson); const totalMunicipalInterventorFee=num(state.municipalInterventorCount)*num(state.municipalInterventorFeePerPerson); const totalStateAdministrative=totalStateInterventorFee+num(state.stateAdminCharge)+num(state.stateFineAmount); const totalMunicipalAdministrative=totalMunicipalInterventorFee+num(state.municipalAdminCharge)+num(state.municipalFineAmount); const totalCharges=stateTaxAmount+municipalTaxAmount+totalStateAdministrative+totalMunicipalAdministrative; const municipalGovernmentTotal=municipalTaxAmount+totalMunicipalInterventorFee+num(state.municipalAdminCharge)+num(state.municipalFineAmount); const stateGovernmentTotal=stateTaxAmount+totalStateInterventorFee+num(state.stateAdminCharge)+num(state.stateFineAmount); return {sortedCategories,incomeCategories,boletosDetallados,totalPersons,payingPersons,courtesyPersons,grossIncome,averagePaidLocalityPrice,courtesyEstimatedValueForState,stateBaseBeforeFactor,municipalBaseBeforeFactor,stateTaxBase,municipalTaxBase,stateTaxAmount,municipalTaxAmount,totalStateInterventorFee,totalMunicipalInterventorFee,totalStateAdministrative,totalMunicipalAdministrative,totalCharges,municipalGovernmentTotal,stateGovernmentTotal};}
+function getSerializableState(){return {activeTab:state.activeTab,eventName:state.eventName,impuestosTab:state.impuestosTab,categorySortDesc:state.categorySortDesc,ticketPrice:state.ticketPrice,stateTaxRate:state.stateTaxRate,municipalTaxRate:state.municipalTaxRate,stateTaxMode:state.stateTaxMode,municipalTaxMode:state.municipalTaxMode,stateIncomeFactor:state.stateIncomeFactor,municipalIncomeFactor:state.municipalIncomeFactor,stateInterventorCount:state.stateInterventorCount,stateInterventorFeePerPerson:state.stateInterventorFeePerPerson,stateAdminCharge:state.stateAdminCharge,stateFineAmount:state.stateFineAmount,municipalInterventorCount:state.municipalInterventorCount,municipalInterventorFeePerPerson:state.municipalInterventorFeePerPerson,municipalAdminCharge:state.municipalAdminCharge,municipalFineAmount:state.municipalFineAmount,categories:state.categories};}
+function loadSerializableState(data){const base=getSerializableState(); const merged={...base,...data}; Object.assign(state,merged); state.categories=Array.isArray(merged.categories)?merged.categories.map(item=>({id:num(item.id)||Date.now()+Math.random(),name:String(item.name||''),price:num(item.price),count:Math.max(0,num(item.count)),courtesy:Boolean(item.courtesy)})):base.categories; state.selectedRowId=null; syncInputsFromState(); render();}
+function syncInputsFromState(){$('eventName').value=state.eventName; $('ticketPrice').value=state.ticketPrice; ['stateTaxRate','municipalTaxRate','stateIncomeFactor','municipalIncomeFactor','stateInterventorCount','stateInterventorFeePerPerson','stateAdminCharge','stateFineAmount','municipalInterventorCount','municipalInterventorFeePerPerson','municipalAdminCharge','municipalFineAmount'].forEach(id=>$(id).value=state[id]); $('stateTaxMode').value=state.stateTaxMode; $('municipalTaxMode').value=state.municipalTaxMode;}
+function saveTxtFile(){const payload=JSON.stringify(getSerializableState(),null,2); const blob=new Blob([payload],{type:'text/plain;charset=utf-8'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; const safe=(state.eventName||'contador_ingreso_evento').trim().replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ_\- ]/g,'').replace(/\s+/g,'_'); a.download=`${safe}.txt`; a.click(); URL.revokeObjectURL(url);} 
+function handleLoadTxt(file){const reader=new FileReader(); reader.onload=()=>{try{loadSerializableState(JSON.parse(String(reader.result||'{}'))); alert('Datos cargados correctamente.');}catch(e){alert('No se pudo cargar el archivo TXT. Verifica que tenga un formato válido.');}}; reader.readAsText(file,'utf-8');}
+function parseTableTxt(text){const lines=String(text||'').replace(/\r/g,'').split('\n').map(l=>l.trim()).filter(Boolean); if(lines.length<2) throw new Error('El archivo no contiene suficientes filas.'); const headers=lines[0].split('\t').map(h=>h.trim().toLowerCase()); const nameIndex=headers.indexOf('name'), countIndex=headers.indexOf('count'), priceIndex=headers.indexOf('price'); if(nameIndex===-1||countIndex===-1||priceIndex===-1) throw new Error('El archivo debe incluir las columnas name, count y price.'); const imported=[]; for(const line of lines.slice(1)){const cols=line.split('\t'); const rawName=(cols[nameIndex]??'').trim(); const rawCount=Number((cols[countIndex]??'').trim()); const rawPrice=Number((cols[priceIndex]??'').trim()); if(!rawName) continue; imported.push({id:Date.now()+Math.random(),name:rawName,count:Number.isFinite(rawCount)?Math.max(0,rawCount):0,price:Number.isFinite(rawPrice)?Math.max(0,rawPrice):0,courtesy:false});} if(!imported.length) throw new Error('No se encontraron filas válidas para importar.'); return imported;}
+function handleImportTableTxt(file){const reader=new FileReader(); reader.onload=()=>{try{const importedCategories=parseTableTxt(String(reader.result||'')); const replaceAll=confirm('¿Deseas reemplazar las categorías actuales con la tabla importada?\nSelecciona Cancelar para agregarlas a las existentes.'); state.categories=replaceAll?importedCategories:[...state.categories,...importedCategories]; state.selectedRowId=null; render(); alert(`Se importaron ${importedCategories.length} localidades desde la tabla.`);}catch(e){alert(e.message||'No se pudo importar la tabla TXT.');}}; reader.readAsText(file,'utf-8');}
+function updateCount(id,value){const item=state.categories.find(i=>i.id===id); if(!item) return; item.count=Math.max(0,num(value)); render();}
+function promptAddToCount(id){const item=state.categories.find(i=>i.id===id); if(!item) return; const entered=prompt(`¿Cuántas entradas deseas sumar a "${item.name}"?`,'1'); if(entered===null)return; item.count+=Math.max(0,num(entered)); render();}
+function openReportPdf(){const calc=compute(); const incomeRows=calc.boletosDetallados.map(row=>`<tr><td style="padding:8px;border:1px solid #cbd5e1;text-align:center;">${row.cantidadAsistentes}</td><td style="padding:8px;border:1px solid #cbd5e1;">${esc(row.localidad)}</td><td style="padding:8px;border:1px solid #cbd5e1;text-align:right;">${formatMoney(row.precioUnitario)}</td><td style="padding:8px;border:1px solid #cbd5e1;text-align:right;">${formatMoney(row.multiplicacion)}</td></tr>`).join('')||'<tr><td colspan="4" style="padding:8px;border:1px solid #cbd5e1;text-align:center;">Sin datos</td></tr>'; const reportHtml=`<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Reporte del evento</title><style>body{font-family:Arial,Helvetica,sans-serif;color:#0f172a;margin:32px} h1{margin:0 0 6px;font-size:24px} h2{margin:24px 0 10px;font-size:18px} p{margin:4px 0} .box{border:1px solid #cbd5e1;border-radius:10px;padding:14px;margin-top:10px} .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px} table{width:100%;border-collapse:collapse;margin-top:10px;font-size:13px} th{background:#f1f5f9} th,td{border:1px solid #cbd5e1;padding:8px} .right{text-align:right}.center{text-align:center}</style></head><body><h1>Reporte del evento</h1><p><strong>Identificación de evento:</strong> ${esc(state.eventName||'Sin especificar')}</p><p><strong>Fecha de generación:</strong> ${new Date().toLocaleString('es-MX')}</p><h2>Factores de cálculo</h2><div class="grid"><div class="box"><p><strong>Estado</strong></p><p>Factor estatal: ${num(state.stateTaxRate).toFixed(2)}%</p><p>Modo: ${state.stateTaxMode==='total'?'Ingreso total':'Ingreso cobrado'}</p><p>Factor multiplicador: x ${num(state.stateIncomeFactor)}</p><p>Interventores: ${num(state.stateInterventorCount)}</p><p>Honorario por interventor: ${formatMoney(state.stateInterventorFeePerPerson)}</p><p>Cargos administrativos: ${formatMoney(state.stateAdminCharge)}</p><p>Multas: ${formatMoney(state.stateFineAmount)}</p><p>Promedio localidades pagadas: ${formatMoney(calc.averagePaidLocalityPrice)}</p><p>Valor cortesías para estado: ${formatMoney(calc.courtesyEstimatedValueForState)}</p><p>Base impuesto estado: ${formatMoney(calc.stateTaxBase)}</p></div><div class="box"><p><strong>Municipio</strong></p><p>Factor municipal: ${num(state.municipalTaxRate).toFixed(2)}%</p><p>Modo: ${state.municipalTaxMode==='total'?'Ingreso total':'Ingreso cobrado'}</p><p>Factor multiplicador: x ${num(state.municipalIncomeFactor)}</p><p>Interventores: ${num(state.municipalInterventorCount)}</p><p>Honorario por interventor: ${formatMoney(state.municipalInterventorFeePerPerson)}</p><p>Cargos administrativos: ${formatMoney(state.municipalAdminCharge)}</p><p>Multas: ${formatMoney(state.municipalFineAmount)}</p><p>Base impuesto municipio: ${formatMoney(calc.municipalTaxBase)}</p></div></div><h2>Concentrado de asistentes por localidad</h2><table><thead><tr><th class="center">Cantidad de asistentes</th><th>Localidad</th><th class="right">Precio unitario</th><th class="right">Multiplicación</th></tr></thead><tbody>${incomeRows}</tbody></table><h2>Resumen por nivel de gobierno</h2><table><thead><tr><th>Concepto</th><th class="right">Municipio</th><th class="right">Estado</th></tr></thead><tbody><tr><td>Impuestos</td><td class="right">${formatMoney(calc.municipalTaxAmount)}</td><td class="right">${formatMoney(calc.stateTaxAmount)}</td></tr><tr><td>Honorarios</td><td class="right">${formatMoney(calc.totalMunicipalInterventorFee)}</td><td class="right">${formatMoney(calc.totalStateInterventorFee)}</td></tr><tr><td>Cargos administrativos</td><td class="right">${formatMoney(state.municipalAdminCharge)}</td><td class="right">${formatMoney(state.stateAdminCharge)}</td></tr><tr><td>Multas</td><td class="right">${formatMoney(state.municipalFineAmount)}</td><td class="right">${formatMoney(state.stateFineAmount)}</td></tr><tr><td><strong>Total por gobierno</strong></td><td class="right"><strong>${formatMoney(calc.municipalGovernmentTotal)}</strong></td><td class="right"><strong>${formatMoney(calc.stateGovernmentTotal)}</strong></td></tr><tr><td><strong>Total general</strong></td><td class="right" colspan="2"><strong>${formatMoney(calc.totalCharges)}</strong></td></tr></tbody></table></body></html>`; const w=window.open('','_blank','width=900,height=1100'); if(!w){alert('El navegador bloqueó la ventana del reporte. Permite ventanas emergentes para generar el PDF.'); return;} w.document.open(); w.document.write(reportHtml); w.document.close(); w.focus(); setTimeout(()=>w.print(),400);}
+function bindTopInputs(){$('eventName').oninput=e=>{state.eventName=e.target.value;}; $('ticketPrice').oninput=e=>{state.ticketPrice=num(e.target.value);}; $('newCategoryCourtesy').onchange=e=>{$('newCategoryPrice').disabled=e.target.checked; if(e.target.checked)$('newCategoryPrice').value=0;}; $('addCategoryBtn').onclick=()=>{const name=$('newCategoryName').value.trim(), courtesy=$('newCategoryCourtesy').checked, price=courtesy?0:num($('newCategoryPrice').value); if(!name)return; state.categories.push({id:Date.now()+Math.random(),name,price,count:0,courtesy}); $('newCategoryName').value=''; $('newCategoryPrice').value=0; $('newCategoryCourtesy').checked=false; $('newCategoryPrice').disabled=false; render();}; $('resetCountsBtn').onclick=()=>{if(!confirm('¿Deseas reiniciar todos los contadores?'))return; state.categories=state.categories.map(i=>({...i,count:0})); state.selectedRowId=null; render();}; $('sortByPriceBtn').onclick=()=>{state.categorySortDesc=!state.categorySortDesc; render();}; $('importTableBtn').onclick=()=>$('importTableInput').click(); $('importTableInput').onchange=e=>{const f=e.target.files&&e.target.files[0]; if(f)handleImportTableTxt(f); e.target.value='';}; $('generatePdfBtn').onclick=openReportPdf; $('saveTxtBtn').onclick=saveTxtFile; $('loadTxtBtn').onclick=()=>$('loadTxtInput').click(); $('loadTxtInput').onchange=e=>{const f=e.target.files&&e.target.files[0]; if(f)handleLoadTxt(f); e.target.value='';};}
+function bindTaxInputs(){['stateTaxRate','municipalTaxRate','stateIncomeFactor','municipalIncomeFactor','stateInterventorCount','stateInterventorFeePerPerson','stateAdminCharge','stateFineAmount','municipalInterventorCount','municipalInterventorFeePerPerson','municipalAdminCharge','municipalFineAmount'].forEach(id=>{$(id).oninput=e=>{state[id]=num(e.target.value); render();};}); $('stateTaxMode').onchange=e=>{state.stateTaxMode=e.target.value; render();}; $('municipalTaxMode').onchange=e=>{state.municipalTaxMode=e.target.value; render();};}
+function renderCategories(){const calc=compute(), tbody=$('categoriesTable'), mobile=$('categoriesMobile'); tbody.innerHTML=''; mobile.innerHTML=''; $('sortByPriceBtn').textContent=state.categorySortDesc?'Ordenado: mayor a menor':'Ordenar por precio unitario'; calc.sortedCategories.forEach(item=>{const tr=document.createElement('tr'); tr.innerHTML=`<td><input data-kind="name" data-id="${item.id}" value="${esc(item.name)}"></td><td><input data-kind="price" data-id="${item.id}" type="number" value="${item.price}" ${item.courtesy?'disabled':''}></td><td><button type="button" class="small ${item.courtesy?'active':''}" data-kind="courtesy" data-id="${item.id}">${item.courtesy?'Sí':'No'}</button></td><td class="center"><input class="count-input" data-kind="count" data-id="${item.id}" type="number" min="0" value="${item.count}"></td><td class="center"><button type="button" class="small" data-kind="dec" data-id="${item.id}">-1</button> <button type="button" class="small" data-kind="inc" data-id="${item.id}">+1</button> <button type="button" class="small" data-kind="addPrompt" data-id="${item.id}">+ importe</button></td><td class="right"><strong>${formatMoney(num(item.price)*num(item.count))}</strong></td><td class="right"><button type="button" class="small danger" data-kind="delete" data-id="${item.id}">Eliminar</button></td>`; tbody.appendChild(tr); const card=document.createElement('div'); card.className='cat-mobile'; card.innerHTML=`<div class="row-between"><input data-kind="name" data-id="${item.id}" value="${esc(item.name)}" style="border:0;padding:0;font-weight:600;"><div style="display:flex;gap:6px;align-items:center;"><button type="button" class="small ${item.courtesy?'active':''}" data-kind="courtesy" data-id="${item.id}">${item.courtesy?'Cortesía':'De pago'}</button><button type="button" class="small danger" data-kind="delete" data-id="${item.id}">🗑</button></div></div><div class="grid" style="grid-template-columns:1fr 1fr 1fr 1fr;align-items:center;"><input data-kind="price" data-id="${item.id}" type="number" value="${item.price}" ${item.courtesy?'disabled':''}><button type="button" class="small" data-kind="dec" data-id="${item.id}">-1</button><button type="button" class="small" data-kind="inc" data-id="${item.id}">+1</button><input class="count-input" data-kind="count" data-id="${item.id}" type="number" min="0" value="${item.count}"></div><div><button type="button" class="small" data-kind="addPrompt" data-id="${item.id}">Sumar importe</button></div><div class="row-between note"><span>Subtotal</span><strong style="color:var(--text)">${formatMoney(num(item.price)*num(item.count))}</strong></div>`; mobile.appendChild(card);}); document.querySelectorAll('[data-kind="name"]').forEach(el=>el.onchange=e=>{const id=num(e.target.dataset.id), item=state.categories.find(i=>i.id===id); if(!item)return; const value=e.target.value; if(!confirm(`¿Deseas cambiar el nombre de la categoría "${item.name}"?`)){render(); return;} item.name=value; render();}); document.querySelectorAll('[data-kind="price"]').forEach(el=>el.oninput=e=>{const id=num(e.target.dataset.id), item=state.categories.find(i=>i.id===id); if(!item)return; item.price=num(e.target.value); render();}); document.querySelectorAll('[data-kind="count"]').forEach(el=>el.oninput=e=>updateCount(num(e.target.dataset.id),e.target.value)); document.querySelectorAll('[data-kind="courtesy"]').forEach(el=>el.onclick=e=>{e.stopPropagation(); const id=num(e.target.dataset.id), item=state.categories.find(i=>i.id===id); if(!item)return; if(!confirm(`¿Deseas cambiar el tipo de acceso de "${item.name}" a ${item.courtesy?'de pago':'cortesía'}?`))return; item.courtesy=!item.courtesy; if(item.courtesy)item.price=0; render();}); document.querySelectorAll('[data-kind="delete"]').forEach(el=>el.onclick=e=>{e.stopPropagation(); const id=num(e.target.dataset.id), item=state.categories.find(i=>i.id===id); if(!item)return; if(!confirm(`¿Deseas eliminar la categoría${item.name?` "${item.name}"`:''}?`))return; state.categories=state.categories.filter(i=>i.id!==id); if(state.selectedRowId===id)state.selectedRowId=null; render();}); document.querySelectorAll('[data-kind="inc"]').forEach(el=>el.onclick=()=>{const item=state.categories.find(i=>i.id===num(el.dataset.id)); if(item){item.count+=1; render();}}); document.querySelectorAll('[data-kind="dec"]').forEach(el=>el.onclick=()=>{const item=state.categories.find(i=>i.id===num(el.dataset.id)); if(item){item.count=Math.max(0,item.count-1); render();}}); document.querySelectorAll('[data-kind="addPrompt"]').forEach(el=>el.onclick=()=>promptAddToCount(num(el.dataset.id)));}
+function renderConcentrados(calc){$('boletosTable').innerHTML=''; if(!calc.boletosDetallados.length){$('boletosTable').innerHTML='<tr><td colspan="4" class="center" style="color:var(--muted)">Aún no hay localidades con ingreso.</td></tr>';} else {calc.boletosDetallados.forEach(row=>{const tr=document.createElement('tr'); tr.className=state.selectedRowId===row.itemId?'selected':''; tr.innerHTML=`<td class="center">${row.cantidadAsistentes}</td><td>${esc(row.localidad)}</td><td class="right">${formatMoney(row.precioUnitario)}</td><td class="right"><strong>${formatMoney(row.multiplicacion)}</strong></td>`; tr.onclick=()=>{state.selectedRowId=state.selectedRowId===row.itemId?null:row.itemId; render();}; $('boletosTable').appendChild(tr);});} $('incomeTable').innerHTML=''; if(!calc.incomeCategories.length){$('incomeTable').innerHTML='<tr><td colspan="5" class="center" style="color:var(--muted)">Aún no hay localidades con ingreso.</td></tr>';} else {calc.incomeCategories.forEach(item=>{const total=num(item.price)*num(item.count); const tr=document.createElement('tr'); tr.className=state.selectedRowId===item.id?'selected':''; tr.innerHTML=`<td>${item.count}</td><td>${esc(item.name)}</td><td>${formatMoney(item.price)}</td><td>${moneyToWordsEs(item.price)}</td><td class="right"><strong>${formatMoney(total)}</strong></td>`; tr.onclick=()=>{state.selectedRowId=state.selectedRowId===item.id?null:item.id; render();}; $('incomeTable').appendChild(tr);});} $('stateConcentrado').innerHTML=`<div class="row-between"><span>Identificación impuesto</span><strong>EST-001</strong></div><div class="row-between"><span>Modo cálculo</span><strong>${state.stateTaxMode==='total'?'Ingreso total':'Ingreso cobrado'}</strong></div><div class="row-between"><span>Factor multiplicador</span><strong>× ${num(state.stateIncomeFactor)}</strong></div><div class="row-between"><span>Base impuesto</span><strong>${formatMoney(calc.stateTaxBase)}</strong></div><div class="row-between"><span>Importe impuesto</span><strong>${formatMoney(calc.stateTaxAmount)}</strong></div><div class="row-between"><span>Importe honorarios</span><strong>${formatMoney(calc.totalStateInterventorFee)}</strong></div><div class="row-between"><span>Importe cargo admvo.</span><strong>${formatMoney(state.stateAdminCharge)}</strong></div><div class="row-between"><span>Importe multa</span><strong>${formatMoney(state.stateFineAmount)}</strong></div>`; $('municipalConcentrado').innerHTML=`<div class="row-between"><span>Identificación impuesto</span><strong>MUN-001</strong></div><div class="row-between"><span>Modo cálculo</span><strong>${state.municipalTaxMode==='total'?'Ingreso total':'Ingreso cobrado'}</strong></div><div class="row-between"><span>Factor multiplicador</span><strong>× ${num(state.municipalIncomeFactor)}</strong></div><div class="row-between"><span>Base impuesto</span><strong>${formatMoney(calc.municipalTaxBase)}</strong></div><div class="row-between"><span>Importe impuesto</span><strong>${formatMoney(calc.municipalTaxAmount)}</strong></div><div class="row-between"><span>Importe honorarios</span><strong>${formatMoney(calc.totalMunicipalInterventorFee)}</strong></div><div class="row-between"><span>Importe cargo admvo.</span><strong>${formatMoney(state.municipalAdminCharge)}</strong></div><div class="row-between"><span>Importe multa</span><strong>${formatMoney(state.municipalFineAmount)}</strong></div>`; $('municipioResumen').innerHTML=`<strong>Municipio</strong><div class="row-between"><span>Impuestos</span><strong>${formatMoney(calc.municipalTaxAmount)}</strong></div><div class="row-between"><span>Honorarios</span><strong>${formatMoney(calc.totalMunicipalInterventorFee)}</strong></div><div class="row-between"><span>Cargos administrativos</span><strong>${formatMoney(state.municipalAdminCharge)}</strong></div><div class="row-between"><span>Multas</span><strong>${formatMoney(state.municipalFineAmount)}</strong></div><div class="row-between"><span><strong>Total municipio</strong></span><strong>${formatMoney(calc.municipalGovernmentTotal)}</strong></div>`; $('estadoResumen').innerHTML=`<strong>Estado</strong><div class="row-between"><span>Impuestos</span><strong>${formatMoney(calc.stateTaxAmount)}</strong></div><div class="row-between"><span>Honorarios</span><strong>${formatMoney(calc.totalStateInterventorFee)}</strong></div><div class="row-between"><span>Cargos administrativos</span><strong>${formatMoney(state.stateAdminCharge)}</strong></div><div class="row-between"><span>Multas</span><strong>${formatMoney(state.stateFineAmount)}</strong></div><div class="row-between"><span><strong>Total estado</strong></span><strong>${formatMoney(calc.stateGovernmentTotal)}</strong></div>`; $('generalResumen').innerHTML=`<strong>Total general</strong><div class="row-between"><span>Total municipio</span><strong>${formatMoney(calc.municipalGovernmentTotal)}</strong></div><div class="row-between"><span>Total estado</span><strong>${formatMoney(calc.stateGovernmentTotal)}</strong></div><div class="row-between"><span><strong>Total contemplando todo</strong></span><strong style="font-size:20px;">${formatMoney(calc.totalCharges)}</strong></div>`;}
+function render(){const calc=compute(); $('sumTotalPersons').textContent=calc.totalPersons; $('sumPaying').textContent=calc.payingPersons; $('sumGross').textContent=formatMoney(calc.grossIncome); $('sumCharges').textContent=formatMoney(calc.totalCharges); $('courtesyPersonsBox').textContent=calc.courtesyPersons; $('grossBox').textContent=formatMoney(calc.grossIncome); $('avgPaidLocality').textContent=formatMoney(calc.averagePaidLocalityPrice); $('courtesyValueState').textContent=formatMoney(calc.courtesyEstimatedValueForState); $('stateBaseBefore').textContent=formatMoney(calc.stateBaseBeforeFactor); $('stateTaxBase').textContent=formatMoney(calc.stateTaxBase); $('municipalBaseBefore').textContent=formatMoney(calc.municipalBaseBeforeFactor); $('municipalTaxBase').textContent=formatMoney(calc.municipalTaxBase); $('municipalAdministrative').textContent=formatMoney(calc.totalMunicipalAdministrative); $('grossIncomeCard').textContent=formatMoney(calc.grossIncome); $('courtesyStateCard').textContent=formatMoney(calc.courtesyEstimatedValueForState); $('viewContador').style.display=state.activeTab==='contador'?'':'none'; $('viewImpuestos').style.display=state.activeTab==='impuestos'?'':'none'; $('tabContador').classList.toggle('active',state.activeTab==='contador'); $('tabImpuestos').classList.toggle('active',state.activeTab==='impuestos'); $('subViewLocalidades').style.display=state.impuestosTab==='localidades'?'':'none'; $('subViewTotales').style.display=state.impuestosTab==='totales'?'':'none'; $('subLocalidades').classList.toggle('active',state.impuestosTab==='localidades'); $('subTotales').classList.toggle('active',state.impuestosTab==='totales'); renderCategories(); renderConcentrados(calc);} 
+$('tabContador').onclick=()=>{state.activeTab='contador'; render();}; $('tabImpuestos').onclick=()=>{state.activeTab='impuestos'; render();}; $('subLocalidades').onclick=()=>{state.impuestosTab='localidades'; render();}; $('subTotales').onclick=()=>{state.impuestosTab='totales'; render();}; bindTopInputs(); bindTaxInputs(); syncInputsFromState(); render();
+</script>
+</body></html>
