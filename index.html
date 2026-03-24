@@ -528,8 +528,7 @@
         eventName: state.eventName,
         impuestosTab: state.impuestosTab,
         categorySortDesc: state.categorySortDesc,
-        ticketPrice: state.ticketPrice,
-        stateTaxRate: state.stateTaxRate,
+                stateTaxRate: state.stateTaxRate,
         municipalTaxRate: state.municipalTaxRate,
         stateTaxMode: state.stateTaxMode,
         municipalTaxMode: state.municipalTaxMode,
@@ -567,8 +566,6 @@
       $('eventName').value = state.eventName;
       $('stateTaxRate').value = state.stateTaxRate;
       $('municipalTaxRate').value = state.municipalTaxRate;
-      $('stateTaxMode').value = state.stateTaxMode;
-      $('municipalTaxMode').value = state.municipalTaxMode;
       $('stateIncomeFactor').value = state.stateIncomeFactor;
       $('municipalIncomeFactor').value = state.municipalIncomeFactor;
       $('stateInterventorCount').value = state.stateInterventorCount;
@@ -880,8 +877,6 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       ].forEach(id => {
         $(id).oninput = e => { state[id] = n(e.target.value); render(); };
       });
-      $('stateTaxMode').onchange = e => { state.stateTaxMode = e.target.value; render(); };
-      $('municipalTaxMode').onchange = e => { state.municipalTaxMode = e.target.value; render(); };
     }
 
     function renderCategories() {
