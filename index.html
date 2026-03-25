@@ -72,6 +72,8 @@
     }
     button.small { padding: 6px 10px; font-size: 12px; }
     button.danger { color: var(--danger); }
+    #categoriesTable tr:nth-child(odd) { background: #ffffff; }
+    #categoriesTable tr:nth-child(even) { background: #f3f4f6; }
     .layout {
       display: grid;
       grid-template-columns: 360px 1fr;
@@ -894,7 +896,7 @@ Selecciona Cancelar para agregarlas a las existentes.`);
           <td class="center"><input class="count-input" data-kind="count" data-id="${item.id}" type="number" min="0" value="${item.count}"></td>
           <td class="center">
             <button type="button" class="small" data-kind="dec" data-id="${item.id}">-1</button>
-            <button type="button" class="small" style="padding:10px 16px;font-size:14px;font-weight:700;" data-kind="inc" data-id="${item.id}">+1</button>
+            <button type="button" class="small" style="padding:10px 16px;font-size:14px;font-weight:700;background:#000000;color:#ffffff;border-color:#000000;" data-kind="inc" data-id="${item.id}">+1</button>
             <button type="button" class="small" style="padding:10px 16px;font-size:14px;font-weight:700;" data-kind="addPrompt" data-id="${item.id}">+ importe</button>
           </td>
           <td class="right"><strong>${formatMoney(n(item.price) * n(item.count))}</strong></td>
@@ -915,7 +917,7 @@ Selecciona Cancelar para agregarlas a las existentes.`);
           <div class="grid-4" style="align-items:center;">
             <input data-kind="price" data-id="${item.id}" type="number" value="${item.price}" ${item.courtesy ? 'disabled' : ''}>
             <button type="button" class="small" data-kind="dec" data-id="${item.id}">-1</button>
-            <button type="button" class="small" style="padding:10px 16px;font-size:14px;font-weight:700;" data-kind="inc" data-id="${item.id}">+1</button>
+            <button type="button" class="small" style="padding:10px 16px;font-size:14px;font-weight:700;background:#000000;color:#ffffff;border
             <input class="count-input" data-kind="count" data-id="${item.id}" type="number" min="0" value="${item.count}">
           </div>
           <div style="display:flex;gap:8px;flex-wrap:wrap;">
