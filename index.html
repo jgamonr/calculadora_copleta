@@ -681,14 +681,15 @@ Selecciona Cancelar para agregarlas a las existentes.`);
 
     function openReportPdf() {
       const calc = compute();
-      const incomeRows = calc.boletosDetallados.map(row => `
+      const incomeRows = calc.boletosDetallados.map((row, index) => `
         <tr>
+          <td style="padding:8px;border:1px solid #cbd5e1;text-align:center;">${index + 1}</td>
           <td style="padding:8px;border:1px solid #cbd5e1;text-align:center;">${row.cantidadAsistentes}</td>
           <td style="padding:8px;border:1px solid #cbd5e1;">${escapeHtml(row.localidad)}</td>
           <td style="padding:8px;border:1px solid #cbd5e1;text-align:right;">${formatMoney(row.precioUnitario)}</td>
           <td style="padding:8px;border:1px solid #cbd5e1;text-align:right;">${formatMoney(row.multiplicacion)}</td>
         </tr>
-      `).join('') || '<tr><td colspan="4" style="padding:8px;border:1px solid #cbd5e1;text-align:center;">Sin datos</td></tr>';
+      `).join('') || '<tr><td colspan="5" style="padding:8px;border:1px solid #cbd5e1;text-align:center;">Sin datos</td></tr>';
 
       const reportHtml = `<!DOCTYPE html>
       <html lang="es">
@@ -720,7 +721,6 @@ Selecciona Cancelar para agregarlas a las existentes.`);
           <div class="box">
             <p><strong>Estado</strong></p>
             <p>Factor estatal: ${n(state.stateTaxRate).toFixed(2)}%</p>
-            <p>Modo: ${state.stateTaxMode === 'total' ? 'Ingreso total' : 'Ingreso cobrado'}</p>
             <p>Factor multiplicador: x ${n(state.stateIncomeFactor)}</p>
             <p>Interventores: ${n(state.stateInterventorCount)}</p>
             <p>Honorario por interventor: ${formatMoney(state.stateInterventorFeePerPerson)}</p>
@@ -732,7 +732,6 @@ Selecciona Cancelar para agregarlas a las existentes.`);
           <div class="box">
             <p><strong>Municipio</strong></p>
             <p>Factor municipal: ${n(state.municipalTaxRate).toFixed(2)}%</p>
-            <p>Modo: ${state.municipalTaxMode === 'total' ? 'Ingreso total' : 'Ingreso cobrado'}</p>
             <p>Factor multiplicador: x ${n(state.municipalIncomeFactor)}</p>
             <p>Interventores: ${n(state.municipalInterventorCount)}</p>
             <p>Honorario por interventor: ${formatMoney(state.municipalInterventorFeePerPerson)}</p>
@@ -745,6 +744,7 @@ Selecciona Cancelar para agregarlas a las existentes.`);
         <table>
           <thead>
             <tr>
+              <th class="center">#</th>
               <th class="center">Cantidad de asistentes</th>
               <th>Localidad</th>
               <th class="right">Precio unitario</th>
@@ -759,31 +759,30 @@ Selecciona Cancelar para agregarlas a las existentes.`);
           <thead>
             <tr>
               <th>Concepto</th>
-              <th class="right">Municipio</th>
               <th class="right">Estado</th>
+              <th class="right">Municipio</th>
             </tr>
           </thead>
           <tbody>
             <tr>
               <td>Impuestos</td>
-              <td class="right">${formatMoney(calc.municipalTaxAmount)}</td>
               <td class="right">${formatMoney(calc.stateTaxAmount)}</td>
+              <td class="right">${formatMoney(calc.municipalTaxAmount)}</td>
             </tr>
             <tr>
               <td>Honorarios</td>
-              <td class="right">${formatMoney(calc.totalMunicipalInterventorFee)}</td>
               <td class="right">${formatMoney(calc.totalStateInterventorFee)}</td>
+              <td class="right">${formatMoney(calc.totalMunicipalInterventorFee)}</td>
             </tr>
             <tr>
-            <tr>
               <td>Multas</td>
-              <td class="right">${formatMoney(state.municipalFineAmount)}</td>
               <td class="right">${formatMoney(state.stateFineAmount)}</td>
+              <td class="right">${formatMoney(state.municipalFineAmount)}</td>
             </tr>
             <tr>
               <td><strong>Total por gobierno</strong></td>
-              <td class="right"><strong>${formatMoney(calc.municipalGovernmentTotal)}</strong></td>
               <td class="right"><strong>${formatMoney(calc.stateGovernmentTotal)}</strong></td>
+              <td class="right"><strong>${formatMoney(calc.municipalGovernmentTotal)}</strong></td>
             </tr>
             <tr>
               <td><strong>Total general</strong></td>
@@ -794,18 +793,27 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       </body>
       </html>`;
 
-      const reportWindow = window.open('', '_blank', 'width=900,height=1100');
+      const reportWindow = window.open('', '_blank');
       if (!reportWindow) {
         alert('El navegador bloqueó la ventana del reporte. Permite ventanas emergentes para generar el PDF.');
         return;
       }
+
       reportWindow.document.open();
       reportWindow.document.write(reportHtml);
       reportWindow.document.close();
-      reportWindow.focus();
-      setTimeout(() => {
-        reportWindow.print();
-      }, 400);
+
+      const triggerPrint = () => {
+        try {
+          reportWindow.focus();
+          reportWindow.print();
+        } catch (error) {
+          console.error(error);
+        }
+      };
+
+      reportWindow.onload = triggerPrint;
+      setTimeout(triggerPrint, 700);
     }
 
     function bindTopInputs() {
@@ -886,8 +894,8 @@ Selecciona Cancelar para agregarlas a las existentes.`);
           <td class="center"><input class="count-input" data-kind="count" data-id="${item.id}" type="number" min="0" value="${item.count}"></td>
           <td class="center">
             <button type="button" class="small" data-kind="dec" data-id="${item.id}">-1</button>
-            <button type="button" class="small" data-kind="inc" data-id="${item.id}">+1</button>
-            <button type="button" class="small" data-kind="addPrompt" data-id="${item.id}">+ importe</button>
+            <button type="button" class="small" style="padding:10px 16px;font-size:14px;font-weight:700;" data-kind="inc" data-id="${item.id}">+1</button>
+            <button type="button" class="small" style="padding:10px 16px;font-size:14px;font-weight:700;" data-kind="addPrompt" data-id="${item.id}">+ importe</button>
           </td>
           <td class="right"><strong>${formatMoney(n(item.price) * n(item.count))}</strong></td>
           <td class="right"><button type="button" class="small danger" data-kind="delete" data-id="${item.id}">Eliminar</button></td>
@@ -907,7 +915,7 @@ Selecciona Cancelar para agregarlas a las existentes.`);
           <div class="grid-4" style="align-items:center;">
             <input data-kind="price" data-id="${item.id}" type="number" value="${item.price}" ${item.courtesy ? 'disabled' : ''}>
             <button type="button" class="small" data-kind="dec" data-id="${item.id}">-1</button>
-            <button type="button" class="small" data-kind="inc" data-id="${item.id}">+1</button>
+            <button type="button" class="small" style="padding:10px 16px;font-size:14px;font-weight:700;" data-kind="inc" data-id="${item.id}">+1</button>
             <input class="count-input" data-kind="count" data-id="${item.id}" type="number" min="0" value="${item.count}">
           </div>
           <div style="display:flex;gap:8px;flex-wrap:wrap;">
@@ -931,17 +939,35 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       });
 
       document.querySelectorAll('[data-kind="price"]').forEach(el => {
-        el.oninput = (e) => {
-          const id = n(e.target.dataset.id);
+        const applyPriceChange = (target) => {
+          const id = n(target.dataset.id);
           const item = state.categories.find(i => i.id === id);
           if (!item) return;
-          item.price = n(e.target.value);
+          item.price = n(target.value);
           render();
+        };
+        el.onchange = (e) => applyPriceChange(e.target);
+        el.onblur = (e) => applyPriceChange(e.target);
+        el.onkeydown = (e) => {
+          if (e.key === 'Enter') {
+            applyPriceChange(e.target);
+            e.target.blur();
+          }
         };
       });
 
       document.querySelectorAll('[data-kind="count"]').forEach(el => {
-        el.oninput = (e) => updateCount(n(e.target.dataset.id), e.target.value);
+        const applyCountChange = (target) => {
+          updateCount(n(target.dataset.id), target.value);
+        };
+        el.onchange = (e) => applyCountChange(e.target);
+        el.onblur = (e) => applyCountChange(e.target);
+        el.onkeydown = (e) => {
+          if (e.key === 'Enter') {
+            applyCountChange(e.target);
+            e.target.blur();
+          }
+        };
       });
 
       document.querySelectorAll('[data-kind="courtesy"]').forEach(el => {
