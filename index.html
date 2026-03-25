@@ -72,6 +72,22 @@
     }
     button.small { padding: 6px 10px; font-size: 12px; }
     button.danger { color: var(--danger); }
+    .action-btn {
+      min-width: 56px;
+      min-height: 42px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 1;
+      white-space: nowrap;
+    }
+    .action-btn-black {
+      background: #000000;
+      color: #ffffff;
+      border-color: #000000;
+    }
     #categoriesTable tr:nth-child(odd) { background: #ffffff; }
     #categoriesTable tr:nth-child(even) { background: #f3f4f6; }
     .layout {
@@ -895,9 +911,9 @@ Selecciona Cancelar para agregarlas a las existentes.`);
           <td><button type="button" class="small ${item.courtesy ? 'active' : ''}" data-kind="courtesy" data-id="${item.id}">${item.courtesy ? 'Sí' : 'No'}</button></td>
           <td class="center"><input class="count-input" data-kind="count" data-id="${item.id}" type="number" min="0" value="${item.count}"></td>
           <td class="center">
-            <button type="button" class="small" data-kind="dec" data-id="${item.id}">-1</button>
-            <button type="button" class="small" style="padding:10px 16px;font-size:14px;font-weight:700;background:#000000;color:#ffffff;border-color:#000000;" data-kind="inc" data-id="${item.id}">+1</button>
-            <button type="button" class="small" style="padding:10px 16px;font-size:14px;font-weight:700;" data-kind="addPrompt" data-id="${item.id}">+ importe</button>
+            <button type="button" class="small action-btn" data-kind="dec" data-id="${item.id}">-1</button>
+            <button type="button" class="small action-btn action-btn-black" data-kind="inc" data-id="${item.id}">+1</button>
+            <button type="button" class="small action-btn" style="min-width:96px;" data-kind="addPrompt" data-id="${item.id}">+ importe</button>
           </td>
           <td class="right"><strong>${formatMoney(n(item.price) * n(item.count))}</strong></td>
           <td class="right"><button type="button" class="small danger" data-kind="delete" data-id="${item.id}">Eliminar</button></td>
@@ -916,12 +932,12 @@ Selecciona Cancelar para agregarlas a las existentes.`);
           </div>
           <div class="grid-4" style="align-items:center;">
             <input data-kind="price" data-id="${item.id}" type="number" value="${item.price}" ${item.courtesy ? 'disabled' : ''}>
-            <button type="button" class="small" data-kind="dec" data-id="${item.id}">-1</button>
-            <button type="button" class="small" style="padding:10px 16px;font-size:14px;font-weight:700;background:#000000;color:#ffffff;border
+            <button type="button" class="small action-btn" data-kind="dec" data-id="${item.id}">-1</button>
+            <button type="button" class="small action-btn action-btn-black" data-kind="inc" data-id="${item.id}">+1</button>
             <input class="count-input" data-kind="count" data-id="${item.id}" type="number" min="0" value="${item.count}">
           </div>
           <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            <button type="button" class="small" data-kind="addPrompt" data-id="${item.id}">Sumar importe</button>
+            <button type="button" class="small action-btn" style="min-width:120px;" data-kind="addPrompt" data-id="${item.id}">Sumar importe</button>
           </div>
           <div class="row-between note"><span>Subtotal</span><strong style="color:var(--text)">${formatMoney(n(item.price) * n(item.count))}</strong></div>
         `;
