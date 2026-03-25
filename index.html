@@ -363,8 +363,8 @@
               <div class="card"><div class="inner stack">
                 <div class="section-title">Resumen por nivel de gobierno</div>
                 <div class="totals-grid">
-                  <div class="card"><div class="inner stack" id="municipioResumen"></div></div>
                   <div class="card"><div class="inner stack" id="estadoResumen"></div></div>
+                  <div class="card"><div class="inner stack" id="municipioResumen"></div></div>
                   <div class="card"><div class="inner stack" style="background:var(--soft); border-radius:14px;" id="generalResumen"></div></div>
                 </div>
               </div></div>
@@ -1024,7 +1024,6 @@ Selecciona Cancelar para agregarlas a las existentes.`);
 
       $('stateConcentrado').innerHTML = `
         <div class="row-between"><span>Identificación impuesto</span><strong>EST-001</strong></div>
-        <div class="row-between"><span>Modo cálculo</span><strong>${state.stateTaxMode === 'total' ? 'Ingreso total' : 'Ingreso cobrado'}</strong></div>
         <div class="row-between"><span>Factor multiplicador</span><strong>× ${n(state.stateIncomeFactor)}</strong></div>
         <div class="row-between"><span>Base impuesto</span><strong>${formatMoney(calc.stateTaxBase)}</strong></div>
         <div class="row-between"><span>Importe impuesto</span><strong>${formatMoney(calc.stateTaxAmount)}</strong></div>
@@ -1033,7 +1032,6 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       `;
       $('municipalConcentrado').innerHTML = `
         <div class="row-between"><span>Identificación impuesto</span><strong>MUN-001</strong></div>
-        <div class="row-between"><span>Modo cálculo</span><strong>${state.municipalTaxMode === 'total' ? 'Ingreso total' : 'Ingreso cobrado'}</strong></div>
         <div class="row-between"><span>Factor multiplicador</span><strong>× ${n(state.municipalIncomeFactor)}</strong></div>
         <div class="row-between"><span>Base impuesto</span><strong>${formatMoney(calc.municipalTaxBase)}</strong></div>
         <div class="row-between"><span>Importe impuesto</span><strong>${formatMoney(calc.municipalTaxAmount)}</strong></div>
