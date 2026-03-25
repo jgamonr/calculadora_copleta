@@ -245,6 +245,7 @@
             <div class="desktop-table"><table>
               <thead>
                 <tr>
+                  <th class="center">#</th>
                   <th>Tipo</th>
                   <th>Precio</th>
                   <th>Cortesía</th>
@@ -321,6 +322,7 @@
                 <div class="overflow"><table>
                   <thead>
                     <tr>
+                      <th class="center">#</th>
                       <th class="center">Cantidad de asistentes</th>
                       <th>Localidad</th>
                       <th class="right">Precio unitario</th>
@@ -336,6 +338,7 @@
                 <div class="overflow"><table>
                   <thead>
                     <tr>
+                      <th class="center">#</th>
                       <th>Cantidad de asistentes</th>
                       <th>Localidad</th>
                       <th>Precio unitario</th>
@@ -876,6 +879,7 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       calc.sortedCategories.forEach(item => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
+          <td class="center">${calc.sortedCategories.findIndex(row => row.id === item.id) + 1}</td>
           <td><input data-kind="name" data-id="${item.id}" value="${escapeHtml(item.name)}"></td>
           <td><input data-kind="price" data-id="${item.id}" type="number" value="${item.price}" ${item.courtesy ? 'disabled' : ''}></td>
           <td><button type="button" class="small ${item.courtesy ? 'active' : ''}" data-kind="courtesy" data-id="${item.id}">${item.courtesy ? 'Sí' : 'No'}</button></td>
@@ -988,10 +992,11 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       if (!calc.boletosDetallados.length) {
         $('boletosTable').innerHTML = '<tr><td colspan="4" class="center" style="color:var(--muted)">Aún no hay localidades con ingreso.</td></tr>';
       } else {
-        calc.boletosDetallados.forEach(row => {
+        calc.boletosDetallados.forEach((row, index) => {
           const tr = document.createElement('tr');
           tr.className = 'clickable' + (state.selectedRowId === row.itemId ? ' selected' : '');
           tr.innerHTML = `
+            <td class="center">${index + 1}</td>
             <td class="center">${row.cantidadAsistentes}</td>
             <td>${escapeHtml(row.localidad)}</td>
             <td class="right">${formatMoney(row.precioUnitario)}</td>
@@ -1006,11 +1011,12 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       if (!calc.incomeCategories.length) {
         $('incomeTable').innerHTML = '<tr><td colspan="5" class="center" style="color:var(--muted)">Aún no hay localidades con ingreso.</td></tr>';
       } else {
-        calc.incomeCategories.forEach(item => {
+        calc.incomeCategories.forEach((item, index) => {
           const total = n(item.price) * n(item.count);
           const tr = document.createElement('tr');
           tr.className = 'clickable' + (state.selectedRowId === item.id ? ' selected' : '');
           tr.innerHTML = `
+            <td class="center">${index + 1}</td>
             <td>${item.count}</td>
             <td>${escapeHtml(item.name)}</td>
             <td>${formatMoney(item.price)}</td>
