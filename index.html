@@ -431,6 +431,10 @@
       return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(Number(value || 0));
     }
 
+    function round2(value) {
+      return Math.round((Number(value) + Number.EPSILON) * 100) / 100;
+    }
+
     function numberToWordsEs(num) {
       const nnum = Math.floor(Number(num || 0));
       if (nnum === 0) return 'cero';
@@ -443,7 +447,15 @@
         if (x === 100) return 'cien';
         if (x < 10) return units[x];
         if (x < 20) return teens[x - 10];
-        if (x < 30) return x === 20 ? 'veinte' : `veinti${units[x - 20]}`;
+        if (x < 30) {
+          if (x === 20) return 'veinte';
+          const specials = {
+            22: 'veintidós',
+            23: 'veintitrés',
+            26: 'veintiséis'
+          };
+          return specials[x] || `veinti${units[x - 20]}`;
+        }
         if (x < 100) {
           const t = Math.floor(x / 10);
           const u = x % 10;
@@ -500,31 +512,36 @@
         cantidadAsistentes: n(item.count),
         localidad: item.name,
         precioUnitario: n(item.price),
-        multiplicacion: n(item.count) * n(item.price)
+        multiplicacion: round2(n(item.count) * n(item.price))
       }));
 
       const totalPersons = state.categories.reduce((acc, item) => acc + n(item.count), 0);
       const payingCategories = state.categories.filter(item => !item.courtesy && n(item.price) > 0);
       const payingPersons = payingCategories.reduce((acc, item) => acc + n(item.count), 0);
       const courtesyPersons = state.categories.filter(item => item.courtesy || n(item.price) === 0).reduce((acc, item) => acc + n(item.count), 0);
-      const grossIncome = state.categories.reduce((acc, item) => acc + n(item.price) * n(item.count), 0);
-      const averagePaidLocalityPrice = payingCategories.length ? payingCategories.reduce((acc, item) => acc + n(item.price), 0) / payingCategories.length : 0;
-      const courtesyEstimatedValueForState = courtesyPersons * averagePaidLocalityPrice;
-      const stateBaseBeforeFactor = state.stateTaxMode === 'total' ? grossIncome + courtesyEstimatedValueForState : grossIncome;
+      const grossIncome = round2(state.categories.reduce((acc, item) => acc + n(item.price) * n(item.count), 0));
+
+      const averagePaidLocalityPrice = payingCategories.length
+        ? round2(payingCategories.reduce((acc, item) => acc + n(item.price), 0) / payingCategories.length)
+        : 0;
+
+      const courtesyEstimatedValueForState = round2(courtesyPersons * averagePaidLocalityPrice);
+      const stateBaseBeforeFactor = round2(state.stateTaxMode === 'total' ? grossIncome + courtesyEstimatedValueForState : grossIncome);
       const municipalBaseBeforeFactor = grossIncome;
-      const stateTaxBase = stateBaseBeforeFactor * n(state.stateIncomeFactor);
-      const municipalTaxBase = municipalBaseBeforeFactor * n(state.municipalIncomeFactor);
-      const stateTaxAmount = stateTaxBase * (n(state.stateTaxRate)/100);
-      const municipalTaxAmount = municipalTaxBase * (n(state.municipalTaxRate)/100);
-      const totalStateInterventorFee = n(state.stateInterventorCount) * n(state.stateInterventorFeePerPerson);
-      const totalMunicipalInterventorFee = n(state.municipalInterventorCount) * n(state.municipalInterventorFeePerPerson);
-      const totalStateAdministrative = totalStateInterventorFee + n(state.stateFineAmount);
-      const totalMunicipalAdministrative = totalMunicipalInterventorFee + n(state.municipalFineAmount);
-      const totalTaxes = stateTaxAmount + municipalTaxAmount;
-      const totalAdditionalCharges = totalStateAdministrative + totalMunicipalAdministrative;
-      const totalCharges = totalTaxes + totalAdditionalCharges;
-      const municipalGovernmentTotal = municipalTaxAmount + totalMunicipalInterventorFee + n(state.municipalFineAmount);
-      const stateGovernmentTotal = stateTaxAmount + totalStateInterventorFee + n(state.stateFineAmount);
+      const stateTaxBase = round2(stateBaseBeforeFactor * n(state.stateIncomeFactor));
+      const municipalTaxBase = round2(municipalBaseBeforeFactor * n(state.municipalIncomeFactor));
+      const stateTaxAmount = round2(stateTaxBase * (n(state.stateTaxRate)/100));
+      const municipalTaxAmount = round2(municipalTaxBase * (n(state.municipalTaxRate)/100));
+      const totalStateInterventorFee = round2(n(state.stateInterventorCount) * n(state.stateInterventorFeePerPerson));
+      const totalMunicipalInterventorFee = round2(n(state.municipalInterventorCount) * n(state.municipalInterventorFeePerPerson));
+      const totalStateAdministrative = round2(totalStateInterventorFee + n(state.stateFineAmount));
+      const totalMunicipalAdministrative = round2(totalMunicipalInterventorFee + n(state.municipalFineAmount));
+      const totalTaxes = round2(stateTaxAmount + municipalTaxAmount);
+      const totalAdditionalCharges = round2(totalStateAdministrative + totalMunicipalAdministrative);
+      const totalCharges = round2(totalTaxes + totalAdditionalCharges);
+      const municipalGovernmentTotal = round2(municipalTaxAmount + totalMunicipalInterventorFee + n(state.municipalFineAmount));
+      const stateGovernmentTotal = round2(stateTaxAmount + totalStateInterventorFee + n(state.stateFineAmount));
+
       return {
         sortedCategories, incomeCategories, boletosDetallados,
         totalPersons, payingPersons, courtesyPersons, grossIncome,
@@ -544,7 +561,8 @@
         eventName: state.eventName,
         impuestosTab: state.impuestosTab,
         categorySortDesc: state.categorySortDesc,
-                stateTaxRate: state.stateTaxRate,
+        categorySortTypeAsc: state.categorySortTypeAsc,
+        stateTaxRate: state.stateTaxRate,
         municipalTaxRate: state.municipalTaxRate,
         stateTaxMode: state.stateTaxMode,
         municipalTaxMode: state.municipalTaxMode,
@@ -915,7 +933,7 @@ Selecciona Cancelar para agregarlas a las existentes.`);
             <button type="button" class="small action-btn action-btn-black" data-kind="inc" data-id="${item.id}">+1</button>
             <button type="button" class="small action-btn" style="min-width:96px;" data-kind="addPrompt" data-id="${item.id}">+ importe</button>
           </td>
-          <td class="right"><strong>${formatMoney(n(item.price) * n(item.count))}</strong></td>
+          <td class="right"><strong>${formatMoney(round2(n(item.price) * n(item.count)))}</strong></td>
           <td class="right"><button type="button" class="small danger" data-kind="delete" data-id="${item.id}">Eliminar</button></td>
         `;
         tbody.appendChild(tr);
@@ -939,7 +957,7 @@ Selecciona Cancelar para agregarlas a las existentes.`);
           <div style="display:flex;gap:8px;flex-wrap:wrap;">
             <button type="button" class="small action-btn" style="min-width:120px;" data-kind="addPrompt" data-id="${item.id}">Sumar importe</button>
           </div>
-          <div class="row-between note"><span>Subtotal</span><strong style="color:var(--text)">${formatMoney(n(item.price) * n(item.count))}</strong></div>
+          <div class="row-between note"><span>Subtotal</span><strong style="color:var(--text)">${formatMoney(round2(n(item.price) * n(item.count)))}</strong></div>
         `;
         mobile.appendChild(card);
       });
@@ -1020,12 +1038,14 @@ Selecciona Cancelar para agregarlas a las existentes.`);
         item.count += 1;
         render();
       });
+
       document.querySelectorAll('[data-kind="dec"]').forEach(el => el.onclick = () => {
         const item = state.categories.find(i => i.id === n(el.dataset.id));
         if (!item) return;
         item.count = Math.max(0, item.count - 1);
         render();
       });
+
       document.querySelectorAll('[data-kind="addPrompt"]').forEach(el => el.onclick = () => {
         promptAddToCount(n(el.dataset.id));
       });
@@ -1034,7 +1054,7 @@ Selecciona Cancelar para agregarlas a las existentes.`);
     function renderConcentrados(calc) {
       $('boletosTable').innerHTML = '';
       if (!calc.boletosDetallados.length) {
-        $('boletosTable').innerHTML = '<tr><td colspan="4" class="center" style="color:var(--muted)">Aún no hay localidades con ingreso.</td></tr>';
+        $('boletosTable').innerHTML = '<tr><td colspan="5" class="center" style="color:var(--muted)">Aún no hay localidades con ingreso.</td></tr>';
       } else {
         calc.boletosDetallados.forEach((row, index) => {
           const tr = document.createElement('tr');
@@ -1053,10 +1073,10 @@ Selecciona Cancelar para agregarlas a las existentes.`);
 
       $('incomeTable').innerHTML = '';
       if (!calc.incomeCategories.length) {
-        $('incomeTable').innerHTML = '<tr><td colspan="5" class="center" style="color:var(--muted)">Aún no hay localidades con ingreso.</td></tr>';
+        $('incomeTable').innerHTML = '<tr><td colspan="6" class="center" style="color:var(--muted)">Aún no hay localidades con ingreso.</td></tr>';
       } else {
         calc.incomeCategories.forEach((item, index) => {
-          const total = n(item.price) * n(item.count);
+          const total = round2(n(item.price) * n(item.count));
           const tr = document.createElement('tr');
           tr.className = 'clickable' + (state.selectedRowId === item.id ? ' selected' : '');
           tr.innerHTML = `
@@ -1080,6 +1100,7 @@ Selecciona Cancelar para agregarlas a las existentes.`);
         <div class="row-between"><span>Importe honorarios</span><strong>${formatMoney(calc.totalStateInterventorFee)}</strong></div>
         <div class="row-between"><span>Importe multa</span><strong>${formatMoney(state.stateFineAmount)}</strong></div>
       `;
+
       $('municipalConcentrado').innerHTML = `
         <div class="row-between"><span>Identificación impuesto</span><strong>MUN-001</strong></div>
         <div class="row-between"><span>Factor multiplicador</span><strong>× ${n(state.municipalIncomeFactor)}</strong></div>
@@ -1096,6 +1117,7 @@ Selecciona Cancelar para agregarlas a las existentes.`);
         <div class="row-between"><span>Multas</span><strong>${formatMoney(state.municipalFineAmount)}</strong></div>
         <div class="row-between"><span><strong>Total municipio</strong></span><strong>${formatMoney(calc.municipalGovernmentTotal)}</strong></div>
       `;
+
       $('estadoResumen').innerHTML = `
         <div class="section-title" style="font-size:13px;">Estado</div>
         <div class="row-between"><span>Impuestos</span><strong>${formatMoney(calc.stateTaxAmount)}</strong></div>
@@ -1103,6 +1125,7 @@ Selecciona Cancelar para agregarlas a las existentes.`);
         <div class="row-between"><span>Multas</span><strong>${formatMoney(state.stateFineAmount)}</strong></div>
         <div class="row-between"><span><strong>Total estado</strong></span><strong>${formatMoney(calc.stateGovernmentTotal)}</strong></div>
       `;
+
       $('generalResumen').innerHTML = `
         <div class="section-title" style="font-size:13px;">Total general</div>
         <div class="row-between"><span>Total municipio</span><strong>${formatMoney(calc.municipalGovernmentTotal)}</strong></div>
