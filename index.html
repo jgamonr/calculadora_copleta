@@ -257,7 +257,7 @@
               </div>
               <div class="field">
                 <label>Precio</label>
-                <input id="newCategoryPrice" type="number" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" min="0" value="0" />
+                <input id="newCategoryPrice" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" min="0" value="0" />
               </div>
               <div class="field">
                 <label>&nbsp;</label>
@@ -312,13 +312,13 @@
 
             <div class="card" style="border-radius:14px;"><div class="inner stack" style="padding:12px;">
               <div class="section-title" style="font-size:14px;">Estado</div>
-              <div class="field"><label>Factor estatal (%)</label><input id="stateTaxRate" type="number" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" step="0.01" min="0" value="4" /></div>
-              <div class="field"><label>Factor multiplicador del ingreso</label><input id="stateIncomeFactor" type="number" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" step="0.0001" min="0" value="1" /></div>
+              <div class="field"><label>Factor estatal (%)</label><input id="stateTaxRate" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" step="0.01" min="0" value="4" /></div>
+              <div class="field"><label>Factor multiplicador del ingreso</label><input id="stateIncomeFactor" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" step="0.0001" min="0" value="1" /></div>
               <div class="grid-2">
                 <div class="field"><label>Interventores estado</label><input id="stateInterventorCount" type="number" inputmode="numeric" pattern="[0-9]*" min="0" step="1" value="0" /></div>
-                <div class="field"><label>Honorario estado</label><input id="stateInterventorFeePerPerson" type="number" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" step="0.01" min="0" value="0" /></div>
+                <div class="field"><label>Honorario estado</label><input id="stateInterventorFeePerPerson" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" step="0.01" min="0" value="0" /></div>
               </div>
-              <div class="field"><label>Multas estado</label><input id="stateFineAmount" type="number" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" step="0.01" min="0" value="0" /></div>
+              <div class="field"><label>Multas estado</label><input id="stateFineAmount" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" step="0.01" min="0" value="0" /></div>
               <div class="softbox">
                 <div class="row-between"><span>Promedio localidades pagadas</span><strong id="avgPaidLocality"></strong></div>
                 <div class="row-between"><span>Valor cortesías para estado</span><strong id="courtesyValueState"></strong></div>
@@ -329,13 +329,13 @@
 
             <div class="card" style="border-radius:14px;"><div class="inner stack" style="padding:12px;">
               <div class="section-title" style="font-size:14px;">Municipio</div>
-              <div class="field"><label>Factor municipal (%)</label><input id="municipalTaxRate" type="number" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" step="0.01" min="0" value="2" /></div>
-              <div class="field"><label>Factor multiplicador del ingreso</label><input id="municipalIncomeFactor" type="number" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" step="0.0001" min="0" value="1" /></div>
+              <div class="field"><label>Factor municipal (%)</label><input id="municipalTaxRate" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" step="0.01" min="0" value="2" /></div>
+              <div class="field"><label>Factor multiplicador del ingreso</label><input id="municipalIncomeFactor" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" step="0.0001" min="0" value="1" /></div>
               <div class="grid-2">
                 <div class="field"><label>Interventores municipio</label><input id="municipalInterventorCount" type="number" inputmode="numeric" pattern="[0-9]*" min="0" step="1" value="1" /></div>
-                <div class="field"><label>Honorario municipio</label><input id="municipalInterventorFeePerPerson" type="number" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" step="0.01" min="0" value="0" /></div>
+                <div class="field"><label>Honorario municipio</label><input id="municipalInterventorFeePerPerson" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" step="0.01" min="0" value="0" /></div>
               </div>
-              <div class="field"><label>Multas municipio</label><input id="municipalFineAmount" type="number" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" step="0.01" min="0" value="0" /></div>
+              <div class="field"><label>Multas municipio</label><input id="municipalFineAmount" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" step="0.01" min="0" value="0" /></div>
               <div class="softbox">
                 <div class="row-between"><span>Base antes del factor</span><strong id="municipalBaseBefore"></strong></div>
                 <div class="row-between"><span>Base impuesto municipio</span><strong id="municipalTaxBase"></strong></div>
@@ -684,8 +684,8 @@
       for (const line of lines.slice(1)) {
         const cols = line.split('\t');
         const rawName = (cols[nameIndex] ?? '').trim();
-        const rawCount = Number((cols[countIndex] ?? '').trim());
-        const rawPrice = Number((cols[priceIndex] ?? '').trim());
+        const rawCount = n((cols[countIndex] ?? '').trim());
+        const rawPrice = n((cols[priceIndex] ?? '').trim());
         if (!rawName) continue;
         imported.push({
           id: Date.now() + Math.random(),
@@ -965,7 +965,11 @@ Selecciona Cancelar para agregarlas a las existentes.`);
         'stateTaxRate','municipalTaxRate','stateIncomeFactor','municipalIncomeFactor','stateInterventorCount','stateInterventorFeePerPerson',
         'stateFineAmount','municipalInterventorCount','municipalInterventorFeePerPerson','municipalFineAmount'
       ].forEach(id => {
-        $(id).oninput = e => { state[id] = n(e.target.value); render(); };
+        $(id).oninput = e => {
+          const value = String(e.target.value || '');
+          state[id] = n(value);
+          if (!value.endsWith('.')) render();
+        };
       });
     }
 
@@ -979,18 +983,24 @@ Selecciona Cancelar para agregarlas a las existentes.`);
           input.value = input.value.replace(/[^0-9]/g, '');
         });
       } else {
+        input.setAttribute('type', 'text');
+        input.setAttribute('inputmode', 'decimal');
         input.setAttribute('pattern', '[0-9]*[.,]?[0-9]*');
         input.addEventListener('input', () => {
-          input.value = input.value
+          let value = input.value
             .replace(/,/g, '.')
-            .replace(/[^0-9.]/g, '')
-            .replace(/(\..*)\./g, '$1');
+            .replace(/[^0-9.]/g, '');
+          const firstDot = value.indexOf('.');
+          if (firstDot !== -1) {
+            value = value.slice(0, firstDot + 1) + value.slice(firstDot + 1).replace(/\./g, '');
+          }
+          input.value = value;
         });
       }
     }
 
     function configureAllNumericInputs(scope = document) {
-      scope.querySelectorAll('input[type="number"]').forEach(input => {
+      scope.querySelectorAll('input[type="number"], input[inputmode="decimal"]').forEach(input => {
         const kind = input.dataset.kind || input.id || '';
         const integerOnly = kind.includes('count') || kind.includes('InterventorCount');
         configureNumericInput(input, integerOnly ? 'numeric' : 'decimal');
@@ -1011,7 +1021,7 @@ Selecciona Cancelar para agregarlas a las existentes.`);
         tr.innerHTML = `
           <td class="center">${calc.sortedCategories.findIndex(row => row.id === item.id) + 1}</td>
           <td><input data-kind="name" data-id="${item.id}" value="${escapeHtml(item.name)}"></td>
-          <td><input data-kind="price" data-id="${item.id}" type="number" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" min="0" value="${item.price}" ${item.courtesy ? 'disabled' : ''}></td>
+          <td><input data-kind="price" data-id="${item.id}" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" min="0" value="${item.price}" ${item.courtesy ? 'disabled' : ''}></td>
           <td><button type="button" class="small ${item.courtesy ? 'active' : ''}" data-kind="courtesy" data-id="${item.id}">${item.courtesy ? 'Sí' : 'No'}</button></td>
           <td class="center"><input class="count-input" data-kind="count" data-id="${item.id}" type="number" inputmode="numeric" pattern="[0-9]*" min="0" step="1" value="${item.count}"></td>
           <td class="center">
@@ -1035,7 +1045,7 @@ Selecciona Cancelar para agregarlas a las existentes.`);
             </div>
           </div>
           <div class="grid-4" style="align-items:center;">
-            <input data-kind="price" data-id="${item.id}" type="number" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" min="0" value="${item.price}" ${item.courtesy ? 'disabled' : ''}>
+            <input data-kind="price" data-id="${item.id}" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" min="0" value="${item.price}" ${item.courtesy ? 'disabled' : ''}>
             <button type="button" class="small action-btn" data-kind="dec" data-id="${item.id}">-1</button>
             <button type="button" class="small action-btn action-btn-black" data-kind="inc" data-id="${item.id}">+1</button>
             <input class="count-input" data-kind="count" data-id="${item.id}" type="number" inputmode="numeric" pattern="[0-9]*" min="0" step="1" value="${item.count}">
