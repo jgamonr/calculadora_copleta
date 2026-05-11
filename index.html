@@ -86,6 +86,17 @@
       color: #111827;
       border-color: #b45309;
     }
+
+    .sort-active {
+      background: #16a34a !important;
+      color: #ffffff !important;
+      border-color: #15803d !important;
+      box-shadow: 0 0 0 3px rgba(22, 163, 74, .18);
+    }
+    .sort-active::before {
+      content: "✓ ";
+      font-weight: 800;
+    }
     button.small { padding: 6px 10px; font-size: 12px; }
     button.danger { color: var(--danger); }
     .manual-context-menu {
@@ -1346,7 +1357,11 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       tbody.innerHTML = '';
       mobile.innerHTML = '';
       $('sortByTypeBtn').textContent = state.categorySortTypeAsc ? 'Ordenado por tipo: A-Z' : 'Ordenar por tipo';
-      $('sortByPriceBtn').textContent = state.categorySortDesc ? 'Ordenado: mayor a menor' : 'Ordenar por precio unitario';
+      $('sortByPriceBtn').textContent = state.categorySortDesc ? 'Ordenado por precio unitario' : 'Ordenar por precio unitario';
+      $('sortByTypeBtn').classList.toggle('sort-active', state.categorySortTypeAsc);
+      $('sortByPriceBtn').classList.toggle('sort-active', state.categorySortDesc);
+      $('sortByTypeBtn').setAttribute('aria-pressed', state.categorySortTypeAsc ? 'true' : 'false');
+      $('sortByPriceBtn').setAttribute('aria-pressed', state.categorySortDesc ? 'true' : 'false');
 
       calc.sortedCategories.forEach(item => {
         const tr = document.createElement('tr');
