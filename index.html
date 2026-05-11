@@ -1122,6 +1122,49 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       };
     }
 
+    function checkExistingWebRecord(url, recordId) {
+      return new Promise((resolve) => {
+        const callbackName = `sheetCheckCallback_${Date.now()}_${Math.floor(Math.random() * 100000)}`;
+        const script = document.createElement('script');
+        const sep = url.includes('?') ? '&' : '?';
+        let done = false;
+
+        const cleanup = () => {
+          if (done) return;
+          done = true;
+          delete window[callbackName];
+          script.remove();
+        };
+
+        window[callbackName] = (response) => {
+          cleanup();
+          resolve(Boolean(response && response.ok && response.data));
+        };
+
+        script.onerror = () => {
+          cleanup();
+          resolve(false);
+        };
+
+        setTimeout(() => {
+          cleanup();
+          resolve(false);
+        }, 10000);
+
+        script.src = `${url}${sep}action=load&recordId=${encodeURIComponent(recordId)}&callback=${encodeURIComponent(callbackName)}&_=${Date.now()}`;
+        document.body.appendChild(script);
+      });
+    }
+
+    async function sendPayloadToWeb(url, payload) {
+      await fetch(url, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+      });
+    }
+
     async function saveToGoogleSheet() {
       const url = normalizeSheetUrl();
       if (!url) {
@@ -1135,13 +1178,19 @@ Selecciona Cancelar para agregarlas a las existentes.`);
         }
         const payload = getSheetPayload();
         if (!payload.recordId) return;
+
+        setSheetStatus('Validando si ya existe el registro...');
+        const exists = await checkExistingWebRecord(url, payload.recordId);
+        if (exists) {
+          const overwrite = confirm(`Ya existe un registro con el ID/evento "${payload.recordId}".\n\n¿Deseas sobrescribir los datos guardados?`);
+          if (!overwrite) {
+            setSheetStatus('Guardado cancelado. No se sobrescribieron los datos.');
+            return;
+          }
+        }
+
         setSheetStatus('Guardando en Web...');
-        await fetch(url, {
-          method: 'POST',
-          mode: 'no-cors',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify(payload)
-        });
+        await sendPayloadToWeb(url, payload);
         setSheetStatus('Datos enviados correctamente');
         alert('Datos enviados correctamente');
       } catch (error) {
