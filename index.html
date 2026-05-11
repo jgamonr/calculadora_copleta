@@ -64,11 +64,27 @@
       padding: 10px 14px;
       cursor: pointer;
       font-weight: 600;
+      transition: background .15s ease, color .15s ease, border-color .15s ease, box-shadow .15s ease, transform .15s ease;
+    }
+    button:focus,
+    button:focus-visible {
+      background: #f59e0b;
+      color: #111827;
+      border-color: #b45309;
+      outline: none;
+      box-shadow: 0 0 0 4px rgba(245, 158, 11, .28);
+      transform: translateY(-1px);
     }
     button.active {
       background: var(--primary);
       color: var(--primary-text);
       border-color: var(--primary);
+    }
+    button.active:focus,
+    button.active:focus-visible {
+      background: #f59e0b;
+      color: #111827;
+      border-color: #b45309;
     }
     button.small { padding: 6px 10px; font-size: 12px; }
     button.danger { color: var(--danger); }
@@ -177,6 +193,12 @@
       text-align: center;
       font-weight: 700;
     }
+    .new-category-row {
+      background: #eef2ff !important;
+    }
+    .new-category-row input {
+      border-color: #c7d2fe;
+    }
 
     .numeric-dialog-backdrop {
       position: fixed;
@@ -249,25 +271,6 @@
 
         <div class="stack">
           <div class="card"><div class="inner stack">
-            <div class="section-title">Agregar tipo de acceso</div>
-            <div class="grid-4">
-              <div class="field" style="grid-column: span 2;">
-                <label>Nombre</label>
-                <input id="newCategoryName" placeholder="Ej. Cortesía Invitado Especial" />
-              </div>
-              <div class="field">
-                <label>Precio</label>
-                <input id="newCategoryPrice" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" min="0" value="0" />
-              </div>
-              <div class="field">
-                <label>&nbsp;</label>
-                <label><input id="newCategoryCourtesy" type="checkbox" /> Es cortesía</label>
-              </div>
-            </div>
-            <div><button id="addCategoryBtn">Agregar tipo</button></div>
-          </div></div>
-
-          <div class="card"><div class="inner stack">
             <div class="toolbar">
               <div class="toolbar-left">
                 <div class="section-title" style="margin:0;">Contador manual por categoría</div>
@@ -287,12 +290,12 @@
               <thead>
                 <tr>
                   <th class="center">#</th>
+                  <th class="center">Entradas</th>
                   <th>Tipo</th>
                   <th>Precio</th>
-                  <th>Cortesía</th>
-                  <th class="center">Entradas</th>
-                  <th class="center">Acciones</th>
                   <th class="right">Subtotal</th>
+                  <th>Cortesía</th>
+                  <th class="center">Acciones</th>
                   <th class="right">Eliminar</th>
                 </tr>
               </thead>
@@ -439,6 +442,7 @@
       municipalInterventorFeePerPerson: 0,
       municipalFineAmount: 0,
       selectedRowId: null,
+      newCategoryDraft: { count: '', name: '', price: '', courtesy: false },
       categories: [
         { id: 1, name: 'General', price: 250, count: 0, courtesy: false },
         { id: 2, name: 'VIP', price: 450, count: 0, courtesy: false },
@@ -912,22 +916,6 @@ Selecciona Cancelar para agregarlas a las existentes.`);
 
     function bindTopInputs() {
       $('eventName').oninput = e => { state.eventName = e.target.value; };
-      $('newCategoryCourtesy').onchange = e => {
-        $('newCategoryPrice').disabled = e.target.checked;
-        if (e.target.checked) $('newCategoryPrice').value = 0;
-      };
-      $('addCategoryBtn').onclick = () => {
-        const name = $('newCategoryName').value.trim();
-        const courtesy = $('newCategoryCourtesy').checked;
-        const price = courtesy ? 0 : n($('newCategoryPrice').value);
-        if (!name) return;
-        state.categories.push({ id: Date.now(), name, price, count: 0, courtesy });
-        $('newCategoryName').value = '';
-        $('newCategoryPrice').value = 0;
-        $('newCategoryCourtesy').checked = false;
-        $('newCategoryPrice').disabled = false;
-        render();
-      };
       $('resetCountsBtn').onclick = () => {
         if (!confirm('¿Deseas reiniciar todos los contadores?')) return;
         state.categories = state.categories.map(item => ({ ...item, count: 0 }));
@@ -974,36 +962,198 @@ Selecciona Cancelar para agregarlas a las existentes.`);
     }
 
 
-    function configureNumericInput(input, mode = 'decimal') {
-      input.setAttribute('inputmode', mode);
-      input.setAttribute('autocomplete', 'off');
+    function cleanNumericValue(value, mode = 'decimal') {
+      let txt = String(value || '');
       if (mode === 'numeric') {
-        input.setAttribute('pattern', '[0-9]*');
-        input.addEventListener('input', () => {
-          input.value = input.value.replace(/[^0-9]/g, '');
-        });
-      } else {
-        input.setAttribute('type', 'text');
-        input.setAttribute('inputmode', 'decimal');
-        input.setAttribute('pattern', '[0-9]*[.,]?[0-9]*');
-        input.addEventListener('input', () => {
-          let value = input.value
-            .replace(/,/g, '.')
-            .replace(/[^0-9.]/g, '');
-          const firstDot = value.indexOf('.');
-          if (firstDot !== -1) {
-            value = value.slice(0, firstDot + 1) + value.slice(firstDot + 1).replace(/\./g, '');
-          }
-          input.value = value;
-        });
+        return txt.replace(/[^0-9]/g, '');
       }
+
+      txt = txt
+        .replace(/,/g, '.')
+        .replace(/[^0-9.]/g, '');
+
+      const firstDot = txt.indexOf('.');
+      if (firstDot !== -1) {
+        txt = txt.slice(0, firstDot + 1) + txt.slice(firstDot + 1).replace(/\./g, '');
+      }
+      return txt;
+    }
+
+    function configureNumericInput(input, mode = 'decimal') {
+      // type="text" evita que el navegador permita letras como "e" en campos number.
+      // inputmode mantiene el teclado numérico/decimal en celulares y tablets.
+      input.setAttribute('type', 'text');
+      input.setAttribute('inputmode', mode === 'numeric' ? 'numeric' : 'decimal');
+      input.setAttribute('autocomplete', 'off');
+      input.setAttribute('autocorrect', 'off');
+      input.setAttribute('spellcheck', 'false');
+      input.setAttribute('pattern', mode === 'numeric' ? '[0-9]*' : '[0-9]*[.]?[0-9]*');
+
+      input.addEventListener('beforeinput', (e) => {
+        if (!e.data) return;
+        const allowed = mode === 'numeric' ? /^[0-9]+$/ : /^[0-9.,]+$/;
+        if (!allowed.test(e.data)) e.preventDefault();
+      });
+
+      input.addEventListener('paste', (e) => {
+        e.preventDefault();
+        const pasted = (e.clipboardData || window.clipboardData).getData('text');
+        const start = input.selectionStart ?? input.value.length;
+        const end = input.selectionEnd ?? input.value.length;
+        const next = input.value.slice(0, start) + pasted + input.value.slice(end);
+        input.value = cleanNumericValue(next, mode);
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+      });
+
+      input.addEventListener('input', () => {
+        const cleaned = cleanNumericValue(input.value, mode);
+        if (input.value !== cleaned) input.value = cleaned;
+      });
     }
 
     function configureAllNumericInputs(scope = document) {
-      scope.querySelectorAll('input[type="number"], input[inputmode="decimal"]').forEach(input => {
+      const numericSelector = [
+        'input[type="number"]',
+        'input[inputmode="decimal"]',
+        'input[inputmode="numeric"]',
+        'input[data-kind="price"]',
+        'input[data-kind="count"]',
+        '#newCategoryPrice',
+        '#stateTaxRate',
+        '#municipalTaxRate',
+        '#stateIncomeFactor',
+        '#municipalIncomeFactor',
+        '#stateInterventorCount',
+        '#stateInterventorFeePerPerson',
+        '#stateFineAmount',
+        '#municipalInterventorCount',
+        '#municipalInterventorFeePerPerson',
+        '#municipalFineAmount'
+      ].join(',');
+
+      scope.querySelectorAll(numericSelector).forEach(input => {
+        if (input.dataset.numericConfigured === '1') return;
+        input.dataset.numericConfigured = '1';
         const kind = input.dataset.kind || input.id || '';
-        const integerOnly = kind.includes('count') || kind.includes('InterventorCount');
+        const integerOnly = kind.includes('count') || kind.includes('new-count') || kind.includes('InterventorCount');
         configureNumericInput(input, integerOnly ? 'numeric' : 'decimal');
+      });
+    }
+
+
+    function syncNewCategoryDraftFromRow(sourceEl = document.activeElement) {
+      const row = sourceEl && sourceEl.closest ? sourceEl.closest('.new-category-row') : null;
+      const scope = row || document;
+      const nameInput = scope.querySelector('[data-kind="new-name"]');
+      const priceInput = scope.querySelector('[data-kind="new-price"]');
+      const countInput = scope.querySelector('[data-kind="new-count"]');
+      const courtesyInput = scope.querySelector('[data-kind="new-courtesy"]');
+
+      state.newCategoryDraft = {
+        count: countInput ? cleanNumericValue(countInput.value, 'numeric') : state.newCategoryDraft.count,
+        name: nameInput ? String(nameInput.value || '') : state.newCategoryDraft.name,
+        price: priceInput ? cleanNumericValue(priceInput.value, 'decimal') : state.newCategoryDraft.price,
+        courtesy: Boolean(courtesyInput && courtesyInput.checked)
+      };
+
+      if (state.newCategoryDraft.courtesy) state.newCategoryDraft.price = '0';
+    }
+
+    function addCategoryFromInlineInputs(sourceEl = document.activeElement) {
+      syncNewCategoryDraftFromRow(sourceEl);
+
+      const name = String(state.newCategoryDraft.name || '').trim();
+      const courtesy = Boolean(state.newCategoryDraft.courtesy);
+      const price = courtesy ? 0 : n(state.newCategoryDraft.price);
+      const count = Math.max(0, Math.floor(n(state.newCategoryDraft.count)));
+
+      if (!name) {
+        alert('Captura el tipo de acceso antes de agregarlo.');
+        const row = sourceEl && sourceEl.closest ? sourceEl.closest('.new-category-row') : null;
+        const nameInput = row ? row.querySelector('[data-kind="new-name"]') : document.querySelector('[data-kind="new-name"]');
+        if (nameInput) nameInput.focus();
+        return;
+      }
+
+      state.categories.push({ id: Date.now() + Math.random(), name, price, count, courtesy });
+      state.newCategoryDraft = { count: '', name: '', price: '', courtesy: false };
+      render();
+      setTimeout(() => {
+        const nextCount = document.querySelector('[data-kind="new-count"]');
+        if (nextCount) nextCount.focus();
+      }, 0);
+    }
+
+
+    function applyManualTableFieldValue(input) {
+      const kind = input.dataset.kind;
+
+      if (String(kind || '').startsWith('new-')) {
+        syncNewCategoryDraftFromRow(input);
+        return;
+      }
+
+      const id = n(input.dataset.id);
+      const item = state.categories.find(i => i.id === id);
+
+      if (item) {
+        if (kind === 'count') {
+          item.count = Math.max(0, Math.floor(n(input.value)));
+        } else if (kind === 'name') {
+          item.name = String(input.value || '').trim() || item.name;
+        } else if (kind === 'price') {
+          item.price = Math.max(0, n(input.value));
+        }
+      }
+    }
+
+    function configureManualTableTabOrder(scope) {
+      const selector = [
+        '[data-kind="count"]',
+        '[data-kind="name"]',
+        '[data-kind="price"]',
+        '[data-kind="new-count"]',
+        '[data-kind="new-name"]',
+        '[data-kind="new-price"]',
+        '[data-kind="new-add"]'
+      ].join(',');
+
+      const fields = Array.from(scope.querySelectorAll(selector))
+        .filter(el => !el.disabled && el.offsetParent !== null);
+
+      fields.forEach((field, index) => {
+        field.tabIndex = 0;
+        field.dataset.manualTabKey = field.dataset.id
+          ? `${field.dataset.id}:${field.dataset.kind}`
+          : `new:${field.dataset.kind}`;
+
+        field.addEventListener('keydown', (e) => {
+          if (e.key !== 'Tab') return;
+
+          e.preventDefault();
+          applyManualTableFieldValue(field);
+
+          const currentFields = Array.from(scope.querySelectorAll(selector))
+            .filter(el => !el.disabled && el.offsetParent !== null);
+          const currentIndex = currentFields.indexOf(field);
+          const nextIndex = e.shiftKey ? currentIndex - 1 : currentIndex + 1;
+          const nextField = currentFields[nextIndex];
+          const nextKey = nextField ? (nextField.dataset.id
+            ? `${nextField.dataset.id}:${nextField.dataset.kind}`
+            : `new:${nextField.dataset.kind}`) : null;
+
+          render();
+
+          if (nextKey) {
+            setTimeout(() => {
+              const target = document.querySelector(`[data-manual-tab-key="${nextKey}"]`);
+              if (target) {
+                target.focus();
+                if (typeof target.select === 'function') target.select();
+              }
+            }, 0);
+          }
+        });
       });
     }
 
@@ -1020,17 +1170,17 @@ Selecciona Cancelar para agregarlas a las existentes.`);
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td class="center">${calc.sortedCategories.findIndex(row => row.id === item.id) + 1}</td>
+          <td class="center"><input class="count-input" data-kind="count" data-id="${item.id}" type="text" inputmode="numeric" pattern="[0-9]*" min="0" step="1" value="${item.count}"></td>
           <td><input data-kind="name" data-id="${item.id}" value="${escapeHtml(item.name)}"></td>
           <td><input data-kind="price" data-id="${item.id}" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" min="0" value="${item.price}" ${item.courtesy ? 'disabled' : ''}></td>
-          <td><button type="button" class="small ${item.courtesy ? 'active' : ''}" data-kind="courtesy" data-id="${item.id}">${item.courtesy ? 'Sí' : 'No'}</button></td>
-          <td class="center"><input class="count-input" data-kind="count" data-id="${item.id}" type="number" inputmode="numeric" pattern="[0-9]*" min="0" step="1" value="${item.count}"></td>
-          <td class="center">
-            <button type="button" class="small action-btn" data-kind="dec" data-id="${item.id}">-1</button>
-            <button type="button" class="small action-btn action-btn-black" data-kind="inc" data-id="${item.id}">+1</button>
-            <button type="button" class="small action-btn" style="min-width:96px;" data-kind="addPrompt" data-id="${item.id}">+ importe</button>
-          </td>
           <td class="right"><strong>${formatMoney(round2(n(item.price) * n(item.count)))}</strong></td>
-          <td class="right"><button type="button" class="small danger" data-kind="delete" data-id="${item.id}">Eliminar</button></td>
+          <td><button type="button" tabindex="-1" class="small ${item.courtesy ? 'active' : ''}" data-kind="courtesy" data-id="${item.id}">${item.courtesy ? 'Sí' : 'No'}</button></td>
+          <td class="center">
+            <button type="button" tabindex="-1" class="small action-btn" data-kind="dec" data-id="${item.id}">-1</button>
+            <button type="button" tabindex="-1" class="small action-btn action-btn-black" data-kind="inc" data-id="${item.id}">+1</button>
+            <button type="button" tabindex="-1" class="small action-btn" style="min-width:96px;" data-kind="addPrompt" data-id="${item.id}">+ importe</button>
+          </td>
+          <td class="right"><button type="button" tabindex="-1" class="small danger" data-kind="delete" data-id="${item.id}">Eliminar</button></td>
         `;
         tbody.appendChild(tr);
 
@@ -1040,35 +1190,66 @@ Selecciona Cancelar para agregarlas a las existentes.`);
           <div class="row-between">
             <input data-kind="name" data-id="${item.id}" value="${escapeHtml(item.name)}" style="border:0;padding:0;font-weight:600;">
             <div style="display:flex;gap:6px;align-items:center;">
-              <button type="button" class="small ${item.courtesy ? 'active' : ''}" data-kind="courtesy" data-id="${item.id}">${item.courtesy ? 'Cortesía' : 'De pago'}</button>
-              <button type="button" class="small danger" data-kind="delete" data-id="${item.id}">🗑</button>
+              <button type="button" tabindex="-1" class="small ${item.courtesy ? 'active' : ''}" data-kind="courtesy" data-id="${item.id}">${item.courtesy ? 'Cortesía' : 'De pago'}</button>
+              <button type="button" tabindex="-1" class="small danger" data-kind="delete" data-id="${item.id}">🗑</button>
             </div>
           </div>
           <div class="grid-4" style="align-items:center;">
+            <input class="count-input" data-kind="count" data-id="${item.id}" type="text" inputmode="numeric" pattern="[0-9]*" min="0" step="1" value="${item.count}">
             <input data-kind="price" data-id="${item.id}" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" min="0" value="${item.price}" ${item.courtesy ? 'disabled' : ''}>
-            <button type="button" class="small action-btn" data-kind="dec" data-id="${item.id}">-1</button>
-            <button type="button" class="small action-btn action-btn-black" data-kind="inc" data-id="${item.id}">+1</button>
-            <input class="count-input" data-kind="count" data-id="${item.id}" type="number" inputmode="numeric" pattern="[0-9]*" min="0" step="1" value="${item.count}">
+            <button type="button" tabindex="-1" class="small action-btn" data-kind="dec" data-id="${item.id}">-1</button>
+            <button type="button" tabindex="-1" class="small action-btn action-btn-black" data-kind="inc" data-id="${item.id}">+1</button>
           </div>
           <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            <button type="button" class="small action-btn" style="min-width:120px;" data-kind="addPrompt" data-id="${item.id}">Sumar importe</button>
+            <button type="button" tabindex="-1" class="small action-btn" style="min-width:120px;" data-kind="addPrompt" data-id="${item.id}">Sumar importe</button>
           </div>
           <div class="row-between note"><span>Subtotal</span><strong style="color:var(--text)">${formatMoney(round2(n(item.price) * n(item.count)))}</strong></div>
         `;
         mobile.appendChild(card);
       });
 
+      const addTr = document.createElement('tr');
+      addTr.className = 'new-category-row';
+      const draft = state.newCategoryDraft || { count: '', name: '', price: '', courtesy: false };
+      addTr.innerHTML = `
+        <td class="center">Nuevo</td>
+        <td class="center"><input class="count-input" data-kind="new-count" type="text" inputmode="numeric" pattern="[0-9]*" value="${escapeHtml(draft.count)}" placeholder="0"></td>
+        <td><input data-kind="new-name" type="text" value="${escapeHtml(draft.name)}" placeholder="Nuevo tipo de acceso"></td>
+        <td><input data-kind="new-price" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" value="${escapeHtml(draft.price)}" placeholder="0.00" ${draft.courtesy ? 'disabled' : ''}></td>
+        <td class="right"><strong>${formatMoney(round2(n(draft.count) * n(draft.price)))}</strong></td>
+        <td class="center"><label class="note"><input data-kind="new-courtesy" type="checkbox" tabindex="-1" ${draft.courtesy ? 'checked' : ''}> Cortesía</label></td>
+        <td class="center"><button type="button" class="small active" data-kind="new-add">Agregar</button></td>
+        <td></td>
+      `;
+      tbody.appendChild(addTr);
+
+      const addMobile = document.createElement('div');
+      addMobile.className = 'cat-mobile new-category-row';
+      addMobile.innerHTML = `
+        <div class="section-title" style="font-size:14px;margin:0;">Nuevo tipo de acceso</div>
+        <div class="grid-3" style="align-items:center;">
+          <input class="count-input" data-kind="new-count" type="text" inputmode="numeric" pattern="[0-9]*" value="${escapeHtml(draft.count)}" placeholder="Entradas">
+          <input data-kind="new-name" type="text" value="${escapeHtml(draft.name)}" placeholder="Tipo">
+          <input data-kind="new-price" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" value="${escapeHtml(draft.price)}" placeholder="Precio" ${draft.courtesy ? 'disabled' : ''}>
+        </div>
+        <div class="row-between">
+          <label class="note"><input data-kind="new-courtesy" type="checkbox" tabindex="-1" ${draft.courtesy ? 'checked' : ''}> Cortesía</label>
+          <button type="button" class="small active" data-kind="new-add">Agregar</button>
+        </div>
+      `;
+      mobile.appendChild(addMobile);
+
       configureAllNumericInputs(tbody);
       configureAllNumericInputs(mobile);
+      configureManualTableTabOrder(tbody);
+      configureManualTableTabOrder(mobile);
 
       document.querySelectorAll('[data-kind="name"]').forEach(el => {
         el.onchange = (e) => {
           const id = n(e.target.dataset.id);
           const item = state.categories.find(i => i.id === id);
           if (!item) return;
-          const value = e.target.value;
-          if (!confirm(`¿Deseas cambiar el nombre de la categoría "${item.name}"?`)) { render(); return; }
-          item.name = value;
+          item.name = String(e.target.value || '').trim() || item.name;
           render();
         };
       });
@@ -1101,6 +1282,40 @@ Selecciona Cancelar para agregarlas a las existentes.`);
           if (e.key === 'Enter') {
             applyCountChange(e.target);
             e.target.blur();
+          }
+        };
+      });
+
+      document.querySelectorAll('[data-kind="new-courtesy"]').forEach(el => {
+        el.onchange = (e) => {
+          const row = e.target.closest('.new-category-row');
+          if (!row) return;
+          const price = row.querySelector('[data-kind="new-price"]');
+          if (price) {
+            price.disabled = e.target.checked;
+            if (e.target.checked) price.value = '0';
+          }
+          syncNewCategoryDraftFromRow(e.target);
+        };
+      });
+
+      document.querySelectorAll('[data-kind="new-count"], [data-kind="new-name"], [data-kind="new-price"]').forEach(el => {
+        el.oninput = (e) => syncNewCategoryDraftFromRow(e.currentTarget);
+        el.onblur = (e) => syncNewCategoryDraftFromRow(e.currentTarget);
+        el.onkeydown = (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            addCategoryFromInlineInputs(e.currentTarget);
+          }
+        };
+      });
+
+      document.querySelectorAll('[data-kind="new-add"]').forEach(el => {
+        el.onclick = (e) => addCategoryFromInlineInputs(e.currentTarget);
+        el.onkeydown = (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            addCategoryFromInlineInputs(e.currentTarget);
           }
         };
       });
