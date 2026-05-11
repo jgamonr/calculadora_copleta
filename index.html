@@ -148,19 +148,19 @@
     #categoriesTable tr:nth-child(even) { background: #f3f4f6; }
     .layout {
       display: grid;
-      grid-template-columns: 240px 1fr;
+      grid-template-columns: 240px minmax(0, 1fr);
       gap: 14px;
       align-items: start;
+      min-width: 0;
     }
-    .left-panel {
-      align-self: start;
-      display: grid;
-      gap: 10px;
-      align-content: start;
-    }
-    .counter-panel {
+    .layout > .stack {
       min-width: 0;
       align-self: start;
+    }
+    .layout > .stack:first-child {
+      width: 240px;
+      max-width: 100%;
+      gap: 8px;
     }
     .config-card .inner {
       padding: 8px 10px;
@@ -192,31 +192,6 @@
       font-size: 12px;
       border-radius: 9px;
     }
-
-    .side-actions-card .inner {
-      padding: 10px;
-      gap: 8px;
-    }
-    .side-actions {
-      display: grid;
-      gap: 7px;
-    }
-    .side-actions button {
-      width: 100%;
-      justify-content: center;
-      padding: 8px 10px;
-      font-size: 12px;
-      border-radius: 10px;
-    }
-    .side-actions .button-group-title {
-      font-size: 11px;
-      font-weight: 700;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: .04em;
-      margin-top: 4px;
-    }
-
     .section-title {
       font-size: 16px;
       font-weight: 700;
@@ -266,6 +241,64 @@
       flex-wrap: wrap;
       gap: 8px;
       align-items: center;
+    }
+    .manual-tools {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      align-items: stretch;
+    }
+    .manual-tool-group {
+      background: var(--soft);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 10px;
+      display: grid;
+      gap: 8px;
+    }
+    .manual-tool-title {
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .03em;
+    }
+    .manual-tool-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+    .manual-tool-actions button {
+      flex: 1 1 135px;
+      min-height: 38px;
+    }
+    .side-tools-card .inner {
+      padding: 8px;
+      gap: 6px;
+    }
+    .side-tools-card .manual-tools {
+      grid-template-columns: 1fr;
+      gap: 6px;
+    }
+    .side-tools-card .manual-tool-group {
+      padding: 7px;
+      border-radius: 10px;
+      gap: 6px;
+    }
+    .side-tools-card .manual-tool-title {
+      font-size: 11px;
+    }
+    .side-tools-card .manual-tool-actions {
+      gap: 6px;
+    }
+    .side-tools-card .manual-tool-actions button {
+      flex: 1 1 100%;
+      width: 100%;
+      min-height: 30px;
+      padding: 6px 7px;
+      font-size: 11px;
+      font-size: 12px;
     }
     table {
       width: 100%;
@@ -342,15 +375,9 @@
     .numeric-dialog-title { font-size: 16px; font-weight: 700; }
     .numeric-dialog-actions { display: flex; gap: 8px; justify-content: flex-end; }
     @media (max-width: 980px) {
-      .grid-summary, .layout, .totals-grid { grid-template-columns: 1fr; }
+      .grid-summary, .layout, .totals-grid { grid-template-columns: minmax(0, 1fr); }
+      .layout > .stack:first-child { width: 100%; }
       .grid-4 { grid-template-columns: 1fr 1fr; }
-      .left-panel {
-        grid-template-columns: minmax(220px, 1fr) minmax(220px, 1fr);
-        overflow-x: auto;
-        padding-bottom: 4px;
-        align-items: start;
-      }
-      .left-panel > .card { min-width: 220px; }
     }
     @media (max-width: 760px) {
       .desktop-table {
@@ -364,11 +391,9 @@
       .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
       h1 { font-size: 24px; }
       .toolbar { align-items: stretch; }
+      .manual-tools { grid-template-columns: 1fr; }
+      .manual-tool-actions button { flex: 1 1 100%; }
       th, td { padding: 8px 10px; }
-      .left-panel { gap: 8px; }
-      .config-card .inner, .side-actions-card .inner { padding: 8px; }
-      .side-actions { gap: 6px; }
-      .side-actions button { padding: 7px 8px; font-size: 11px; }
     }
   </style>
 </head>
@@ -391,7 +416,7 @@
 
     <div id="viewContador">
       <div class="layout">
-        <div class="left-panel">
+        <div class="stack">
           <div class="card config-card"><div class="inner stack">
             <div class="section-title">Configuración general</div>
             <div class="field">
@@ -403,39 +428,45 @@
               <div class="row-between"><span>Ingreso bruto</span><strong id="grossBox">$0.00</strong></div>
             </div>
             <button id="resetCountsBtn">Reiniciar contadores</button>
-            <input id="sheetWebAppUrl" type="hidden" value="https://script.google.com/macros/s/AKfycbwfJefkL2hJJESI2ZZ8JmHhi1Z1q9Jq8ybXLu_TF9rd4MWuxZFQNE0GkRy392-m_Wu4/exec" />
-            <div id="sheetStatus" class="sheet-status" style="display:none;"></div>
-          </div></div>
-
-          <div class="card side-actions-card"><div class="inner stack">
-            <div class="section-title" style="font-size:14px;margin:0;">Acciones</div>
-            <div class="side-actions">
-              <div class="button-group-title">Web</div>
-              <button id="saveSheetBtn" type="button" class="active">Guardar Web</button>
-              <button id="loadSheetBtn" type="button">Cargar Web</button>
-
-              <div class="button-group-title">Archivos</div>
-              <button id="importTableBtn" type="button" title="Orden: name, count, price.">Importar tabla TXT</button>
-              <button id="generatePdfBtn" type="button">Generar reporte PDF</button>
-              <button id="saveTxtBtn" type="button">Guardar TXT</button>
-              <button id="loadTxtBtn" type="button">Cargar TXT</button>
-
-              <div class="button-group-title">Orden</div>
-              <button id="sortByTypeBtn" type="button">Ordenar por tipo</button>
-              <button id="sortByPriceBtn" type="button">Ordenar por precio unitario</button>
+            <div class="sheet-panel">
+              <input id="sheetWebAppUrl" type="hidden" value="https://script.google.com/macros/s/AKfycbwfJefkL2hJJESI2ZZ8JmHhi1Z1q9Jq8ybXLu_TF9rd4MWuxZFQNE0GkRy392-m_Wu4/exec" />
+              <div class="sheet-actions">
+                <button id="saveSheetBtn" type="button" class="small active">Guardar Web</button>
+                <button id="loadSheetBtn" type="button" class="small">Cargar Web</button>
+              </div>
+              <div id="sheetStatus" class="sheet-status"></div>
             </div>
-            <input id="importTableInput" type="file" accept=".txt,text/plain" style="display:none;" />
-            <input id="loadTxtInput" type="file" accept=".txt,application/json,text/plain" style="display:none;" />
+          </div></div>
+          <div class="card side-tools-card"><div class="inner stack">
+            <div class="manual-tools" aria-label="Herramientas de tabla">
+              <div class="manual-tool-group">
+                <div class="manual-tool-title">Archivos y reporte</div>
+                <div class="manual-tool-actions">
+                  <button id="importTableBtn" type="button" title="Orden: name, count, price.">Importar tabla TXT</button>
+                  <button id="generatePdfBtn" type="button">Generar reporte PDF</button>
+                  <button id="saveTxtBtn" type="button">Guardar TXT</button>
+                  <button id="loadTxtBtn" type="button">Cargar TXT</button>
+                </div>
+              </div>
+              <div class="manual-tool-group">
+                <div class="manual-tool-title">Orden de tabla</div>
+                <div class="manual-tool-actions">
+                  <button id="sortByTypeBtn" type="button">Ordenar por tipo</button>
+                  <button id="sortByPriceBtn" type="button">Ordenar por precio unitario</button>
+                </div>
+              </div>
+              <input id="importTableInput" type="file" accept=".txt,text/plain" style="display:none;" />
+              <input id="loadTxtInput" type="file" accept=".txt,application/json,text/plain" style="display:none;" />
+            </div>
           </div></div>
         </div>
 
-        <div class="stack counter-panel">
+        <div class="stack">
           <div class="card"><div class="inner stack">
             <div class="toolbar">
               <div class="toolbar-left">
                 <div class="section-title" style="margin:0;">Contador manual por categoría</div>
               </div>
-              <div class="toolbar-right"></div>
             </div>
             <div class="desktop-table"><table>
               <thead>
@@ -594,7 +625,7 @@
       municipalInterventorFeePerPerson: 0,
       municipalFineAmount: 0,
       sheetWebAppUrl: FIXED_SHEET_WEB_APP_URL,
-      sheetRecordId: localStorage.getItem('sheetRecordId') || '',
+      sheetRecordId: '',
       selectedRowId: null,
       newCategoryDraft: { count: '', name: '', price: '', courtesy: false },
       categories: [
@@ -755,7 +786,6 @@
         municipalInterventorCount: state.municipalInterventorCount,
         municipalInterventorFeePerPerson: state.municipalInterventorFeePerPerson,
         municipalFineAmount: state.municipalFineAmount,
-        sheetRecordId: state.sheetRecordId,
         categories: state.categories
       };
     }
@@ -765,7 +795,7 @@
       const merged = { ...base, ...data };
       Object.assign(state, merged);
       state.sheetWebAppUrl = FIXED_SHEET_WEB_APP_URL;
-      state.sheetRecordId = state.sheetRecordId || localStorage.getItem('sheetRecordId') || '';
+      state.sheetRecordId = '';
       state.categories = Array.isArray(merged.categories) ? merged.categories.map(item => ({
         id: n(item.id) || Date.now() + Math.random(),
         name: String(item.name || ''),
@@ -791,7 +821,6 @@
       $('municipalInterventorFeePerPerson').value = state.municipalInterventorFeePerPerson;
       $('municipalFineAmount').value = state.municipalFineAmount;
       if ($('sheetWebAppUrl')) $('sheetWebAppUrl').value = state.sheetWebAppUrl || '';
-      if ($('sheetRecordId')) $('sheetRecordId').value = state.sheetRecordId || '';
     }
 
     function saveTxtFile() {
@@ -1079,7 +1108,6 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       if (!el) return;
       el.textContent = message || '';
       el.style.color = isError ? 'var(--danger)' : 'var(--muted)';
-      el.style.display = message ? 'block' : 'none';
     }
 
     function normalizeSheetUrl() {
@@ -1090,17 +1118,17 @@ Selecciona Cancelar para agregarlas a las existentes.`);
     }
 
     function normalizeSheetRecordId() {
-      const eventInput = $('eventName');
-      if (eventInput) state.eventName = eventInput.value.trim();
-      const recordId = String(state.eventName || '').trim();
-      if (!recordId) {
-        setSheetStatus('Captura el nombre del evento para guardar o cargar en Web.', true);
-        alert('Captura el nombre del evento. Ese dato se usará como ID para Guardar Web y Cargar Web.');
-        if (eventInput) eventInput.focus();
+      const eventName = String(state.eventName || ($('eventName') && $('eventName').value) || '').trim();
+      if (!eventName) {
+        setSheetStatus('Captura primero el nombre del Evento para guardar o cargar en Web.', true);
+        alert('Captura primero el nombre del Evento. Ese dato se usará como identificador en Web.');
+        if ($('eventName')) $('eventName').focus();
         return '';
       }
+      const recordId = eventName
+        .replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ_-]+/g, '_')
+        .replace(/^_+|_+$/g, '') || eventName;
       state.sheetRecordId = recordId;
-      localStorage.setItem('sheetRecordId', recordId);
       return recordId;
     }
 
@@ -1125,8 +1153,9 @@ Selecciona Cancelar para agregarlas a las existentes.`);
     async function saveToGoogleSheet() {
       const url = normalizeSheetUrl();
       if (!url) {
-        alert('No está configurada la conexión Web.');
+        alert('Primero pega la URL del Web App de Apps Script.');
         setSheetStatus('Falta la URL del Web App.', true);
+        if ($('sheetWebAppUrl')) $('sheetWebAppUrl').focus();
         return;
       }
       try {
@@ -1142,12 +1171,12 @@ Selecciona Cancelar para agregarlas a las existentes.`);
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
           body: JSON.stringify(payload)
         });
-        setSheetStatus(`Datos guardados en Web. Evento: ${payload.recordId}`);
-        alert(`Datos guardados en Web para el evento: ${payload.recordId}`);
+        setSheetStatus(`Datos enviados a Web. Evento: ${state.eventName}`);
+        alert('Datos enviados a Web. Si es la primera vez, revisa que el Apps Script esté publicado correctamente.');
       } catch (error) {
         console.error(error);
-        setSheetStatus('No se pudo guardar en Web.', true);
-        alert('No se pudo guardar en Web. Revisa la publicación del Apps Script.');
+        setSheetStatus('No se pudo enviar a Web.', true);
+        alert('No se pudo guardar en Web. Revisa la URL del Web App y la publicación del Apps Script.');
       }
     }
 
@@ -1156,7 +1185,7 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       const recordId = normalizeSheetRecordId();
       if (!recordId) return;
       if (!url) {
-        alert('No está configurada la conexión Web.');
+        alert('Primero pega la URL del Web App de Apps Script.');
         setSheetStatus('Falta la URL del Web App.', true);
         return;
       }
@@ -1174,7 +1203,7 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       window[callbackName] = (response) => {
         cleanup();
         if (!response || !response.ok) {
-          const msg = response && response.error ? response.error : 'No se encontró el evento en Web.';
+          const msg = response && response.error ? response.error : 'No se encontró el registro en Web.';
           setSheetStatus(msg, true);
           alert(msg);
           return;
@@ -1183,17 +1212,16 @@ Selecciona Cancelar para agregarlas a las existentes.`);
         state.sheetWebAppUrl = url;
         state.sheetRecordId = recordId;
         localStorage.setItem('sheetWebAppUrl', url);
-        localStorage.setItem('sheetRecordId', recordId);
         syncInputsFromState();
         render();
-        setSheetStatus(`Evento cargado desde Web: ${recordId}`);
+        setSheetStatus(`Evento cargado desde Web: ${state.eventName || recordId}`);
       };
 
       script.onerror = () => {
         if (done) return;
         cleanup();
         setSheetStatus('No se pudo cargar desde Web.', true);
-        alert('No se pudo cargar desde Web. Revisa que el Apps Script esté publicado como acceso público.');
+        alert('No se pudo cargar desde Web. Revisa la URL del Web App y que esté publicado como acceso público.');
       };
 
       setTimeout(() => {
@@ -1208,8 +1236,8 @@ Selecciona Cancelar para agregarlas a las existentes.`);
     }
 
     function bindTopInputs() {
-      $('eventName').oninput = e => { state.eventName = e.target.value; };
-      if ($('sheetWebAppUrl')) $('sheetWebAppUrl').value = FIXED_SHEET_WEB_APP_URL;
+      $('eventName').oninput = e => { state.eventName = e.target.value; state.sheetRecordId = ''; };
+      if ($('sheetWebAppUrl')) $('sheetWebAppUrl').oninput = e => { state.sheetWebAppUrl = e.target.value.trim(); localStorage.setItem('sheetWebAppUrl', state.sheetWebAppUrl); };
       if ($('saveSheetBtn')) $('saveSheetBtn').onclick = saveToGoogleSheet;
       if ($('loadSheetBtn')) $('loadSheetBtn').onclick = loadFromGoogleSheet;
       $('resetCountsBtn').onclick = () => {
