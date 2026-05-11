@@ -150,6 +150,17 @@
       display: grid;
       grid-template-columns: 240px 1fr;
       gap: 14px;
+      align-items: start;
+    }
+    .left-panel {
+      align-self: start;
+      display: grid;
+      gap: 10px;
+      align-content: start;
+    }
+    .counter-panel {
+      min-width: 0;
+      align-self: start;
     }
     .config-card .inner {
       padding: 8px 10px;
@@ -181,6 +192,31 @@
       font-size: 12px;
       border-radius: 9px;
     }
+
+    .side-actions-card .inner {
+      padding: 10px;
+      gap: 8px;
+    }
+    .side-actions {
+      display: grid;
+      gap: 7px;
+    }
+    .side-actions button {
+      width: 100%;
+      justify-content: center;
+      padding: 8px 10px;
+      font-size: 12px;
+      border-radius: 10px;
+    }
+    .side-actions .button-group-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      margin-top: 4px;
+    }
+
     .section-title {
       font-size: 16px;
       font-weight: 700;
@@ -308,6 +344,13 @@
     @media (max-width: 980px) {
       .grid-summary, .layout, .totals-grid { grid-template-columns: 1fr; }
       .grid-4 { grid-template-columns: 1fr 1fr; }
+      .left-panel {
+        grid-template-columns: minmax(220px, 1fr) minmax(220px, 1fr);
+        overflow-x: auto;
+        padding-bottom: 4px;
+        align-items: start;
+      }
+      .left-panel > .card { min-width: 220px; }
     }
     @media (max-width: 760px) {
       .desktop-table {
@@ -322,6 +365,10 @@
       h1 { font-size: 24px; }
       .toolbar { align-items: stretch; }
       th, td { padding: 8px 10px; }
+      .left-panel { gap: 8px; }
+      .config-card .inner, .side-actions-card .inner { padding: 8px; }
+      .side-actions { gap: 6px; }
+      .side-actions button { padding: 7px 8px; font-size: 11px; }
     }
   </style>
 </head>
@@ -344,7 +391,7 @@
 
     <div id="viewContador">
       <div class="layout">
-        <div class="stack">
+        <div class="left-panel">
           <div class="card config-card"><div class="inner stack">
             <div class="section-title">Configuración general</div>
             <div class="field">
@@ -356,37 +403,39 @@
               <div class="row-between"><span>Ingreso bruto</span><strong id="grossBox">$0.00</strong></div>
             </div>
             <button id="resetCountsBtn">Reiniciar contadores</button>
-            <div class="sheet-panel">
-              <input id="sheetWebAppUrl" type="hidden" value="https://script.google.com/macros/s/AKfycbwfJefkL2hJJESI2ZZ8JmHhi1Z1q9Jq8ybXLu_TF9rd4MWuxZFQNE0GkRy392-m_Wu4/exec" />
-              <div class="field">
-                <label>ID de registro</label>
-                <input id="sheetRecordId" type="text" placeholder="Ej. evento_mayo_2026" autocomplete="off" />
-              </div>
-              <div class="sheet-actions">
-                <button id="saveSheetBtn" type="button" class="small active">Guardar Sheet</button>
-                <button id="loadSheetBtn" type="button" class="small">Cargar Sheet</button>
-              </div>
-              <div id="sheetStatus" class="sheet-status"></div>
+            <input id="sheetWebAppUrl" type="hidden" value="https://script.google.com/macros/s/AKfycbwfJefkL2hJJESI2ZZ8JmHhi1Z1q9Jq8ybXLu_TF9rd4MWuxZFQNE0GkRy392-m_Wu4/exec" />
+            <div id="sheetStatus" class="sheet-status" style="display:none;"></div>
+          </div></div>
+
+          <div class="card side-actions-card"><div class="inner stack">
+            <div class="section-title" style="font-size:14px;margin:0;">Acciones</div>
+            <div class="side-actions">
+              <div class="button-group-title">Web</div>
+              <button id="saveSheetBtn" type="button" class="active">Guardar Web</button>
+              <button id="loadSheetBtn" type="button">Cargar Web</button>
+
+              <div class="button-group-title">Archivos</div>
+              <button id="importTableBtn" type="button" title="Orden: name, count, price.">Importar tabla TXT</button>
+              <button id="generatePdfBtn" type="button">Generar reporte PDF</button>
+              <button id="saveTxtBtn" type="button">Guardar TXT</button>
+              <button id="loadTxtBtn" type="button">Cargar TXT</button>
+
+              <div class="button-group-title">Orden</div>
+              <button id="sortByTypeBtn" type="button">Ordenar por tipo</button>
+              <button id="sortByPriceBtn" type="button">Ordenar por precio unitario</button>
             </div>
+            <input id="importTableInput" type="file" accept=".txt,text/plain" style="display:none;" />
+            <input id="loadTxtInput" type="file" accept=".txt,application/json,text/plain" style="display:none;" />
           </div></div>
         </div>
 
-        <div class="stack">
+        <div class="stack counter-panel">
           <div class="card"><div class="inner stack">
             <div class="toolbar">
               <div class="toolbar-left">
                 <div class="section-title" style="margin:0;">Contador manual por categoría</div>
               </div>
-              <div class="toolbar-right">
-                <button id="importTableBtn" type="button" title="Orden: name, count, price.">Importar tabla TXT</button>
-                <button id="sortByTypeBtn" type="button">Ordenar por tipo</button>
-                <button id="sortByPriceBtn" type="button">Ordenar por precio unitario</button>
-                <button id="generatePdfBtn" type="button">Generar reporte PDF</button>
-                <button id="saveTxtBtn" type="button">Guardar TXT</button>
-                <button id="loadTxtBtn" type="button">Cargar TXT</button>
-                <input id="importTableInput" type="file" accept=".txt,text/plain" style="display:none;" />
-                <input id="loadTxtInput" type="file" accept=".txt,application/json,text/plain" style="display:none;" />
-              </div>
+              <div class="toolbar-right"></div>
             </div>
             <div class="desktop-table"><table>
               <thead>
@@ -1030,6 +1079,7 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       if (!el) return;
       el.textContent = message || '';
       el.style.color = isError ? 'var(--danger)' : 'var(--muted)';
+      el.style.display = message ? 'block' : 'none';
     }
 
     function normalizeSheetUrl() {
@@ -1040,14 +1090,17 @@ Selecciona Cancelar para agregarlas a las existentes.`);
     }
 
     function normalizeSheetRecordId() {
-      let recordId = String(($('sheetRecordId') && $('sheetRecordId').value) || state.sheetRecordId || '').trim();
+      const eventInput = $('eventName');
+      if (eventInput) state.eventName = eventInput.value.trim();
+      const recordId = String(state.eventName || '').trim();
       if (!recordId) {
-        const base = (state.eventName || 'evento').trim().replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ_-]+/g, '_').replace(/^_+|_+$/g, '');
-        recordId = `${base || 'evento'}_${new Date().toISOString().slice(0,10)}`;
+        setSheetStatus('Captura el nombre del evento para guardar o cargar en Web.', true);
+        alert('Captura el nombre del evento. Ese dato se usará como ID para Guardar Web y Cargar Web.');
+        if (eventInput) eventInput.focus();
+        return '';
       }
       state.sheetRecordId = recordId;
       localStorage.setItem('sheetRecordId', recordId);
-      if ($('sheetRecordId')) $('sheetRecordId').value = recordId;
       return recordId;
     }
 
@@ -1072,9 +1125,8 @@ Selecciona Cancelar para agregarlas a las existentes.`);
     async function saveToGoogleSheet() {
       const url = normalizeSheetUrl();
       if (!url) {
-        alert('Primero pega la URL del Web App de Apps Script.');
+        alert('No está configurada la conexión Web.');
         setSheetStatus('Falta la URL del Web App.', true);
-        if ($('sheetWebAppUrl')) $('sheetWebAppUrl').focus();
         return;
       }
       try {
@@ -1082,27 +1134,29 @@ Selecciona Cancelar para agregarlas a las existentes.`);
           applyManualTableFieldValue(document.activeElement);
         }
         const payload = getSheetPayload();
-        setSheetStatus('Guardando en Google Sheet...');
+        if (!payload.recordId) return;
+        setSheetStatus('Guardando en Web...');
         await fetch(url, {
           method: 'POST',
           mode: 'no-cors',
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
           body: JSON.stringify(payload)
         });
-        setSheetStatus(`Datos enviados a Sheet. Registro: ${payload.recordId}`);
-        alert('Datos enviados a Google Sheet. Si es la primera vez, revisa que el Apps Script esté publicado correctamente.');
+        setSheetStatus(`Datos guardados en Web. Evento: ${payload.recordId}`);
+        alert(`Datos guardados en Web para el evento: ${payload.recordId}`);
       } catch (error) {
         console.error(error);
-        setSheetStatus('No se pudo enviar a Google Sheet.', true);
-        alert('No se pudo guardar en Google Sheet. Revisa la URL del Web App y la publicación del Apps Script.');
+        setSheetStatus('No se pudo guardar en Web.', true);
+        alert('No se pudo guardar en Web. Revisa la publicación del Apps Script.');
       }
     }
 
     function loadFromGoogleSheet() {
       const url = normalizeSheetUrl();
       const recordId = normalizeSheetRecordId();
+      if (!recordId) return;
       if (!url) {
-        alert('Primero pega la URL del Web App de Apps Script.');
+        alert('No está configurada la conexión Web.');
         setSheetStatus('Falta la URL del Web App.', true);
         return;
       }
@@ -1120,7 +1174,7 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       window[callbackName] = (response) => {
         cleanup();
         if (!response || !response.ok) {
-          const msg = response && response.error ? response.error : 'No se encontró el registro en Sheet.';
+          const msg = response && response.error ? response.error : 'No se encontró el evento en Web.';
           setSheetStatus(msg, true);
           alert(msg);
           return;
@@ -1132,31 +1186,30 @@ Selecciona Cancelar para agregarlas a las existentes.`);
         localStorage.setItem('sheetRecordId', recordId);
         syncInputsFromState();
         render();
-        setSheetStatus(`Registro cargado desde Sheet: ${recordId}`);
+        setSheetStatus(`Evento cargado desde Web: ${recordId}`);
       };
 
       script.onerror = () => {
         if (done) return;
         cleanup();
-        setSheetStatus('No se pudo cargar desde Sheet.', true);
-        alert('No se pudo cargar desde Sheet. Revisa la URL del Web App y que esté publicado como acceso público.');
+        setSheetStatus('No se pudo cargar desde Web.', true);
+        alert('No se pudo cargar desde Web. Revisa que el Apps Script esté publicado como acceso público.');
       };
 
       setTimeout(() => {
         if (done) return;
         cleanup();
-        setSheetStatus('Tiempo agotado al cargar desde Sheet.', true);
+        setSheetStatus('Tiempo agotado al cargar desde Web.', true);
       }, 12000);
 
-      setSheetStatus('Cargando desde Google Sheet...');
+      setSheetStatus('Cargando desde Web...');
       script.src = `${url}${sep}action=load&recordId=${encodeURIComponent(recordId)}&callback=${encodeURIComponent(callbackName)}&_=${Date.now()}`;
       document.body.appendChild(script);
     }
 
     function bindTopInputs() {
       $('eventName').oninput = e => { state.eventName = e.target.value; };
-      if ($('sheetWebAppUrl')) $('sheetWebAppUrl').oninput = e => { state.sheetWebAppUrl = e.target.value.trim(); localStorage.setItem('sheetWebAppUrl', state.sheetWebAppUrl); };
-      if ($('sheetRecordId')) $('sheetRecordId').oninput = e => { state.sheetRecordId = e.target.value.trim(); localStorage.setItem('sheetRecordId', state.sheetRecordId); };
+      if ($('sheetWebAppUrl')) $('sheetWebAppUrl').value = FIXED_SHEET_WEB_APP_URL;
       if ($('saveSheetBtn')) $('saveSheetBtn').onclick = saveToGoogleSheet;
       if ($('loadSheetBtn')) $('loadSheetBtn').onclick = loadFromGoogleSheet;
       $('resetCountsBtn').onclick = () => {
