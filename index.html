@@ -266,6 +266,11 @@
     }
     .totals-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
     .note { font-size: 12px; color: var(--muted); }
+    .sheet-panel { background: #f8fafc; border: 1px dashed var(--border); border-radius: 12px; padding: 10px; display: grid; gap: 8px; }
+    .sheet-panel input { padding: 8px 10px; font-size: 12px; }
+    .sheet-panel input[readonly] { background: #f1f5f9; color: var(--muted); cursor: not-allowed; }
+    .sheet-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .sheet-status { font-size: 12px; color: var(--muted); min-height: 16px; }
     .count-input {
       width: 86px;
       text-align: center;
@@ -351,6 +356,18 @@
               <div class="row-between"><span>Ingreso bruto</span><strong id="grossBox">$0.00</strong></div>
             </div>
             <button id="resetCountsBtn">Reiniciar contadores</button>
+            <div class="sheet-panel">
+              <input id="sheetWebAppUrl" type="hidden" value="https://script.google.com/macros/s/AKfycbwfJefkL2hJJESI2ZZ8JmHhi1Z1q9Jq8ybXLu_TF9rd4MWuxZFQNE0GkRy392-m_Wu4/exec" />
+              <div class="field">
+                <label>ID de registro</label>
+                <input id="sheetRecordId" type="text" placeholder="Ej. evento_mayo_2026" autocomplete="off" />
+              </div>
+              <div class="sheet-actions">
+                <button id="saveSheetBtn" type="button" class="small active">Guardar Sheet</button>
+                <button id="loadSheetBtn" type="button" class="small">Cargar Sheet</button>
+              </div>
+              <div id="sheetStatus" class="sheet-status"></div>
+            </div>
           </div></div>
         </div>
 
@@ -507,6 +524,8 @@
   </div>
 
   <script>
+    const FIXED_SHEET_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwfJefkL2hJJESI2ZZ8JmHhi1Z1q9Jq8ybXLu_TF9rd4MWuxZFQNE0GkRy392-m_Wu4/exec";
+
     const state = {
       activeTab: 'contador',
       eventName: '',
@@ -525,6 +544,8 @@
       municipalInterventorCount: 1,
       municipalInterventorFeePerPerson: 0,
       municipalFineAmount: 0,
+      sheetWebAppUrl: FIXED_SHEET_WEB_APP_URL,
+      sheetRecordId: localStorage.getItem('sheetRecordId') || '',
       selectedRowId: null,
       newCategoryDraft: { count: '', name: '', price: '', courtesy: false },
       categories: [
@@ -685,6 +706,7 @@
         municipalInterventorCount: state.municipalInterventorCount,
         municipalInterventorFeePerPerson: state.municipalInterventorFeePerPerson,
         municipalFineAmount: state.municipalFineAmount,
+        sheetRecordId: state.sheetRecordId,
         categories: state.categories
       };
     }
@@ -693,6 +715,8 @@
       const base = getSerializableState();
       const merged = { ...base, ...data };
       Object.assign(state, merged);
+      state.sheetWebAppUrl = FIXED_SHEET_WEB_APP_URL;
+      state.sheetRecordId = state.sheetRecordId || localStorage.getItem('sheetRecordId') || '';
       state.categories = Array.isArray(merged.categories) ? merged.categories.map(item => ({
         id: n(item.id) || Date.now() + Math.random(),
         name: String(item.name || ''),
@@ -717,6 +741,8 @@
       $('municipalInterventorCount').value = state.municipalInterventorCount;
       $('municipalInterventorFeePerPerson').value = state.municipalInterventorFeePerPerson;
       $('municipalFineAmount').value = state.municipalFineAmount;
+      if ($('sheetWebAppUrl')) $('sheetWebAppUrl').value = state.sheetWebAppUrl || '';
+      if ($('sheetRecordId')) $('sheetRecordId').value = state.sheetRecordId || '';
     }
 
     function saveTxtFile() {
@@ -998,8 +1024,141 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       setTimeout(triggerPrint, 700);
     }
 
+
+    function setSheetStatus(message, isError = false) {
+      const el = $('sheetStatus');
+      if (!el) return;
+      el.textContent = message || '';
+      el.style.color = isError ? 'var(--danger)' : 'var(--muted)';
+    }
+
+    function normalizeSheetUrl() {
+      const url = FIXED_SHEET_WEB_APP_URL;
+      state.sheetWebAppUrl = url;
+      if ($('sheetWebAppUrl')) $('sheetWebAppUrl').value = url;
+      return url;
+    }
+
+    function normalizeSheetRecordId() {
+      let recordId = String(($('sheetRecordId') && $('sheetRecordId').value) || state.sheetRecordId || '').trim();
+      if (!recordId) {
+        const base = (state.eventName || 'evento').trim().replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ_-]+/g, '_').replace(/^_+|_+$/g, '');
+        recordId = `${base || 'evento'}_${new Date().toISOString().slice(0,10)}`;
+      }
+      state.sheetRecordId = recordId;
+      localStorage.setItem('sheetRecordId', recordId);
+      if ($('sheetRecordId')) $('sheetRecordId').value = recordId;
+      return recordId;
+    }
+
+    function getSheetPayload() {
+      const calc = compute();
+      return {
+        action: 'save',
+        recordId: normalizeSheetRecordId(),
+        updatedAt: new Date().toISOString(),
+        eventName: state.eventName || '',
+        summary: {
+          totalPersons: calc.totalPersons,
+          payingPersons: calc.payingPersons,
+          courtesyPersons: calc.courtesyPersons,
+          grossIncome: calc.grossIncome,
+          totalCharges: calc.totalCharges
+        },
+        data: getSerializableState()
+      };
+    }
+
+    async function saveToGoogleSheet() {
+      const url = normalizeSheetUrl();
+      if (!url) {
+        alert('Primero pega la URL del Web App de Apps Script.');
+        setSheetStatus('Falta la URL del Web App.', true);
+        if ($('sheetWebAppUrl')) $('sheetWebAppUrl').focus();
+        return;
+      }
+      try {
+        if (document.activeElement && document.activeElement.dataset && document.activeElement.dataset.kind) {
+          applyManualTableFieldValue(document.activeElement);
+        }
+        const payload = getSheetPayload();
+        setSheetStatus('Guardando en Google Sheet...');
+        await fetch(url, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(payload)
+        });
+        setSheetStatus(`Datos enviados a Sheet. Registro: ${payload.recordId}`);
+        alert('Datos enviados a Google Sheet. Si es la primera vez, revisa que el Apps Script esté publicado correctamente.');
+      } catch (error) {
+        console.error(error);
+        setSheetStatus('No se pudo enviar a Google Sheet.', true);
+        alert('No se pudo guardar en Google Sheet. Revisa la URL del Web App y la publicación del Apps Script.');
+      }
+    }
+
+    function loadFromGoogleSheet() {
+      const url = normalizeSheetUrl();
+      const recordId = normalizeSheetRecordId();
+      if (!url) {
+        alert('Primero pega la URL del Web App de Apps Script.');
+        setSheetStatus('Falta la URL del Web App.', true);
+        return;
+      }
+
+      const callbackName = `sheetLoadCallback_${Date.now()}`;
+      const script = document.createElement('script');
+      const sep = url.includes('?') ? '&' : '?';
+      let done = false;
+      const cleanup = () => {
+        done = true;
+        delete window[callbackName];
+        script.remove();
+      };
+
+      window[callbackName] = (response) => {
+        cleanup();
+        if (!response || !response.ok) {
+          const msg = response && response.error ? response.error : 'No se encontró el registro en Sheet.';
+          setSheetStatus(msg, true);
+          alert(msg);
+          return;
+        }
+        loadSerializableState(response.data || {});
+        state.sheetWebAppUrl = url;
+        state.sheetRecordId = recordId;
+        localStorage.setItem('sheetWebAppUrl', url);
+        localStorage.setItem('sheetRecordId', recordId);
+        syncInputsFromState();
+        render();
+        setSheetStatus(`Registro cargado desde Sheet: ${recordId}`);
+      };
+
+      script.onerror = () => {
+        if (done) return;
+        cleanup();
+        setSheetStatus('No se pudo cargar desde Sheet.', true);
+        alert('No se pudo cargar desde Sheet. Revisa la URL del Web App y que esté publicado como acceso público.');
+      };
+
+      setTimeout(() => {
+        if (done) return;
+        cleanup();
+        setSheetStatus('Tiempo agotado al cargar desde Sheet.', true);
+      }, 12000);
+
+      setSheetStatus('Cargando desde Google Sheet...');
+      script.src = `${url}${sep}action=load&recordId=${encodeURIComponent(recordId)}&callback=${encodeURIComponent(callbackName)}&_=${Date.now()}`;
+      document.body.appendChild(script);
+    }
+
     function bindTopInputs() {
       $('eventName').oninput = e => { state.eventName = e.target.value; };
+      if ($('sheetWebAppUrl')) $('sheetWebAppUrl').oninput = e => { state.sheetWebAppUrl = e.target.value.trim(); localStorage.setItem('sheetWebAppUrl', state.sheetWebAppUrl); };
+      if ($('sheetRecordId')) $('sheetRecordId').oninput = e => { state.sheetRecordId = e.target.value.trim(); localStorage.setItem('sheetRecordId', state.sheetRecordId); };
+      if ($('saveSheetBtn')) $('saveSheetBtn').onclick = saveToGoogleSheet;
+      if ($('loadSheetBtn')) $('loadSheetBtn').onclick = loadFromGoogleSheet;
       $('resetCountsBtn').onclick = () => {
         if (!confirm('¿Deseas reiniciar todos los contadores?')) return;
         state.categories = state.categories.map(item => ({ ...item, count: 0 }));
