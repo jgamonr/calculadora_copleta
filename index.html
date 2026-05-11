@@ -88,6 +88,35 @@
     }
     button.small { padding: 6px 10px; font-size: 12px; }
     button.danger { color: var(--danger); }
+    .manual-context-menu {
+      position: fixed;
+      z-index: 10000;
+      min-width: 180px;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: 0 16px 34px rgba(15, 23, 42, .22);
+      padding: 6px;
+      display: none;
+    }
+    .manual-context-menu.show { display: grid; gap: 4px; }
+    .manual-context-menu button {
+      width: 100%;
+      text-align: left;
+      border: 0;
+      border-radius: 10px;
+      background: #ffffff;
+      padding: 10px 12px;
+      justify-content: flex-start;
+    }
+    .manual-context-menu button:hover,
+    .manual-context-menu button:focus-visible {
+      background: #fee2e2;
+      color: var(--danger);
+      box-shadow: none;
+      transform: none;
+    }
+    .manual-context-hint { font-size: 11px; color: var(--muted); padding: 4px 8px 2px; }
     .action-btn {
       min-width: 56px;
       min-height: 42px;
@@ -108,8 +137,38 @@
     #categoriesTable tr:nth-child(even) { background: #f3f4f6; }
     .layout {
       display: grid;
-      grid-template-columns: 360px 1fr;
-      gap: 16px;
+      grid-template-columns: 240px 1fr;
+      gap: 14px;
+    }
+    .config-card .inner {
+      padding: 8px 10px;
+      gap: 6px;
+    }
+    .config-card .section-title {
+      font-size: 14px;
+      margin-bottom: 2px;
+    }
+    .config-card .field {
+      gap: 3px;
+    }
+    .config-card .field label {
+      font-size: 12px;
+    }
+    .config-card input {
+      padding: 6px 8px;
+      font-size: 13px;
+      border-radius: 8px;
+    }
+    .config-card .softbox {
+      padding: 7px 8px;
+      gap: 4px;
+      font-size: 12px;
+      border-radius: 10px;
+    }
+    .config-card button {
+      padding: 7px 8px;
+      font-size: 12px;
+      border-radius: 9px;
     }
     .section-title {
       font-size: 16px;
@@ -177,6 +236,14 @@
     td.center, th.center { text-align: center; }
     tr.selected { background: var(--selected); }
     tr.clickable { cursor: pointer; }
+    .desktop-table {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .desktop-table table {
+      min-width: 920px;
+    }
     .mobile-cards { display: none; }
     .cat-mobile {
       border: 1px solid var(--border);
@@ -227,11 +294,18 @@
       .grid-4 { grid-template-columns: 1fr 1fr; }
     }
     @media (max-width: 760px) {
-      .desktop-table { display: none; }
-      .mobile-cards { display: grid; gap: 10px; }
+      .desktop-table {
+        display: block;
+        overflow-x: auto;
+      }
+      .desktop-table table {
+        min-width: 920px;
+      }
+      .mobile-cards { display: none !important; }
       .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
       h1 { font-size: 24px; }
       .toolbar { align-items: stretch; }
+      th, td { padding: 8px 10px; }
     }
   </style>
 </head>
@@ -255,7 +329,7 @@
     <div id="viewContador">
       <div class="layout">
         <div class="stack">
-          <div class="card"><div class="inner stack">
+          <div class="card config-card"><div class="inner stack">
             <div class="section-title">Configuración general</div>
             <div class="field">
               <label>Evento</label>
@@ -296,7 +370,6 @@
                   <th class="right">Subtotal</th>
                   <th>Cortesía</th>
                   <th class="center">Acciones</th>
-                  <th class="right">Eliminar</th>
                 </tr>
               </thead>
               <tbody id="categoriesTable"></tbody>
@@ -1157,6 +1230,95 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       });
     }
 
+    function ensureManualContextMenu() {
+      let menu = document.getElementById('manualContextMenu');
+      if (menu) return menu;
+      menu = document.createElement('div');
+      menu.id = 'manualContextMenu';
+      menu.className = 'manual-context-menu';
+      menu.innerHTML = `
+        <div class="manual-context-hint">Opciones del renglón</div>
+        <button type="button" class="danger" data-context-action="delete">Eliminar localidad</button>
+      `;
+      document.body.appendChild(menu);
+      menu.addEventListener('click', (e) => {
+        const action = e.target.closest('[data-context-action]');
+        if (!action) return;
+        const id = n(menu.dataset.id);
+        hideManualContextMenu();
+        if (action.dataset.contextAction === 'delete') deleteCategoryById(id);
+      });
+      return menu;
+    }
+
+    function hideManualContextMenu() {
+      const menu = document.getElementById('manualContextMenu');
+      if (!menu) return;
+      menu.classList.remove('show');
+      menu.dataset.id = '';
+    }
+
+    function showManualContextMenu(id, clientX, clientY) {
+      const item = state.categories.find(i => i.id === id);
+      if (!item) return;
+      const menu = ensureManualContextMenu();
+      menu.dataset.id = id;
+      menu.classList.add('show');
+
+      const margin = 8;
+      const rect = menu.getBoundingClientRect();
+      const maxX = window.innerWidth - rect.width - margin;
+      const maxY = window.innerHeight - rect.height - margin;
+      menu.style.left = `${Math.max(margin, Math.min(clientX, maxX))}px`;
+      menu.style.top = `${Math.max(margin, Math.min(clientY, maxY))}px`;
+    }
+
+    function deleteCategoryById(id) {
+      const item = state.categories.find(i => i.id === id);
+      if (!item) return;
+      if (!confirm(`¿Deseas eliminar la categoría${item.name ? ` "${item.name}"` : ''}?`)) return;
+      state.categories = state.categories.filter(i => i.id !== id);
+      if (state.selectedRowId === id) state.selectedRowId = null;
+      hideManualContextMenu();
+      render();
+    }
+
+    function bindManualRowContextMenus() {
+      document.querySelectorAll('.manual-category-row').forEach(row => {
+        const id = n(row.dataset.id);
+        let longPressTimer = null;
+        let touchStart = null;
+
+        row.addEventListener('contextmenu', (e) => {
+          e.preventDefault();
+          showManualContextMenu(id, e.clientX, e.clientY);
+        });
+
+        row.addEventListener('touchstart', (e) => {
+          if (e.target.closest('input, textarea, select, button, label')) return;
+          const touch = e.touches && e.touches[0];
+          if (!touch) return;
+          touchStart = { x: touch.clientX, y: touch.clientY };
+          clearTimeout(longPressTimer);
+          longPressTimer = setTimeout(() => {
+            showManualContextMenu(id, touchStart.x, touchStart.y);
+          }, 650);
+        }, { passive: true });
+
+        row.addEventListener('touchmove', (e) => {
+          const touch = e.touches && e.touches[0];
+          if (!touch || !touchStart) return;
+          if (Math.abs(touch.clientX - touchStart.x) > 12 || Math.abs(touch.clientY - touchStart.y) > 12) {
+            clearTimeout(longPressTimer);
+          }
+        }, { passive: true });
+
+        ['touchend', 'touchcancel'].forEach(evt => {
+          row.addEventListener(evt, () => clearTimeout(longPressTimer), { passive: true });
+        });
+      });
+    }
+
     function renderCategories() {
       const calc = compute();
       const tbody = $('categoriesTable');
@@ -1168,6 +1330,8 @@ Selecciona Cancelar para agregarlas a las existentes.`);
 
       calc.sortedCategories.forEach(item => {
         const tr = document.createElement('tr');
+        tr.className = 'manual-category-row';
+        tr.dataset.id = item.id;
         tr.innerHTML = `
           <td class="center">${calc.sortedCategories.findIndex(row => row.id === item.id) + 1}</td>
           <td class="center"><input class="count-input" data-kind="count" data-id="${item.id}" type="text" inputmode="numeric" pattern="[0-9]*" min="0" step="1" value="${item.count}"></td>
@@ -1180,18 +1344,17 @@ Selecciona Cancelar para agregarlas a las existentes.`);
             <button type="button" tabindex="-1" class="small action-btn action-btn-black" data-kind="inc" data-id="${item.id}">+1</button>
             <button type="button" tabindex="-1" class="small action-btn" style="min-width:96px;" data-kind="addPrompt" data-id="${item.id}">+ importe</button>
           </td>
-          <td class="right"><button type="button" tabindex="-1" class="small danger" data-kind="delete" data-id="${item.id}">Eliminar</button></td>
         `;
         tbody.appendChild(tr);
 
         const card = document.createElement('div');
-        card.className = 'cat-mobile';
+        card.className = 'cat-mobile manual-category-row';
+        card.dataset.id = item.id;
         card.innerHTML = `
           <div class="row-between">
             <input data-kind="name" data-id="${item.id}" value="${escapeHtml(item.name)}" style="border:0;padding:0;font-weight:600;">
             <div style="display:flex;gap:6px;align-items:center;">
               <button type="button" tabindex="-1" class="small ${item.courtesy ? 'active' : ''}" data-kind="courtesy" data-id="${item.id}">${item.courtesy ? 'Cortesía' : 'De pago'}</button>
-              <button type="button" tabindex="-1" class="small danger" data-kind="delete" data-id="${item.id}">🗑</button>
             </div>
           </div>
           <div class="grid-4" style="align-items:center;">
@@ -1219,7 +1382,6 @@ Selecciona Cancelar para agregarlas a las existentes.`);
         <td class="right"><strong>${formatMoney(round2(n(draft.count) * n(draft.price)))}</strong></td>
         <td class="center"><label class="note"><input data-kind="new-courtesy" type="checkbox" tabindex="-1" ${draft.courtesy ? 'checked' : ''}> Cortesía</label></td>
         <td class="center"><button type="button" class="small active" data-kind="new-add">Agregar</button></td>
-        <td></td>
       `;
       tbody.appendChild(addTr);
 
@@ -1333,18 +1495,7 @@ Selecciona Cancelar para agregarlas a las existentes.`);
         };
       });
 
-      document.querySelectorAll('[data-kind="delete"]').forEach(el => {
-        el.onclick = (e) => {
-          e.stopPropagation();
-          const id = n(e.target.dataset.id);
-          const item = state.categories.find(i => i.id === id);
-          if (!item) return;
-          if (!confirm(`¿Deseas eliminar la categoría${item.name ? ` "${item.name}"` : ''}?`)) return;
-          state.categories = state.categories.filter(i => i.id !== id);
-          if (state.selectedRowId === id) state.selectedRowId = null;
-          render();
-        };
-      });
+      bindManualRowContextMenus();
 
       document.querySelectorAll('[data-kind="inc"]').forEach(el => el.onclick = () => {
         const item = state.categories.find(i => i.id === n(el.dataset.id));
@@ -1484,6 +1635,15 @@ Selecciona Cancelar para agregarlas a las existentes.`);
         .replaceAll('"', '&quot;')
         .replaceAll("'", '&#039;');
     }
+
+    document.addEventListener('click', (e) => {
+      const menu = document.getElementById('manualContextMenu');
+      if (menu && !menu.contains(e.target)) hideManualContextMenu();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') hideManualContextMenu();
+    });
+    window.addEventListener('scroll', hideManualContextMenu, true);
 
     $('tabContador').onclick = () => { state.activeTab = 'contador'; render(); };
     $('tabImpuestos').onclick = () => { state.activeTab = 'impuestos'; render(); };
