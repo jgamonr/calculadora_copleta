@@ -1180,8 +1180,8 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       }
     }
 
-    function configureManualTableTabOrder(scope) {
-      const selector = [
+    function getManualTableSelector() {
+      return [
         '[data-kind="count"]',
         '[data-kind="name"]',
         '[data-kind="price"]',
@@ -1190,43 +1190,63 @@ Selecciona Cancelar para agregarlas a las existentes.`);
         '[data-kind="new-price"]',
         '[data-kind="new-add"]'
       ].join(',');
+    }
 
-      const fields = Array.from(scope.querySelectorAll(selector))
+    function getManualTableFields(scope) {
+      return Array.from(scope.querySelectorAll(getManualTableSelector()))
         .filter(el => !el.disabled && el.offsetParent !== null);
+    }
 
-      fields.forEach((field, index) => {
+    function getManualTableKey(field) {
+      return field.dataset.id
+        ? `${field.dataset.id}:${field.dataset.kind}`
+        : `new:${field.dataset.kind}`;
+    }
+
+    function focusManualTableKey(nextKey) {
+      if (!nextKey) return;
+      setTimeout(() => {
+        const target = document.querySelector(`[data-manual-tab-key="${nextKey}"]`);
+        if (target) {
+          target.focus();
+          if (typeof target.select === 'function') target.select();
+        }
+      }, 0);
+    }
+
+    function moveManualTableFocus(field, reverse = false) {
+      const scope = field.closest('tbody') || field.closest('#categoriesMobile') || document;
+      applyManualTableFieldValue(field);
+
+      const currentFields = getManualTableFields(scope);
+      const currentIndex = currentFields.indexOf(field);
+      const nextIndex = reverse ? currentIndex - 1 : currentIndex + 1;
+      const nextField = currentFields[nextIndex];
+      const nextKey = nextField ? getManualTableKey(nextField) : null;
+
+      render();
+      focusManualTableKey(nextKey);
+    }
+
+    function configureManualTableTabOrder(scope) {
+      const fields = getManualTableFields(scope);
+
+      fields.forEach((field) => {
         field.tabIndex = 0;
-        field.dataset.manualTabKey = field.dataset.id
-          ? `${field.dataset.id}:${field.dataset.kind}`
-          : `new:${field.dataset.kind}`;
+        field.dataset.manualTabKey = getManualTableKey(field);
+
+        field.addEventListener('focus', () => {
+          if (field.tagName === 'INPUT' && typeof field.select === 'function') {
+            setTimeout(() => field.select(), 0);
+          }
+        });
 
         field.addEventListener('keydown', (e) => {
           if (e.key !== 'Tab') return;
-
           e.preventDefault();
-          applyManualTableFieldValue(field);
-
-          const currentFields = Array.from(scope.querySelectorAll(selector))
-            .filter(el => !el.disabled && el.offsetParent !== null);
-          const currentIndex = currentFields.indexOf(field);
-          const nextIndex = e.shiftKey ? currentIndex - 1 : currentIndex + 1;
-          const nextField = currentFields[nextIndex];
-          const nextKey = nextField ? (nextField.dataset.id
-            ? `${nextField.dataset.id}:${nextField.dataset.kind}`
-            : `new:${nextField.dataset.kind}`) : null;
-
-          render();
-
-          if (nextKey) {
-            setTimeout(() => {
-              const target = document.querySelector(`[data-manual-tab-key="${nextKey}"]`);
-              if (target) {
-                target.focus();
-                if (typeof target.select === 'function') target.select();
-              }
-            }, 0);
-          }
+          moveManualTableFocus(field, e.shiftKey);
         });
+
       });
     }
 
