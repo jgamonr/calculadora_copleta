@@ -307,6 +307,40 @@
     .sheet-panel input[readonly] { background: #f1f5f9; color: var(--muted); cursor: not-allowed; }
     .sheet-actions { display: flex; gap: 8px; flex-wrap: wrap; }
     .sheet-status { font-size: 12px; color: var(--muted); min-height: 16px; }
+
+    .web-events-panel {
+      margin-top: 12px;
+    }
+    .web-events-filters {
+      display: grid;
+      grid-template-columns: 1fr 160px 160px auto;
+      gap: 10px;
+      align-items: end;
+    }
+    .web-events-filters input {
+      padding: 8px 10px;
+      font-size: 13px;
+    }
+    .web-events-table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: white;
+    }
+    .web-events-table {
+      min-width: 760px;
+    }
+    .web-events-table tbody tr:nth-child(odd) { background: #ffffff; }
+    .web-events-table tbody tr:nth-child(even) { background: #f8fafc; }
+    .web-events-table button {
+      padding: 6px 10px;
+      font-size: 12px;
+    }
+    .web-events-empty {
+      color: var(--muted);
+      text-align: center;
+      padding: 14px;
+    }
     .count-input {
       width: 86px;
       text-align: center;
@@ -369,6 +403,8 @@
       .config-card .inner, .side-actions-card .inner { padding: 8px; }
       .side-actions { gap: 6px; }
       .side-actions button { padding: 7px 8px; font-size: 11px; }
+      .web-events-filters { grid-template-columns: 1fr; }
+      .web-events-table { min-width: 720px; }
     }
   </style>
 </head>
@@ -385,7 +421,8 @@
     </div>
 
     <div class="tabs">
-      <button id="tabContador" class="active">Contador manual</button>
+      <button id="tabEventosWeb" class="active">Eventos guardados Web</button>
+      <button id="tabContador">Detalle por localidad</button>
       <button id="tabImpuestos">Impuestos</button>
     </div>
 
@@ -403,7 +440,7 @@
               <div class="row-between"><span>Ingreso bruto</span><strong id="grossBox">$0.00</strong></div>
             </div>
             <button id="resetCountsBtn">Reiniciar contadores</button>
-            <input id="sheetWebAppUrl" type="hidden" value="https://script.google.com/macros/s/AKfycbwfJefkL2hJJESI2ZZ8JmHhi1Z1q9Jq8ybXLu_TF9rd4MWuxZFQNE0GkRy392-m_Wu4/exec" />
+            <input id="sheetWebAppUrl" type="hidden" value="https://script.google.com/macros/s/AKfycbzaFyDEOefYMiq3mZXVgen_K1mOFOiJ2JuMoEBqLzKXlscGJieLTRQp5LdEDrQwAhuz/exec" />
             <div id="sheetStatus" class="sheet-status" style="display:none;"></div>
           </div></div>
 
@@ -433,7 +470,7 @@
           <div class="card"><div class="inner stack">
             <div class="toolbar">
               <div class="toolbar-left">
-                <div class="section-title" style="margin:0;">Contador manual por categoría</div>
+                <div class="section-title" style="margin:0;">Detalle por localidad</div>
               </div>
               <div class="toolbar-right"></div>
             </div>
@@ -453,6 +490,47 @@
             <div class="mobile-cards" id="categoriesMobile"></div>
           </div></div>
         </div>
+      </div>
+    </div>
+
+    <div id="viewEventosWeb" style="display:none;">
+      <div class="stack">
+          <div class="card web-events-panel"><div class="inner stack">
+            <div class="section-title">Eventos guardados en Web</div>
+            <div class="web-events-filters">
+              <div class="field">
+                <label>Filtrar por ID / evento</label>
+                <input id="webEventFilterId" type="text" placeholder="Ej. Concierto mayo" autocomplete="off" />
+              </div>
+              <div class="field">
+                <label>Fecha desde</label>
+                <input id="webEventDateFrom" type="date" />
+              </div>
+              <div class="field">
+                <label>Fecha hasta</label>
+                <input id="webEventDateTo" type="date" />
+              </div>
+              <button id="refreshWebEventsBtn" type="button" class="active">Buscar eventos</button>
+            </div>
+            <div class="note">Puedes elegir un evento guardado para cargar sus datos en la calculadora.</div>
+            <div class="web-events-table-wrap">
+              <table class="web-events-table">
+                <thead>
+                  <tr>
+                    <th>ID / Evento</th>
+                    <th>Fecha de captura</th>
+                    <th class="right">Personas</th>
+                    <th class="right">Ingreso bruto</th>
+                    <th class="right">Cargos</th>
+                    <th class="center">Cargar</th>
+                  </tr>
+                </thead>
+                <tbody id="webEventsTable">
+                  <tr><td colspan="6" class="web-events-empty">Presiona “Buscar eventos” para ver los registros guardados.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div></div>
       </div>
     </div>
 
@@ -572,10 +650,10 @@
   </div>
 
   <script>
-    const FIXED_SHEET_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwfJefkL2hJJESI2ZZ8JmHhi1Z1q9Jq8ybXLu_TF9rd4MWuxZFQNE0GkRy392-m_Wu4/exec";
+    const FIXED_SHEET_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzaFyDEOefYMiq3mZXVgen_K1mOFOiJ2JuMoEBqLzKXlscGJieLTRQp5LdEDrQwAhuz/exec";
 
     const state = {
-      activeTab: 'contador',
+      activeTab: 'eventosWeb',
       eventName: '',
       impuestosTab: 'localidades',
       categorySortDesc: false,
@@ -1200,16 +1278,25 @@ Selecciona Cancelar para agregarlas a las existentes.`);
     }
 
     function loadFromGoogleSheet() {
-      const url = normalizeSheetUrl();
       const recordId = normalizeSheetRecordId();
       if (!recordId) return;
+      loadWebRecordById(recordId);
+    }
+
+    function loadWebRecordById(recordId) {
+      const url = normalizeSheetUrl();
+      recordId = String(recordId || '').trim();
+      if (!recordId) {
+        alert('Selecciona un evento para cargar.');
+        return;
+      }
       if (!url) {
         alert('No está configurada la conexión Web.');
         setSheetStatus('Falta la URL del Web App.', true);
         return;
       }
 
-      const callbackName = `sheetLoadCallback_${Date.now()}`;
+      const callbackName = `sheetLoadCallback_${Date.now()}_${Math.floor(Math.random() * 100000)}`;
       const script = document.createElement('script');
       const sep = url.includes('?') ? '&' : '?';
       let done = false;
@@ -1235,6 +1322,7 @@ Selecciona Cancelar para agregarlas a las existentes.`);
         syncInputsFromState();
         render();
         setSheetStatus(`Evento cargado desde Web: ${recordId}`);
+        alert(`Evento cargado correctamente: ${recordId}`);
       };
 
       script.onerror = () => {
@@ -1255,11 +1343,104 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       document.body.appendChild(script);
     }
 
+    function formatWebDate(isoValue) {
+      if (!isoValue) return '';
+      const d = new Date(isoValue);
+      if (Number.isNaN(d.getTime())) return String(isoValue);
+      return d.toLocaleString('es-MX');
+    }
+
+    function renderWebEventsList(records) {
+      const tbody = $('webEventsTable');
+      if (!tbody) return;
+      if (!Array.isArray(records) || !records.length) {
+        tbody.innerHTML = '<tr><td colspan="6" class="web-events-empty">No se encontraron eventos con esos filtros.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = records.map(record => {
+        const recordId = escapeHtml(record.recordId || record.eventName || '');
+        return `
+          <tr>
+            <td><strong>${recordId}</strong></td>
+            <td>${escapeHtml(formatWebDate(record.updatedAt))}</td>
+            <td class="right">${n(record.totalPersons)}</td>
+            <td class="right">${formatMoney(record.grossIncome)}</td>
+            <td class="right">${formatMoney(record.totalCharges)}</td>
+            <td class="center"><button type="button" class="small active" data-web-record-id="${recordId}">Cargar</button></td>
+          </tr>
+        `;
+      }).join('');
+      tbody.querySelectorAll('[data-web-record-id]').forEach(btn => {
+        btn.onclick = () => loadWebRecordById(btn.dataset.webRecordId);
+      });
+    }
+
+    function refreshWebEventsList() {
+      const url = normalizeSheetUrl();
+      if (!url) {
+        alert('No está configurada la conexión Web.');
+        return;
+      }
+      const idFilter = $('webEventFilterId') ? $('webEventFilterId').value.trim() : '';
+      const dateFrom = $('webEventDateFrom') ? $('webEventDateFrom').value : '';
+      const dateTo = $('webEventDateTo') ? $('webEventDateTo').value : '';
+      const tbody = $('webEventsTable');
+      if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="web-events-empty">Buscando eventos guardados...</td></tr>';
+
+      const callbackName = `sheetListCallback_${Date.now()}_${Math.floor(Math.random() * 100000)}`;
+      const script = document.createElement('script');
+      const sep = url.includes('?') ? '&' : '?';
+      let done = false;
+      const cleanup = () => {
+        done = true;
+        delete window[callbackName];
+        script.remove();
+      };
+
+      window[callbackName] = (response) => {
+        cleanup();
+        if (!response || !response.ok) {
+          const msg = response && response.error ? response.error : 'No se pudo obtener la lista de eventos.';
+          renderWebEventsList([]);
+          setSheetStatus(msg, true);
+          alert(msg);
+          return;
+        }
+        renderWebEventsList(response.records || []);
+        setSheetStatus(`Eventos encontrados: ${(response.records || []).length}`);
+      };
+
+      script.onerror = () => {
+        if (done) return;
+        cleanup();
+        renderWebEventsList([]);
+        setSheetStatus('No se pudo consultar la lista de eventos.', true);
+      };
+
+      setTimeout(() => {
+        if (done) return;
+        cleanup();
+        renderWebEventsList([]);
+        setSheetStatus('Tiempo agotado al consultar eventos.', true);
+      }, 12000);
+
+      script.src = `${url}${sep}action=list&idFilter=${encodeURIComponent(idFilter)}&dateFrom=${encodeURIComponent(dateFrom)}&dateTo=${encodeURIComponent(dateTo)}&callback=${encodeURIComponent(callbackName)}&_=${Date.now()}`;
+      document.body.appendChild(script);
+    }
+
     function bindTopInputs() {
       $('eventName').oninput = e => { state.eventName = e.target.value; };
       if ($('sheetWebAppUrl')) $('sheetWebAppUrl').value = FIXED_SHEET_WEB_APP_URL;
       if ($('saveSheetBtn')) $('saveSheetBtn').onclick = saveToGoogleSheet;
       if ($('loadSheetBtn')) $('loadSheetBtn').onclick = loadFromGoogleSheet;
+      if ($('refreshWebEventsBtn')) $('refreshWebEventsBtn').onclick = refreshWebEventsList;
+      ['webEventFilterId','webEventDateFrom','webEventDateTo'].forEach(id => {
+        if ($(id)) {
+          $(id).addEventListener('keydown', e => {
+            if (e.key === 'Enter') refreshWebEventsList();
+          });
+        }
+      });
       $('resetCountsBtn').onclick = () => {
         if (!confirm('¿Deseas reiniciar todos los contadores?')) return;
         state.categories = state.categories.map(item => ({ ...item, count: 0 }));
@@ -1897,8 +2078,10 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       $('courtesyStateCard').textContent = formatMoney(calc.courtesyEstimatedValueForState);
       $('viewContador').style.display = state.activeTab === 'contador' ? '' : 'none';
       $('viewImpuestos').style.display = state.activeTab === 'impuestos' ? '' : 'none';
+      $('viewEventosWeb').style.display = state.activeTab === 'eventosWeb' ? '' : 'none';
       $('tabContador').classList.toggle('active', state.activeTab === 'contador');
       $('tabImpuestos').classList.toggle('active', state.activeTab === 'impuestos');
+      $('tabEventosWeb').classList.toggle('active', state.activeTab === 'eventosWeb');
       $('subViewLocalidades').style.display = state.impuestosTab === 'localidades' ? '' : 'none';
       $('subViewTotales').style.display = state.impuestosTab === 'totales' ? '' : 'none';
       $('subLocalidades').classList.toggle('active', state.impuestosTab === 'localidades');
@@ -1927,6 +2110,7 @@ Selecciona Cancelar para agregarlas a las existentes.`);
 
     $('tabContador').onclick = () => { state.activeTab = 'contador'; render(); };
     $('tabImpuestos').onclick = () => { state.activeTab = 'impuestos'; render(); };
+    $('tabEventosWeb').onclick = () => { state.activeTab = 'eventosWeb'; render(); };
     $('subLocalidades').onclick = () => { state.impuestosTab = 'localidades'; render(); };
     $('subTotales').onclick = () => { state.impuestosTab = 'totales'; render(); };
 
