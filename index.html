@@ -336,11 +336,72 @@
       padding: 6px 10px;
       font-size: 12px;
     }
+    .web-events-table th[data-web-sort] {
+      cursor: pointer;
+      user-select: none;
+      white-space: nowrap;
+    }
+    .web-events-table th[data-web-sort]:hover {
+      background: #e2e8f0;
+      color: var(--text);
+    }
+    .web-events-table th.web-sort-active {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+    .web-events-table th.web-sort-active::after {
+      content: " " attr(data-sort-symbol);
+      font-weight: 800;
+    }
     .web-events-empty {
       color: var(--muted);
       text-align: center;
       padding: 14px;
     }
+
+    .web-loading-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 12000;
+      background: rgba(15, 23, 42, .50);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+    }
+    .web-loading-backdrop.show { display: flex; }
+    .web-loading-box {
+      width: min(420px, 100%);
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: 0 24px 54px rgba(15, 23, 42, .30);
+      padding: 22px;
+      display: grid;
+      gap: 12px;
+      text-align: center;
+    }
+    .web-loading-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--text);
+    }
+    .web-loading-text {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.35;
+    }
+    .web-loading-spinner {
+      width: 44px;
+      height: 44px;
+      border: 5px solid #e2e8f0;
+      border-top-color: var(--primary);
+      border-radius: 999px;
+      margin: 0 auto;
+      animation: webSpin .85s linear infinite;
+    }
+    @keyframes webSpin { to { transform: rotate(360deg); } }
+
     .count-input {
       width: 86px;
       text-align: center;
@@ -440,7 +501,7 @@
               <div class="row-between"><span>Ingreso bruto</span><strong id="grossBox">$0.00</strong></div>
             </div>
             <button id="resetCountsBtn">Reiniciar contadores</button>
-            <input id="sheetWebAppUrl" type="hidden" value="https://script.google.com/macros/s/AKfycbxJgF0Pimx-7k3OBARn6F85rzG8AleagD5QI80_Tc7mKmOOx5VnjSJJPEikwzoKF-aP/exec" />
+            <input id="sheetWebAppUrl" type="hidden" value="https://script.google.com/macros/s/AKfycbwn_NRpcDVdBhdxTgxn8njGAAKoFwMaN2x7nUV3JiArSy8zbGAr69HD90uwHlWqwW57/exec" />
             <div id="sheetStatus" class="sheet-status" style="display:none;"></div>
           </div></div>
 
@@ -517,11 +578,11 @@
               <table class="web-events-table">
                 <thead>
                   <tr>
-                    <th>ID / Evento</th>
-                    <th>Fecha de captura</th>
-                    <th class="right">Personas</th>
-                    <th class="right">Ingreso bruto</th>
-                    <th class="right">Cargos</th>
+                    <th data-web-sort="recordId">ID / Evento</th>
+                    <th data-web-sort="updatedAt">Fecha de captura</th>
+                    <th class="right" data-web-sort="totalPersons">Personas</th>
+                    <th class="right" data-web-sort="grossIncome">Ingreso bruto</th>
+                    <th class="right" data-web-sort="totalCharges">Cargos</th>
                     <th class="center">Cargar</th>
                   </tr>
                 </thead>
@@ -649,8 +710,18 @@
     </div>
   </div>
 
+
+  <div id="webEventsLoading" class="web-loading-backdrop" aria-live="assertive" aria-modal="true" role="dialog">
+    <div class="web-loading-box">
+      <div class="web-loading-spinner" aria-hidden="true"></div>
+      <div class="web-loading-title" id="webEventsLoadingTitle">Procesando datos Web</div>
+      <div class="web-loading-text" id="webEventsLoadingText">Espera a que termine el proceso. El mensaje se quitará automáticamente al finalizar.</div>
+    </div>
+  </div>
+
+
   <script>
-    const FIXED_SHEET_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxJgF0Pimx-7k3OBARn6F85rzG8AleagD5QI80_Tc7mKmOOx5VnjSJJPEikwzoKF-aP/exec";
+    const FIXED_SHEET_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwn_NRpcDVdBhdxTgxn8njGAAKoFwMaN2x7nUV3JiArSy8zbGAr69HD90uwHlWqwW57/exec";
 
     const state = {
       activeTab: 'eventosWeb',
@@ -673,6 +744,9 @@
       sheetWebAppUrl: FIXED_SHEET_WEB_APP_URL,
       sheetRecordId: localStorage.getItem('sheetRecordId') || '',
       selectedRowId: null,
+      webEventsRecords: [],
+      webEventsSortKey: 'updatedAt',
+      webEventsSortDir: 'desc',
       newCategoryDraft: { count: '', name: '', price: '', courtesy: false },
       categories: [
         { id: 1, name: 'General', price: 250, count: 0, courtesy: false },
@@ -684,6 +758,40 @@
 
     const $ = (id) => document.getElementById(id);
     const n = (v) => Number(String(v || 0).replace(',', '.'));
+
+    let lastWebSaveFingerprint = '';
+    let isWebSaveInProgress = false;
+    let exitAutoSaveAlreadySent = false;
+
+    function getWebSaveComparableData() {
+      const data = getSerializableState();
+      delete data.activeTab;
+      delete data.impuestosTab;
+      delete data.categorySortDesc;
+      delete data.categorySortTypeAsc;
+      delete data.sheetRecordId;
+      return data;
+    }
+
+    function getWebSaveFingerprint() {
+      try {
+        if (document.activeElement && document.activeElement.dataset && document.activeElement.dataset.kind) {
+          applyManualTableFieldValue(document.activeElement);
+        }
+      } catch (error) {
+        console.warn('No se pudo sincronizar el campo activo antes de comparar cambios.', error);
+      }
+      return JSON.stringify(getWebSaveComparableData());
+    }
+
+    function markWebSaveBaseline() {
+      lastWebSaveFingerprint = getWebSaveFingerprint();
+      exitAutoSaveAlreadySent = false;
+    }
+
+    function hasUnsavedWebChanges() {
+      return getWebSaveFingerprint() !== lastWebSaveFingerprint;
+    }
 
     function formatMoney(value) {
       return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(Number(value || 0));
@@ -1172,7 +1280,6 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       const recordId = String(state.eventName || '').trim();
       if (!recordId) {
         setSheetStatus('Captura el nombre del evento para guardar o cargar en Web.', true);
-        alert('Captura el nombre del evento. Ese dato se usará como ID para Guardar Web y Cargar Web.');
         if (eventInput) eventInput.focus();
         return '';
       }
@@ -1243,7 +1350,15 @@ Selecciona Cancelar para agregarlas a las existentes.`);
     }
 
     function getSequencedBaseName(recordId) {
-      return String(recordId || '').trim().replace(/\s*\(\d+\)\s*$/, '').trim();
+      const clean = String(recordId || '').trim();
+      // Regresa al formato con paréntesis: "Evento (2)".
+      // Si el nombre actual ya trae una secuencia, se toma el nombre base.
+      const withoutParenthesis = clean.replace(/\s*\(\d+\)\s*$/, '').trim();
+      const withoutOldPlainNumber = withoutParenthesis.replace(/(.*?)(\d+)$/, (match, namePart) => {
+        const base = String(namePart || '').trimEnd();
+        return base || match;
+      }).trim();
+      return withoutOldPlainNumber || clean;
     }
 
     async function getAvailableWebRecordId(url, desiredRecordId) {
@@ -1275,9 +1390,10 @@ Selecciona Cancelar para agregarlas a las existentes.`);
     }
 
     async function saveToGoogleSheet() {
+      if (isWebSaveInProgress) return;
+
       const url = normalizeSheetUrl();
       if (!url) {
-        alert('No está configurada la conexión Web.');
         setSheetStatus('Falta la URL del Web App.', true);
         return;
       }
@@ -1289,6 +1405,13 @@ Selecciona Cancelar para agregarlas a las existentes.`);
         const requestedRecordId = normalizeSheetRecordId();
         if (!requestedRecordId) return;
 
+        if (!hasUnsavedWebChanges()) {
+          setSheetStatus('No hay cambios nuevos por guardar.');
+          return;
+        }
+
+        isWebSaveInProgress = true;
+        setWebEventsLoading(true, 'Validando el nombre del evento y guardando la información en Web.', 'Guardando datos Web', 'save');
         setSheetStatus('Validando nombre del evento en Web...');
         const available = await getAvailableWebRecordId(url, requestedRecordId);
         if (available.wasSequenced) {
@@ -1302,18 +1425,19 @@ Selecciona Cancelar para agregarlas a las existentes.`);
 
         setSheetStatus('Guardando en Web...');
         await sendPayloadToWeb(url, payload);
+        markWebSaveBaseline();
 
         if (available.wasSequenced) {
           setSheetStatus(`Datos enviados correctamente. Guardado como: ${available.recordId}`);
-          alert(`Datos enviados correctamente.\n\nEl evento ya existía, por eso se guardó como:\n${available.recordId}`);
         } else {
           setSheetStatus('Datos enviados correctamente');
-          alert('Datos enviados correctamente');
         }
       } catch (error) {
         console.error(error);
         setSheetStatus('No se pudo guardar en Web.', true);
-        alert('No se pudo guardar en Web. Revisa la publicación del Apps Script.');
+      } finally {
+        isWebSaveInProgress = false;
+        setWebEventsLoading(false);
       }
     }
 
@@ -1323,19 +1447,99 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       loadWebRecordById(recordId);
     }
 
+
+    function getCurrentWebRecordIdForAutoSave() {
+      const eventInput = $('eventName');
+      if (eventInput) state.eventName = eventInput.value.trim();
+      const recordId = String(state.eventName || '').trim();
+      if (!recordId) return '';
+      state.sheetRecordId = recordId;
+      localStorage.setItem('sheetRecordId', recordId);
+      return recordId;
+    }
+
+    function getWebPayloadForAutoSave() {
+      const recordId = getCurrentWebRecordIdForAutoSave();
+      if (!recordId) return null;
+      const calc = compute();
+      return {
+        // En cierre/actualización no se puede esperar una validación previa del navegador.
+        // Por eso el Apps Script debe guardar con ID secuenciado si ya existe: Evento (2), Evento (3), etc.
+        action: 'saveSequenced',
+        recordId,
+        updatedAt: new Date().toISOString(),
+        eventName: state.eventName || '',
+        autoSave: true,
+        summary: {
+          totalPersons: calc.totalPersons,
+          payingPersons: calc.payingPersons,
+          courtesyPersons: calc.courtesyPersons,
+          grossIncome: calc.grossIncome,
+          totalCharges: calc.totalCharges
+        },
+        data: getSerializableState()
+      };
+    }
+
+    function saveToWebOnExit() {
+      try {
+        if (exitAutoSaveAlreadySent) return;
+        if (isWebSaveInProgress) return;
+
+        const url = normalizeSheetUrl();
+        if (!url) return;
+        if (document.activeElement && document.activeElement.dataset && document.activeElement.dataset.kind) {
+          applyManualTableFieldValue(document.activeElement);
+        }
+        if (!hasUnsavedWebChanges()) return;
+
+        const payload = getWebPayloadForAutoSave();
+        if (!payload) return;
+
+        exitAutoSaveAlreadySent = true;
+        setWebEventsLoading(true, 'Guardando automáticamente los cambios antes de salir.', 'Autoguardando datos Web', 'save');
+        const body = JSON.stringify(payload);
+        if (navigator.sendBeacon) {
+          const blob = new Blob([body], { type: 'text/plain;charset=utf-8' });
+          navigator.sendBeacon(url, blob);
+        } else {
+          fetch(url, {
+            method: 'POST',
+            mode: 'no-cors',
+            keepalive: true,
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body
+          }).catch(() => {});
+        }
+        setTimeout(() => setWebEventsLoading(false), 1200);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    function bindAutoSaveBeforeExit() {
+      // Se usa pagehide como único punto real de autoguardado para evitar registros duplicados.
+      window.addEventListener('pagehide', saveToWebOnExit, { capture: true });
+      window.addEventListener('beforeunload', (event) => {
+        if (getCurrentWebRecordIdForAutoSave() && hasUnsavedWebChanges()) {
+          event.preventDefault();
+          event.returnValue = '';
+        }
+      });
+    }
+
     function loadWebRecordById(recordId) {
       const url = normalizeSheetUrl();
       recordId = String(recordId || '').trim();
       if (!recordId) {
-        alert('Selecciona un evento para cargar.');
         return;
       }
       if (!url) {
-        alert('No está configurada la conexión Web.');
         setSheetStatus('Falta la URL del Web App.', true);
         return;
       }
 
+      setWebEventsLoading(true, `Cargando el evento guardado en Web: ${recordId}`, 'Cargando datos Web', 'load');
       const callbackName = `sheetLoadCallback_${Date.now()}_${Math.floor(Math.random() * 100000)}`;
       const script = document.createElement('script');
       const sep = url.includes('?') ? '&' : '?';
@@ -1348,10 +1552,10 @@ Selecciona Cancelar para agregarlas a las existentes.`);
 
       window[callbackName] = (response) => {
         cleanup();
+        setWebEventsLoading(false);
         if (!response || !response.ok) {
           const msg = response && response.error ? response.error : 'No se encontró el evento en Web.';
           setSheetStatus(msg, true);
-          alert(msg);
           return;
         }
         loadSerializableState(response.data || {});
@@ -1361,20 +1565,21 @@ Selecciona Cancelar para agregarlas a las existentes.`);
         localStorage.setItem('sheetRecordId', recordId);
         syncInputsFromState();
         render();
+        markWebSaveBaseline();
         setSheetStatus(`Evento cargado desde Web: ${recordId}`);
-        alert(`Evento cargado correctamente: ${recordId}`);
       };
 
       script.onerror = () => {
         if (done) return;
         cleanup();
+        setWebEventsLoading(false);
         setSheetStatus('No se pudo cargar desde Web.', true);
-        alert('No se pudo cargar desde Web. Revisa que el Apps Script esté publicado como acceso público.');
       };
 
       setTimeout(() => {
         if (done) return;
         cleanup();
+        setWebEventsLoading(false);
         setSheetStatus('Tiempo agotado al cargar desde Web.', true);
       }, 12000);
 
@@ -1390,14 +1595,62 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       return d.toLocaleString('es-MX');
     }
 
+    function getWebRecordSortValue(record, key) {
+      if (!record) return '';
+      if (key === 'recordId') return String(record.recordId || record.eventName || '').toLowerCase();
+      if (key === 'updatedAt') {
+        const d = new Date(record.updatedAt || record.createdAt || '');
+        return Number.isNaN(d.getTime()) ? 0 : d.getTime();
+      }
+      if (key === 'totalPersons') return n(record.totalPersons);
+      if (key === 'grossIncome') return n(record.grossIncome);
+      if (key === 'totalCharges') return n(record.totalCharges);
+      return String(record[key] || '').toLowerCase();
+    }
+
+    function sortWebEventsRecords(records) {
+      const key = state.webEventsSortKey || 'updatedAt';
+      const dir = state.webEventsSortDir === 'asc' ? 1 : -1;
+      return [...(Array.isArray(records) ? records : [])].sort((a, b) => {
+        const av = getWebRecordSortValue(a, key);
+        const bv = getWebRecordSortValue(b, key);
+        if (typeof av === 'number' && typeof bv === 'number') return (av - bv) * dir;
+        return String(av).localeCompare(String(bv), 'es', { numeric: true, sensitivity: 'base' }) * dir;
+      });
+    }
+
+    function updateWebEventsSortIndicators() {
+      document.querySelectorAll('[data-web-sort]').forEach(th => {
+        const active = th.dataset.webSort === state.webEventsSortKey;
+        th.classList.toggle('web-sort-active', active);
+        th.setAttribute('aria-sort', active ? (state.webEventsSortDir === 'asc' ? 'ascending' : 'descending') : 'none');
+        th.setAttribute('data-sort-symbol', state.webEventsSortDir === 'asc' ? '▲' : '▼');
+        th.title = 'Clic para ordenar por este encabezado';
+      });
+    }
+
+    function setWebEventsSort(key) {
+      if (!key) return;
+      if (state.webEventsSortKey === key) {
+        state.webEventsSortDir = state.webEventsSortDir === 'asc' ? 'desc' : 'asc';
+      } else {
+        state.webEventsSortKey = key;
+        state.webEventsSortDir = key === 'updatedAt' ? 'desc' : 'asc';
+      }
+      renderWebEventsList(state.webEventsRecords || []);
+    }
+
     function renderWebEventsList(records) {
       const tbody = $('webEventsTable');
       if (!tbody) return;
-      if (!Array.isArray(records) || !records.length) {
+      state.webEventsRecords = Array.isArray(records) ? records : [];
+      updateWebEventsSortIndicators();
+      const sortedRecords = sortWebEventsRecords(state.webEventsRecords);
+      if (!sortedRecords.length) {
         tbody.innerHTML = '<tr><td colspan="6" class="web-events-empty">No se encontraron eventos con esos filtros.</td></tr>';
         return;
       }
-      tbody.innerHTML = records.map((record, index) => {
+      tbody.innerHTML = sortedRecords.map((record, index) => {
         const recordIdText = String(record.recordId || record.eventName || '');
         const recordId = escapeHtml(recordIdText);
         return `
@@ -1413,11 +1666,11 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       }).join('');
       tbody.querySelectorAll('[data-web-load-index]').forEach(btn => {
         btn.onclick = () => {
-          const record = records[n(btn.dataset.webLoadIndex)];
+          const record = sortedRecords[n(btn.dataset.webLoadIndex)];
           loadWebRecordById(record && (record.recordId || record.eventName));
         };
       });
-      bindWebEventsRowContextMenus(records);
+      bindWebEventsRowContextMenus(sortedRecords);
     }
 
     function ensureWebEventsContextMenu() {
@@ -1506,21 +1759,13 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       const url = normalizeSheetUrl();
       recordId = String(recordId || '').trim();
       if (!recordId) {
-        alert('Selecciona un evento para borrar.');
         return;
       }
       if (!url) {
-        alert('No está configurada la conexión Web.');
         setSheetStatus('Falta la URL del Web App.', true);
         return;
       }
-      const ok = confirm(`¿Deseas borrar el evento guardado en Web?
-
-${recordId}
-
-Esta acción no se puede deshacer.`);
-      if (!ok) return;
-
+      setWebEventsLoading(true, `Borrando el evento guardado en Web: ${recordId}`, 'Borrando datos Web', 'delete');
       const callbackName = `sheetDeleteCallback_${Date.now()}_${Math.floor(Math.random() * 100000)}`;
       const script = document.createElement('script');
       const sep = url.includes('?') ? '&' : '?';
@@ -1533,28 +1778,27 @@ Esta acción no se puede deshacer.`);
 
       window[callbackName] = (response) => {
         cleanup();
+        setWebEventsLoading(false);
         if (!response || !response.ok) {
           const msg = response && response.error ? response.error : 'No se pudo borrar el evento.';
           setSheetStatus(msg, true);
-          alert(msg);
           return;
         }
         setSheetStatus(`Evento borrado: ${recordId}`);
-        alert(`Evento borrado correctamente:
-${recordId}`);
         refreshWebEventsList();
       };
 
       script.onerror = () => {
         if (done) return;
         cleanup();
+        setWebEventsLoading(false);
         setSheetStatus('No se pudo borrar el evento en Web.', true);
-        alert('No se pudo borrar el evento. Revisa que el Apps Script actualizado esté publicado.');
       };
 
       setTimeout(() => {
         if (done) return;
         cleanup();
+        setWebEventsLoading(false);
         setSheetStatus('Tiempo agotado al borrar el evento.', true);
       }, 12000);
 
@@ -1563,17 +1807,43 @@ ${recordId}`);
       document.body.appendChild(script);
     }
 
+
+    function setWebEventsLoading(isLoading, message = 'Procesando datos Web. Espera a que termine el proceso.', title = 'Procesando datos Web', action = '') {
+      const overlay = $('webEventsLoading');
+      if (!overlay) return;
+      const titleEl = $('webEventsLoadingTitle');
+      const text = $('webEventsLoadingText');
+      if (titleEl) titleEl.textContent = title;
+      if (text) text.textContent = message;
+      overlay.classList.toggle('show', Boolean(isLoading));
+      overlay.setAttribute('aria-hidden', isLoading ? 'false' : 'true');
+
+      const buttons = [
+        { id: 'refreshWebEventsBtn', loadingText: action === 'search' ? 'Buscando...' : null },
+        { id: 'saveSheetBtn', loadingText: action === 'save' ? 'Guardando...' : null },
+        { id: 'loadSheetBtn', loadingText: action === 'load' ? 'Cargando...' : null }
+      ];
+
+      buttons.forEach(({ id, loadingText }) => {
+        const btn = $(id);
+        if (!btn) return;
+        if (!btn.dataset.defaultText) btn.dataset.defaultText = btn.textContent;
+        btn.disabled = Boolean(isLoading);
+        btn.textContent = isLoading && loadingText ? loadingText : btn.dataset.defaultText;
+      });
+    }
+
     function refreshWebEventsList() {
       const url = normalizeSheetUrl();
       if (!url) {
-        alert('No está configurada la conexión Web.');
         return;
       }
       const idFilter = $('webEventFilterId') ? $('webEventFilterId').value.trim() : '';
       const dateFrom = $('webEventDateFrom') ? $('webEventDateFrom').value : '';
       const dateTo = $('webEventDateTo') ? $('webEventDateTo').value : '';
       const tbody = $('webEventsTable');
-      if (tbody) tbody.innerHTML = '<tr><td colspan="7" class="web-events-empty">Buscando eventos guardados...</td></tr>';
+      if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="web-events-empty">Buscando eventos guardados...</td></tr>';
+      setWebEventsLoading(true, 'Buscando eventos guardados en Web. Espera a que termine la consulta.', 'Buscando eventos guardados', 'search');
 
       const callbackName = `sheetListCallback_${Date.now()}_${Math.floor(Math.random() * 100000)}`;
       const script = document.createElement('script');
@@ -1587,11 +1857,11 @@ ${recordId}`);
 
       window[callbackName] = (response) => {
         cleanup();
+        setWebEventsLoading(false);
         if (!response || !response.ok) {
           const msg = response && response.error ? response.error : 'No se pudo obtener la lista de eventos.';
           renderWebEventsList([]);
           setSheetStatus(msg, true);
-          alert(msg);
           return;
         }
         renderWebEventsList(response.records || []);
@@ -1601,6 +1871,7 @@ ${recordId}`);
       script.onerror = () => {
         if (done) return;
         cleanup();
+        setWebEventsLoading(false);
         renderWebEventsList([]);
         setSheetStatus('No se pudo consultar la lista de eventos.', true);
       };
@@ -1608,6 +1879,7 @@ ${recordId}`);
       setTimeout(() => {
         if (done) return;
         cleanup();
+        setWebEventsLoading(false);
         renderWebEventsList([]);
         setSheetStatus('Tiempo agotado al consultar eventos.', true);
       }, 12000);
@@ -1622,6 +1894,17 @@ ${recordId}`);
       if ($('saveSheetBtn')) $('saveSheetBtn').onclick = saveToGoogleSheet;
       if ($('loadSheetBtn')) $('loadSheetBtn').onclick = loadFromGoogleSheet;
       if ($('refreshWebEventsBtn')) $('refreshWebEventsBtn').onclick = refreshWebEventsList;
+      document.querySelectorAll('[data-web-sort]').forEach(th => {
+        th.onclick = () => setWebEventsSort(th.dataset.webSort);
+        th.setAttribute('tabindex', '0');
+        th.setAttribute('role', 'button');
+        th.addEventListener('keydown', e => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            setWebEventsSort(th.dataset.webSort);
+          }
+        });
+      });
       ['webEventFilterId','webEventDateFrom','webEventDateTo'].forEach(id => {
         if ($(id)) {
           $(id).addEventListener('keydown', e => {
@@ -2313,6 +2596,7 @@ ${recordId}`);
     bindTopInputs();
     bindTaxInputs();
     configureAllNumericInputs();
+    bindAutoSaveBeforeExit();
     syncInputsFromState();
     render();
   </script>
