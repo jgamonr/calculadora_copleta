@@ -402,6 +402,50 @@
     }
     @keyframes webSpin { to { transform: rotate(360deg); } }
 
+
+    .web-message-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 13000;
+      background: rgba(15, 23, 42, .42);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+    }
+    .web-message-backdrop.show { display: flex; }
+    .web-message-box {
+      width: min(440px, 100%);
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: 0 24px 54px rgba(15, 23, 42, .32);
+      padding: 20px;
+      display: grid;
+      gap: 12px;
+      text-align: center;
+    }
+    .web-message-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--text);
+    }
+    .web-message-text {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.4;
+      white-space: pre-line;
+    }
+    .web-message-box.error .web-message-title,
+    .web-message-box.error .web-message-text { color: var(--danger); }
+    .web-message-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .web-message-actions button { min-width: 110px; }
+
     .count-input {
       width: 86px;
       text-align: center;
@@ -716,6 +760,16 @@
       <div class="web-loading-spinner" aria-hidden="true"></div>
       <div class="web-loading-title" id="webEventsLoadingTitle">Procesando datos Web</div>
       <div class="web-loading-text" id="webEventsLoadingText">Espera a que termine el proceso. El mensaje se quitará automáticamente al finalizar.</div>
+    </div>
+  </div>
+
+  <div id="webMessageModal" class="web-message-backdrop" aria-live="assertive" aria-modal="true" role="dialog" aria-hidden="true">
+    <div id="webMessageBox" class="web-message-box">
+      <div class="web-message-title" id="webMessageTitle">Aviso</div>
+      <div class="web-message-text" id="webMessageText"></div>
+      <div class="web-message-actions" id="webMessageActions">
+        <button type="button" class="active" id="webMessageOkBtn">Aceptar</button>
+      </div>
     </div>
   </div>
 
@@ -1259,12 +1313,115 @@ Selecciona Cancelar para agregarlas a las existentes.`);
     }
 
 
+    let webMessageTimer = null;
+    let webMessageResolver = null;
+
+    function hideWebMessageModal(result = true) {
+      const modal = $('webMessageModal');
+      if (webMessageTimer) {
+        clearTimeout(webMessageTimer);
+        webMessageTimer = null;
+      }
+      if (modal) {
+        modal.classList.remove('show');
+        modal.setAttribute('aria-hidden', 'true');
+      }
+      if (webMessageResolver) {
+        const resolver = webMessageResolver;
+        webMessageResolver = null;
+        resolver(result);
+      }
+    }
+
+    function showWebMessage(message, options = {}) {
+      const modal = $('webMessageModal');
+      const box = $('webMessageBox');
+      const titleEl = $('webMessageTitle');
+      const textEl = $('webMessageText');
+      const actions = $('webMessageActions');
+      if (!modal || !box || !titleEl || !textEl || !actions) return Promise.resolve(true);
+
+      const {
+        title = 'Aviso',
+        isError = false,
+        autoClose = 2600,
+        confirm = false,
+        okText = 'Aceptar',
+        cancelText = 'Cancelar',
+        danger = false
+      } = options;
+
+      if (webMessageTimer) {
+        clearTimeout(webMessageTimer);
+        webMessageTimer = null;
+      }
+      if (webMessageResolver) {
+        const previousResolver = webMessageResolver;
+        webMessageResolver = null;
+        previousResolver(false);
+      }
+
+      titleEl.textContent = title;
+      textEl.textContent = message || '';
+      box.classList.toggle('error', Boolean(isError));
+      actions.innerHTML = '';
+
+      return new Promise(resolve => {
+        webMessageResolver = resolve;
+
+        if (confirm) {
+          const cancelBtn = document.createElement('button');
+          cancelBtn.type = 'button';
+          cancelBtn.textContent = cancelText;
+          cancelBtn.onclick = () => hideWebMessageModal(false);
+
+          const okBtn = document.createElement('button');
+          okBtn.type = 'button';
+          okBtn.textContent = okText;
+          okBtn.className = danger ? 'danger' : 'active';
+          okBtn.onclick = () => hideWebMessageModal(true);
+
+          actions.appendChild(cancelBtn);
+          actions.appendChild(okBtn);
+          setTimeout(() => okBtn.focus(), 50);
+        } else {
+          const okBtn = document.createElement('button');
+          okBtn.type = 'button';
+          okBtn.textContent = okText;
+          okBtn.className = 'active';
+          okBtn.onclick = () => hideWebMessageModal(true);
+          actions.appendChild(okBtn);
+          if (autoClose) webMessageTimer = setTimeout(() => hideWebMessageModal(true), autoClose);
+          setTimeout(() => okBtn.focus(), 50);
+        }
+
+        modal.classList.add('show');
+        modal.setAttribute('aria-hidden', 'false');
+      });
+    }
+
+    function shouldShowStatusInForeground(message, isError = false) {
+      const txt = String(message || '').trim();
+      if (!txt) return false;
+      // Solo los errores se muestran en primer plano desde los procesos Web.
+      // Los mensajes informativos quedan únicamente en el estado del panel para no interrumpir el flujo.
+      return Boolean(isError);
+    }
+
     function setSheetStatus(message, isError = false) {
       const el = $('sheetStatus');
-      if (!el) return;
-      el.textContent = message || '';
-      el.style.color = isError ? 'var(--danger)' : 'var(--muted)';
-      el.style.display = message ? 'block' : 'none';
+      if (el) {
+        el.textContent = message || '';
+        el.style.color = isError ? 'var(--danger)' : 'var(--muted)';
+        el.style.display = message ? 'block' : 'none';
+      }
+      if (shouldShowStatusInForeground(message, isError)) {
+        showWebMessage(message, {
+          title: 'Aviso Web',
+          isError,
+          autoClose: 4200
+        });
+      }
     }
 
     function normalizeSheetUrl() {
@@ -1755,7 +1912,7 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       });
     }
 
-    function deleteWebRecordById(recordId) {
+    async function deleteWebRecordById(recordId) {
       const url = normalizeSheetUrl();
       recordId = String(recordId || '').trim();
       if (!recordId) {
@@ -1765,6 +1922,15 @@ Selecciona Cancelar para agregarlas a las existentes.`);
         setSheetStatus('Falta la URL del Web App.', true);
         return;
       }
+      const confirmDelete = await showWebMessage(`¿Deseas borrar el evento guardado en Web?\n\n${recordId}`, {
+        title: 'Confirmar borrado',
+        confirm: true,
+        okText: 'Borrar',
+        cancelText: 'Cancelar',
+        danger: true,
+        autoClose: 0
+      });
+      if (!confirmDelete) return;
       setWebEventsLoading(true, `Borrando el evento guardado en Web: ${recordId}`, 'Borrando datos Web', 'delete');
       const callbackName = `sheetDeleteCallback_${Date.now()}_${Math.floor(Math.random() * 100000)}`;
       const script = document.createElement('script');
@@ -2227,14 +2393,29 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       menu.style.top = `${Math.max(margin, Math.min(clientY, maxY))}px`;
     }
 
-    function deleteCategoryById(id) {
+    async function deleteCategoryById(id) {
       const item = state.categories.find(i => i.id === id);
       if (!item) return;
-      if (!confirm(`¿Deseas eliminar la categoría${item.name ? ` "${item.name}"` : ''}?`)) return;
+
+      const confirmed = await showWebMessage(
+        `¿Deseas eliminar la localidad${item.name ? ` "${item.name}"` : ''}?`,
+        {
+          title: 'Confirmar eliminación',
+          confirm: true,
+          okText: 'Eliminar',
+          cancelText: 'Cancelar',
+          danger: true,
+          autoClose: 0
+        }
+      );
+
+      if (!confirmed) return;
       state.categories = state.categories.filter(i => i.id !== id);
       if (state.selectedRowId === id) state.selectedRowId = null;
       hideManualContextMenu();
+      markDataChanged();
       render();
+      showWebMessage('Localidad eliminada correctamente.', { title: 'Localidad eliminada', autoClose: 1800 });
     }
 
     function bindManualRowContextMenus() {
