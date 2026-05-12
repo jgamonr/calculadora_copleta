@@ -446,7 +446,6 @@
                   <th>Precio</th>
                   <th class="right">Subtotal</th>
                   <th>Cortesía</th>
-                  <th class="center">Acciones</th>
                 </tr>
               </thead>
               <tbody id="categoriesTable"></tbody>
@@ -1637,7 +1636,6 @@ Selecciona Cancelar para agregarlas a las existentes.`);
           <td><input data-kind="price" data-id="${item.id}" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" min="0" value="${item.price}" ${item.courtesy ? 'disabled' : ''}></td>
           <td class="right"><strong>${formatMoney(round2(n(item.price) * n(item.count)))}</strong></td>
           <td><button type="button" tabindex="-1" class="small ${item.courtesy ? 'active' : ''}" data-kind="courtesy" data-id="${item.id}">${item.courtesy ? 'Sí' : 'No'}</button></td>
-          <td class="center"><span class="note">Menú</span></td>
         `;
         tbody.appendChild(tr);
 
@@ -1671,8 +1669,7 @@ Selecciona Cancelar para agregarlas a las existentes.`);
         <td><input data-kind="new-name" type="text" value="${escapeHtml(draft.name)}" placeholder="Nuevo tipo de acceso"></td>
         <td><input data-kind="new-price" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" value="${escapeHtml(draft.price)}" placeholder="0.00" ${draft.courtesy ? 'disabled' : ''}></td>
         <td class="right"><strong>${formatMoney(round2(n(draft.count) * n(draft.price)))}</strong></td>
-        <td class="center"><label class="note"><input data-kind="new-courtesy" type="checkbox" tabindex="-1" ${draft.courtesy ? 'checked' : ''}> Cortesía</label></td>
-        <td class="center"><button type="button" class="small active" data-kind="new-add">Agregar</button></td>
+        <td class="center"><div style="display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap;"><label class="note"><input data-kind="new-courtesy" type="checkbox" tabindex="-1" ${draft.courtesy ? 'checked' : ''}> Cortesía</label><button type="button" class="small active" data-kind="new-add">Agregar</button></div></td>
       `;
       tbody.appendChild(addTr);
 
