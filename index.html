@@ -328,7 +328,7 @@
       background: white;
     }
     .web-events-table {
-      min-width: 760px;
+      min-width: 860px;
     }
     .web-events-table tbody tr:nth-child(odd) { background: #ffffff; }
     .web-events-table tbody tr:nth-child(even) { background: #f8fafc; }
@@ -404,7 +404,7 @@
       .side-actions { gap: 6px; }
       .side-actions button { padding: 7px 8px; font-size: 11px; }
       .web-events-filters { grid-template-columns: 1fr; }
-      .web-events-table { min-width: 720px; }
+      .web-events-table { min-width: 860px; }
     }
   </style>
 </head>
@@ -440,7 +440,7 @@
               <div class="row-between"><span>Ingreso bruto</span><strong id="grossBox">$0.00</strong></div>
             </div>
             <button id="resetCountsBtn">Reiniciar contadores</button>
-            <input id="sheetWebAppUrl" type="hidden" value="https://script.google.com/macros/s/AKfycbzaFyDEOefYMiq3mZXVgen_K1mOFOiJ2JuMoEBqLzKXlscGJieLTRQp5LdEDrQwAhuz/exec" />
+            <input id="sheetWebAppUrl" type="hidden" value="https://script.google.com/macros/s/AKfycbxJgF0Pimx-7k3OBARn6F85rzG8AleagD5QI80_Tc7mKmOOx5VnjSJJPEikwzoKF-aP/exec" />
             <div id="sheetStatus" class="sheet-status" style="display:none;"></div>
           </div></div>
 
@@ -650,7 +650,7 @@
   </div>
 
   <script>
-    const FIXED_SHEET_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzaFyDEOefYMiq3mZXVgen_K1mOFOiJ2JuMoEBqLzKXlscGJieLTRQp5LdEDrQwAhuz/exec";
+    const FIXED_SHEET_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxJgF0Pimx-7k3OBARn6F85rzG8AleagD5QI80_Tc7mKmOOx5VnjSJJPEikwzoKF-aP/exec";
 
     const state = {
       activeTab: 'eventosWeb',
@@ -1397,22 +1397,170 @@ Selecciona Cancelar para agregarlas a las existentes.`);
         tbody.innerHTML = '<tr><td colspan="6" class="web-events-empty">No se encontraron eventos con esos filtros.</td></tr>';
         return;
       }
-      tbody.innerHTML = records.map(record => {
-        const recordId = escapeHtml(record.recordId || record.eventName || '');
+      tbody.innerHTML = records.map((record, index) => {
+        const recordIdText = String(record.recordId || record.eventName || '');
+        const recordId = escapeHtml(recordIdText);
         return `
-          <tr>
+          <tr class="web-event-row" data-web-record-index="${index}">
             <td><strong>${recordId}</strong></td>
             <td>${escapeHtml(formatWebDate(record.updatedAt))}</td>
             <td class="right">${n(record.totalPersons)}</td>
             <td class="right">${formatMoney(record.grossIncome)}</td>
             <td class="right">${formatMoney(record.totalCharges)}</td>
-            <td class="center"><button type="button" class="small active" data-web-record-id="${recordId}">Cargar</button></td>
+            <td class="center"><button type="button" class="small active" data-web-load-index="${index}">Cargar</button></td>
           </tr>
         `;
       }).join('');
-      tbody.querySelectorAll('[data-web-record-id]').forEach(btn => {
-        btn.onclick = () => loadWebRecordById(btn.dataset.webRecordId);
+      tbody.querySelectorAll('[data-web-load-index]').forEach(btn => {
+        btn.onclick = () => {
+          const record = records[n(btn.dataset.webLoadIndex)];
+          loadWebRecordById(record && (record.recordId || record.eventName));
+        };
       });
+      bindWebEventsRowContextMenus(records);
+    }
+
+    function ensureWebEventsContextMenu() {
+      let menu = document.getElementById('webEventsContextMenu');
+      if (menu) return menu;
+      menu = document.createElement('div');
+      menu.id = 'webEventsContextMenu';
+      menu.className = 'manual-context-menu';
+      menu.innerHTML = `
+        <div class="manual-context-hint">Opciones del evento</div>
+        <button type="button" class="danger" data-web-context-action="delete">Borrar evento</button>
+      `;
+      document.body.appendChild(menu);
+      menu.addEventListener('click', (e) => {
+        const action = e.target.closest('[data-web-context-action]');
+        if (!action) return;
+        const recordId = menu.dataset.recordId || '';
+        hideWebEventsContextMenu();
+        if (action.dataset.webContextAction === 'delete') deleteWebRecordById(recordId);
+      });
+      return menu;
+    }
+
+    function hideWebEventsContextMenu() {
+      const menu = document.getElementById('webEventsContextMenu');
+      if (!menu) return;
+      menu.classList.remove('show');
+      menu.dataset.recordId = '';
+    }
+
+    function showWebEventsContextMenu(recordId, clientX, clientY) {
+      recordId = String(recordId || '').trim();
+      if (!recordId) return;
+      hideManualContextMenu();
+      const menu = ensureWebEventsContextMenu();
+      menu.dataset.recordId = recordId;
+      menu.classList.add('show');
+
+      const margin = 8;
+      const rect = menu.getBoundingClientRect();
+      const maxX = window.innerWidth - rect.width - margin;
+      const maxY = window.innerHeight - rect.height - margin;
+      menu.style.left = `${Math.max(margin, Math.min(clientX, maxX))}px`;
+      menu.style.top = `${Math.max(margin, Math.min(clientY, maxY))}px`;
+    }
+
+    function bindWebEventsRowContextMenus(records) {
+      document.querySelectorAll('.web-event-row').forEach(row => {
+        const index = n(row.dataset.webRecordIndex);
+        const record = Array.isArray(records) ? records[index] : null;
+        const recordId = record && (record.recordId || record.eventName);
+        let longPressTimer = null;
+        let touchStart = null;
+
+        row.addEventListener('contextmenu', (e) => {
+          e.preventDefault();
+          showWebEventsContextMenu(recordId, e.clientX, e.clientY);
+        });
+
+        row.addEventListener('touchstart', (e) => {
+          if (e.target.closest('input, textarea, select, button, label')) return;
+          const touch = e.touches && e.touches[0];
+          if (!touch) return;
+          touchStart = { x: touch.clientX, y: touch.clientY };
+          clearTimeout(longPressTimer);
+          longPressTimer = setTimeout(() => {
+            showWebEventsContextMenu(recordId, touchStart.x, touchStart.y);
+          }, 650);
+        }, { passive: true });
+
+        row.addEventListener('touchmove', (e) => {
+          const touch = e.touches && e.touches[0];
+          if (!touch || !touchStart) return;
+          if (Math.abs(touch.clientX - touchStart.x) > 12 || Math.abs(touch.clientY - touchStart.y) > 12) {
+            clearTimeout(longPressTimer);
+          }
+        }, { passive: true });
+
+        ['touchend', 'touchcancel'].forEach(evt => {
+          row.addEventListener(evt, () => clearTimeout(longPressTimer), { passive: true });
+        });
+      });
+    }
+
+    function deleteWebRecordById(recordId) {
+      const url = normalizeSheetUrl();
+      recordId = String(recordId || '').trim();
+      if (!recordId) {
+        alert('Selecciona un evento para borrar.');
+        return;
+      }
+      if (!url) {
+        alert('No está configurada la conexión Web.');
+        setSheetStatus('Falta la URL del Web App.', true);
+        return;
+      }
+      const ok = confirm(`¿Deseas borrar el evento guardado en Web?
+
+${recordId}
+
+Esta acción no se puede deshacer.`);
+      if (!ok) return;
+
+      const callbackName = `sheetDeleteCallback_${Date.now()}_${Math.floor(Math.random() * 100000)}`;
+      const script = document.createElement('script');
+      const sep = url.includes('?') ? '&' : '?';
+      let done = false;
+      const cleanup = () => {
+        done = true;
+        delete window[callbackName];
+        script.remove();
+      };
+
+      window[callbackName] = (response) => {
+        cleanup();
+        if (!response || !response.ok) {
+          const msg = response && response.error ? response.error : 'No se pudo borrar el evento.';
+          setSheetStatus(msg, true);
+          alert(msg);
+          return;
+        }
+        setSheetStatus(`Evento borrado: ${recordId}`);
+        alert(`Evento borrado correctamente:
+${recordId}`);
+        refreshWebEventsList();
+      };
+
+      script.onerror = () => {
+        if (done) return;
+        cleanup();
+        setSheetStatus('No se pudo borrar el evento en Web.', true);
+        alert('No se pudo borrar el evento. Revisa que el Apps Script actualizado esté publicado.');
+      };
+
+      setTimeout(() => {
+        if (done) return;
+        cleanup();
+        setSheetStatus('Tiempo agotado al borrar el evento.', true);
+      }, 12000);
+
+      setSheetStatus('Borrando evento en Web...');
+      script.src = `${url}${sep}action=delete&recordId=${encodeURIComponent(recordId)}&callback=${encodeURIComponent(callbackName)}&_=${Date.now()}`;
+      document.body.appendChild(script);
     }
 
     function refreshWebEventsList() {
@@ -1425,7 +1573,7 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       const dateFrom = $('webEventDateFrom') ? $('webEventDateFrom').value : '';
       const dateTo = $('webEventDateTo') ? $('webEventDateTo').value : '';
       const tbody = $('webEventsTable');
-      if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="web-events-empty">Buscando eventos guardados...</td></tr>';
+      if (tbody) tbody.innerHTML = '<tr><td colspan="7" class="web-events-empty">Buscando eventos guardados...</td></tr>';
 
       const callbackName = `sheetListCallback_${Date.now()}_${Math.floor(Math.random() * 100000)}`;
       const script = document.createElement('script');
@@ -2142,11 +2290,19 @@ Selecciona Cancelar para agregarlas a las existentes.`);
     document.addEventListener('click', (e) => {
       const menu = document.getElementById('manualContextMenu');
       if (menu && !menu.contains(e.target)) hideManualContextMenu();
+      const webMenu = document.getElementById('webEventsContextMenu');
+      if (webMenu && !webMenu.contains(e.target)) hideWebEventsContextMenu();
     });
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') hideManualContextMenu();
+      if (e.key === 'Escape') {
+        hideManualContextMenu();
+        hideWebEventsContextMenu();
+      }
     });
-    window.addEventListener('scroll', hideManualContextMenu, true);
+    window.addEventListener('scroll', () => {
+      hideManualContextMenu();
+      hideWebEventsContextMenu();
+    }, true);
 
     $('tabContador').onclick = () => { state.activeTab = 'contador'; render(); };
     $('tabImpuestos').onclick = () => { state.activeTab = 'impuestos'; render(); };
