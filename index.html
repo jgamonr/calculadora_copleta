@@ -1242,6 +1242,38 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       });
     }
 
+    function getSequencedBaseName(recordId) {
+      return String(recordId || '').trim().replace(/\s*\(\d+\)\s*$/, '').trim();
+    }
+
+    async function getAvailableWebRecordId(url, desiredRecordId) {
+      const originalId = String(desiredRecordId || '').trim();
+      const existsOriginal = await checkExistingWebRecord(url, originalId);
+      if (!existsOriginal) {
+        return { recordId: originalId, wasSequenced: false };
+      }
+
+      const baseName = getSequencedBaseName(originalId) || originalId;
+      for (let index = 2; index <= 999; index++) {
+        const candidate = `${baseName} (${index})`;
+        const existsCandidate = await checkExistingWebRecord(url, candidate);
+        if (!existsCandidate) {
+          return { recordId: candidate, wasSequenced: true };
+        }
+      }
+
+      const fallback = `${baseName} (${Date.now()})`;
+      return { recordId: fallback, wasSequenced: true };
+    }
+
+    function setCurrentEventRecordId(recordId) {
+      const cleanRecordId = String(recordId || '').trim();
+      state.eventName = cleanRecordId;
+      state.sheetRecordId = cleanRecordId;
+      localStorage.setItem('sheetRecordId', cleanRecordId);
+      if ($('eventName')) $('eventName').value = cleanRecordId;
+    }
+
     async function saveToGoogleSheet() {
       const url = normalizeSheetUrl();
       if (!url) {
@@ -1253,23 +1285,31 @@ Selecciona Cancelar para agregarlas a las existentes.`);
         if (document.activeElement && document.activeElement.dataset && document.activeElement.dataset.kind) {
           applyManualTableFieldValue(document.activeElement);
         }
+
+        const requestedRecordId = normalizeSheetRecordId();
+        if (!requestedRecordId) return;
+
+        setSheetStatus('Validando nombre del evento en Web...');
+        const available = await getAvailableWebRecordId(url, requestedRecordId);
+        if (available.wasSequenced) {
+          setCurrentEventRecordId(available.recordId);
+          render();
+          setSheetStatus(`El evento ya existía. Se guardará como: ${available.recordId}`);
+        }
+
         const payload = getSheetPayload();
         if (!payload.recordId) return;
 
-        setSheetStatus('Validando si ya existe el registro...');
-        const exists = await checkExistingWebRecord(url, payload.recordId);
-        if (exists) {
-          const overwrite = confirm(`Ya existe un registro con el ID/evento "${payload.recordId}".\n\n¿Deseas sobrescribir los datos guardados?`);
-          if (!overwrite) {
-            setSheetStatus('Guardado cancelado. No se sobrescribieron los datos.');
-            return;
-          }
-        }
-
         setSheetStatus('Guardando en Web...');
         await sendPayloadToWeb(url, payload);
-        setSheetStatus('Datos enviados correctamente');
-        alert('Datos enviados correctamente');
+
+        if (available.wasSequenced) {
+          setSheetStatus(`Datos enviados correctamente. Guardado como: ${available.recordId}`);
+          alert(`Datos enviados correctamente.\n\nEl evento ya existía, por eso se guardó como:\n${available.recordId}`);
+        } else {
+          setSheetStatus('Datos enviados correctamente');
+          alert('Datos enviados correctamente');
+        }
       } catch (error) {
         console.error(error);
         setSheetStatus('No se pudo guardar en Web.', true);
