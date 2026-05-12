@@ -1530,6 +1530,7 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       menu.className = 'manual-context-menu';
       menu.innerHTML = `
         <div class="manual-context-hint">Opciones del renglón</div>
+        <button type="button" data-context-action="addPrompt">+ importe</button>
         <button type="button" class="danger" data-context-action="delete">Eliminar localidad</button>
       `;
       document.body.appendChild(menu);
@@ -1538,6 +1539,7 @@ Selecciona Cancelar para agregarlas a las existentes.`);
         if (!action) return;
         const id = n(menu.dataset.id);
         hideManualContextMenu();
+        if (action.dataset.contextAction === 'addPrompt') promptAddToCount(id);
         if (action.dataset.contextAction === 'delete') deleteCategoryById(id);
       });
       return menu;
@@ -1635,11 +1637,7 @@ Selecciona Cancelar para agregarlas a las existentes.`);
           <td><input data-kind="price" data-id="${item.id}" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" min="0" value="${item.price}" ${item.courtesy ? 'disabled' : ''}></td>
           <td class="right"><strong>${formatMoney(round2(n(item.price) * n(item.count)))}</strong></td>
           <td><button type="button" tabindex="-1" class="small ${item.courtesy ? 'active' : ''}" data-kind="courtesy" data-id="${item.id}">${item.courtesy ? 'Sí' : 'No'}</button></td>
-          <td class="center">
-            <button type="button" tabindex="-1" class="small action-btn" data-kind="dec" data-id="${item.id}">-1</button>
-            <button type="button" tabindex="-1" class="small action-btn action-btn-black" data-kind="inc" data-id="${item.id}">+1</button>
-            <button type="button" tabindex="-1" class="small action-btn" style="min-width:96px;" data-kind="addPrompt" data-id="${item.id}">+ importe</button>
-          </td>
+          <td class="center"><span class="note">Menú</span></td>
         `;
         tbody.appendChild(tr);
 
@@ -1656,12 +1654,9 @@ Selecciona Cancelar para agregarlas a las existentes.`);
           <div class="grid-4" style="align-items:center;">
             <input class="count-input" data-kind="count" data-id="${item.id}" type="text" inputmode="numeric" pattern="[0-9]*" min="0" step="1" value="${item.count}">
             <input data-kind="price" data-id="${item.id}" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" min="0" value="${item.price}" ${item.courtesy ? 'disabled' : ''}>
-            <button type="button" tabindex="-1" class="small action-btn" data-kind="dec" data-id="${item.id}">-1</button>
-            <button type="button" tabindex="-1" class="small action-btn action-btn-black" data-kind="inc" data-id="${item.id}">+1</button>
+
           </div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            <button type="button" tabindex="-1" class="small action-btn" style="min-width:120px;" data-kind="addPrompt" data-id="${item.id}">Sumar importe</button>
-          </div>
+
           <div class="row-between note"><span>Subtotal</span><strong style="color:var(--text)">${formatMoney(round2(n(item.price) * n(item.count)))}</strong></div>
         `;
         mobile.appendChild(card);
@@ -1793,23 +1788,6 @@ Selecciona Cancelar para agregarlas a las existentes.`);
 
       bindManualRowContextMenus();
 
-      document.querySelectorAll('[data-kind="inc"]').forEach(el => el.onclick = () => {
-        const item = state.categories.find(i => i.id === n(el.dataset.id));
-        if (!item) return;
-        item.count += 1;
-        render();
-      });
-
-      document.querySelectorAll('[data-kind="dec"]').forEach(el => el.onclick = () => {
-        const item = state.categories.find(i => i.id === n(el.dataset.id));
-        if (!item) return;
-        item.count = Math.max(0, item.count - 1);
-        render();
-      });
-
-      document.querySelectorAll('[data-kind="addPrompt"]').forEach(el => el.onclick = () => {
-        promptAddToCount(n(el.dataset.id));
-      });
     }
 
     function renderConcentrados(calc) {
