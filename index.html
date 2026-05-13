@@ -458,6 +458,17 @@
       margin-top: 4px;
     }
 
+
+    .factors-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      align-items: start;
+    }
+    .factors-grid details.collapsible-card {
+      min-width: 0;
+    }
+
     .section-title {
       font-size: 16px;
       font-weight: 700;
@@ -966,6 +977,7 @@
       .side-actions button { padding: 6px 5px; font-size: 10px; }
       .web-events-filters { grid-template-columns: 1fr; }
       .web-events-table { width: 630px; min-width: 630px; }
+      .factors-grid { grid-template-columns: 1fr; }
     }
     @media (max-width: 520px) {
       .left-panel {
@@ -1176,6 +1188,7 @@
         <div class="stack">
           <div class="card"><div class="inner stack">
             <div class="section-title">Factores de cálculo</div>
+            <div class="factors-grid">
 
             <details class="card collapsible-card" data-collapse-id="factorEstado" open>
               <summary class="collapsible-summary">
@@ -1218,6 +1231,7 @@
                 </div>
               </div>
             </details>
+            </div>
           </div></div>
         </div>
 
@@ -1696,17 +1710,26 @@
 
       if (selectedEventsTxtDirectoryHandle) {
         try {
-          await saveTxtToSelectedFolder(fileName, payload);
+          const fileHandle = await saveTxtToSelectedFolder(fileName, payload);
+          const savedRecord = await buildSavedTxtFolderRecord(fileHandle, fileName, payload);
           markWebSaveBaseline();
           setSheetStatus(`TXT guardado en carpeta seleccionada: ${fileName}`);
-          if (isLocalMemoryMode()) refreshWebEventsList();
+          await refreshTxtListAfterSave(savedRecord);
           return;
         } catch (error) {
           console.error(error);
           setSheetStatus(error && error.message ? error.message : 'No se pudo guardar en la carpeta seleccionada. Se descargará el TXT.', true);
         }
       } else if (Array.isArray(selectedEventsTxtFolderFiles) && selectedEventsTxtFolderFiles.length) {
-        setSheetStatus('La carpeta está en modo lectura; el TXT se descargará. Guárdalo manualmente dentro de la carpeta seleccionada.', true);
+        setSheetStatus('La carpeta está en modo lectura; el TXT se descargará. Para que aparezca sin recargar, se agregará temporalmente a la lista actual.', true);
+        try {
+          const virtualFile = new File([payload], fileName, { type: 'text/plain', lastModified: Date.now() });
+          selectedEventsTxtFolderFiles = [virtualFile].concat(selectedEventsTxtFolderFiles.filter(file => file && file.name !== fileName));
+          const savedRecord = await buildSavedTxtFolderRecord(null, fileName, payload);
+          await refreshTxtListAfterSave(savedRecord);
+        } catch (error) {
+          console.warn('No se pudo agregar el TXT descargado a la lista temporal.', error);
+        }
       }
 
       const blob = new Blob([payload], { type: 'text/plain;charset=utf-8' });
@@ -2774,6 +2797,50 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       };
     }
 
+
+    function getCurrentWebEventFilters() {
+      return {
+        idFilter: $('webEventFilterId') ? $('webEventFilterId').value.trim() : '',
+        dateFrom: $('webEventDateFrom') ? $('webEventDateFrom').value : '',
+        dateTo: $('webEventDateTo') ? $('webEventDateTo').value : ''
+      };
+    }
+
+    function upsertTxtFolderRecordInCurrentList(record) {
+      if (!record) return;
+      const filters = getCurrentWebEventFilters();
+      const visible = filterEventRecordsForList([record], filters.idFilter, filters.dateFrom, filters.dateTo).length > 0;
+      if (!visible) return;
+
+      const recordId = getWebRecordId(record);
+      const current = Array.isArray(state.webEventsRecords) ? state.webEventsRecords.slice() : [];
+      const index = current.findIndex(item => getWebRecordId(item) === recordId);
+      if (index >= 0) current[index] = record;
+      else current.unshift(record);
+      renderWebEventsList(current);
+    }
+
+    async function buildSavedTxtFolderRecord(fileHandle, fileName, contents) {
+      try {
+        const file = fileHandle && fileHandle.getFile ? await fileHandle.getFile() : new File([contents], fileName, { type: 'text/plain', lastModified: Date.now() });
+        const parsed = JSON.parse(String(contents || '{}'));
+        return buildTxtFolderRecordFromParsed(parsed, file);
+      } catch (error) {
+        console.warn('No se pudo preparar el registro TXT recién guardado para la lista.', error);
+        return null;
+      }
+    }
+
+    async function refreshTxtListAfterSave(savedRecord) {
+      if (!isLocalMemoryMode() || !hasSelectedEventsTxtFolder()) return;
+      try {
+        await refreshWebEventsList();
+      } catch (error) {
+        console.warn('No se pudo refrescar la lista TXT después de guardar.', error);
+      }
+      if (savedRecord) upsertTxtFolderRecordInCurrentList(savedRecord);
+    }
+
     function filterEventRecordsForList(records, idFilter = '', dateFrom = '', dateTo = '') {
       const idText = String(idFilter || '').trim().toLowerCase();
       const from = String(dateFrom || '').trim();
@@ -3833,7 +3900,7 @@ ${recordId}`, {
         e.target.value = '';
       };
       $('generatePdfBtn').onclick = () => { collapsePanelById('archivos'); openReportPdf(); };
-      $('saveTxtBtn').onclick = () => { collapsePanelById('archivos'); saveTxtFile(); };
+      $('saveTxtBtn').onclick = async () => { collapsePanelById('archivos'); await saveTxtFile(); };
       $('loadTxtBtn').onclick = () => { collapsePanelById('archivos'); $('loadTxtInput').click(); };
       $('loadTxtInput').onchange = (e) => {
         const file = e.target.files && e.target.files[0];
