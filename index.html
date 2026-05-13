@@ -1007,6 +1007,16 @@
       display: inline-flex !important;
     }
   </style>
+
+
+  <!-- Configuración PWA: permite instalar la página como app en teléfono -->
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Control Eventos">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
 </head>
 <body>
   <div class="wrap">
@@ -4889,6 +4899,18 @@ ${recordId}`, {
       syncInputsFromState();
       render();
     });
+  </script>
+
+
+  <!-- Registro del Service Worker para funcionamiento tipo app/PWA -->
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./service-worker.js")
+          .then(() => console.log("Service Worker registrado correctamente"))
+          .catch(error => console.error("Error registrando Service Worker", error));
+      });
+    }
   </script>
 </body>
 </html>
