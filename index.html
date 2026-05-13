@@ -1075,7 +1075,6 @@
                 <button id="selectEventsFolderBtn" type="button" title="Selecciona la carpeta local donde se guardan y se buscarán los eventos TXT.">Seleccionar carpeta eventos TXT</button>
                 <div id="eventsFolderStatus" class="event-folder-status">Sin carpeta TXT seleccionada.</div>
                 <button id="importTableBtn" type="button" title="Orden: name, count, price.">Importar tabla TXT</button>
-                <button id="mergeEventsBtn" type="button" title="Selecciona 2 o más eventos TXT para homologar localidades y sumar boletos.">Juntar eventos TXT</button>
                 <button id="generatePdfBtn" type="button">Generar reporte PDF</button>
                 <button id="saveTxtBtn" type="button">Guardar TXT</button>
                 <button id="loadTxtBtn" type="button">Cargar TXT</button>
@@ -1698,6 +1697,7 @@
       if (selectedEventsTxtDirectoryHandle) {
         try {
           await saveTxtToSelectedFolder(fileName, payload);
+          markWebSaveBaseline();
           setSheetStatus(`TXT guardado en carpeta seleccionada: ${fileName}`);
           if (isLocalMemoryMode()) refreshWebEventsList();
           return;
@@ -1716,6 +1716,7 @@
       a.download = fileName;
       a.click();
       URL.revokeObjectURL(url);
+      markWebSaveBaseline();
     }
 
     function handleLoadTxt(file) {
@@ -3142,7 +3143,19 @@ Selecciona Cancelar para agregarlas a las existentes.`);
 
     async function saveToGoogleSheet() {
       if (isLocalMemoryMode()) {
-        await saveToLocalMemoryFromCurrent();
+        if (hasSelectedEventsTxtFolder()) {
+          if (isWebSaveInProgress) return;
+          try {
+            isWebSaveInProgress = true;
+            setWebEventsLoading(true, 'Guardando el evento como archivo TXT en la carpeta seleccionada.', 'Guardando TXT en carpeta', 'save');
+            await saveTxtFile();
+          } finally {
+            isWebSaveInProgress = false;
+            setWebEventsLoading(false);
+          }
+        } else {
+          await saveToLocalMemoryFromCurrent();
+        }
         return;
       }
       if (isWebSaveInProgress) return;
