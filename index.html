@@ -585,8 +585,8 @@
       background: white;
     }
     .web-events-table {
-      width: 560px;
-      min-width: 560px;
+      width: 630px;
+      min-width: 630px;
       max-width: 100%;
       table-layout: fixed;
     }
@@ -595,10 +595,11 @@
       padding: 5px 6px;
     }
     .web-events-table .web-col-merge { width: 34px; }
-    .web-events-table .web-col-id { width: 110px; }
-    .web-events-table .web-col-date { width: 128px; }
-    .web-events-table .web-col-money { width: 110px; }
-    .web-events-table .web-col-load { width: 62px; }
+    .web-events-table .web-col-id { width: 108px; }
+    .web-events-table .web-col-date { width: 122px; }
+    .web-events-table .web-col-persons { width: 72px; }
+    .web-events-table .web-col-money { width: 104px; }
+    .web-events-table .web-col-load { width: 58px; }
     .web-events-table .web-cell-clip {
       overflow: hidden;
       text-overflow: ellipsis;
@@ -820,7 +821,7 @@
       .side-actions { gap: 6px; }
       .side-actions button { padding: 6px 5px; font-size: 10px; }
       .web-events-filters { grid-template-columns: 1fr; }
-      .web-events-table { width: 560px; min-width: 560px; }
+      .web-events-table { width: 630px; min-width: 630px; }
     }
 
 
@@ -976,13 +977,14 @@
                     <th class="center web-col-merge">Unir</th>
                     <th class="web-col-id" data-web-sort="recordId">ID / Evento</th>
                     <th class="web-col-date" data-web-sort="updatedAt">Fecha de captura</th>
+                    <th class="right web-col-persons" data-web-sort="totalPersons">Personas</th>
                     <th class="right web-col-money" data-web-sort="grossIncome">Ingreso bruto</th>
                     <th class="right web-col-money" data-web-sort="totalCharges">Cargos</th>
                     <th class="center web-col-load">Cargar</th>
                   </tr>
                 </thead>
                 <tbody id="webEventsTable">
-                  <tr><td colspan="6" class="web-events-empty">Presiona “Buscar eventos” para ver los registros guardados.</td></tr>
+                  <tr><td colspan="7" class="web-events-empty">Presiona “Buscar eventos” para ver los registros guardados.</td></tr>
                 </tbody>
               </table>
             </div>
@@ -2559,6 +2561,15 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       return d.toLocaleString('es-MX');
     }
 
+    function getWebRecordTotalPersons(record) {
+      if (!record) return 0;
+      if (record.totalPersons !== undefined && record.totalPersons !== null) return n(record.totalPersons);
+      if (record.summary && record.summary.totalPersons !== undefined && record.summary.totalPersons !== null) return n(record.summary.totalPersons);
+      const categories = record.data && Array.isArray(record.data.categories) ? record.data.categories : [];
+      if (categories.length) return categories.reduce((acc, item) => acc + n(item.count), 0);
+      return 0;
+    }
+
     function getWebRecordSortValue(record, key) {
       if (!record) return '';
       if (key === 'recordId') return String(record.recordId || record.eventName || '').toLowerCase();
@@ -2566,7 +2577,7 @@ Selecciona Cancelar para agregarlas a las existentes.`);
         const d = new Date(record.updatedAt || record.createdAt || '');
         return Number.isNaN(d.getTime()) ? 0 : d.getTime();
       }
-      if (key === 'totalPersons') return n(record.totalPersons);
+      if (key === 'totalPersons') return getWebRecordTotalPersons(record);
       if (key === 'grossIncome') return n(record.grossIncome);
       if (key === 'totalCharges') return n(record.totalCharges);
       return String(record[key] || '').toLowerCase();
@@ -2616,7 +2627,7 @@ Selecciona Cancelar para agregarlas a las existentes.`);
 
       const sortedRecords = sortWebEventsRecords(state.webEventsRecords);
       if (!sortedRecords.length) {
-        tbody.innerHTML = '<tr><td colspan="6" class="web-events-empty">No se encontraron eventos con esos filtros.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" class="web-events-empty">No se encontraron eventos con esos filtros.</td></tr>';
         updateMergeWebButtonState();
         return;
       }
@@ -2629,6 +2640,7 @@ Selecciona Cancelar para agregarlas a las existentes.`);
             <td class="center web-col-merge"><input type="checkbox" class="web-event-merge-check" data-web-merge-index="${index}" ${isSelected ? 'checked' : ''} aria-label="Seleccionar ${recordId} para unir" /></td>
             <td class="web-cell-clip web-col-id" title="${recordId}"><strong>${recordId}</strong></td>
             <td class="web-cell-clip web-col-date" title="${escapeHtml(formatWebDate(record.updatedAt))}">${escapeHtml(formatWebDate(record.updatedAt))}</td>
+            <td class="right web-col-persons">${formatWholeNumber(getWebRecordTotalPersons(record))}</td>
             <td class="right web-col-money">${formatMoney(record.grossIncome)}</td>
             <td class="right web-col-money">${formatMoney(record.totalCharges)}</td>
             <td class="center web-col-load"><button type="button" class="small active" data-web-load-index="${index}">Cargar</button></td>
