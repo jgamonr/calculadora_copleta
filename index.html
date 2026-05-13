@@ -2016,12 +2016,19 @@ Selecciona Cancelar para agregarlas a las existentes.`);
     function fetchWebRecordDataForMerge(recordId) {
       if (isLocalMemoryMode()) {
         recordId = String(recordId || '').trim();
-        if (selectedEventsTxtDirectoryHandle) {
+
+        // iPad/iOS no permite usar FileSystemDirectoryHandle como Windows/Chrome.
+        // En ese caso la carpeta se carga con el selector alterno y los TXT quedan
+        // como File objects en selectedEventsTxtFolderFiles. La unión debe buscar
+        // también ahí; antes solo buscaba en memoria local y por eso decía que
+        // no encontraba los TXT seleccionados.
+        if (hasSelectedEventsTxtFolder()) {
           return getTxtFolderRecord(recordId).then(record => {
             if (!record) throw new Error(`No se encontró en la carpeta TXT el evento: ${recordId}`);
             return normalizeWebEventForMerge(recordId, record.data || record);
           });
         }
+
         const record = getLocalMemoryRecord(recordId);
         if (!record) return Promise.reject(new Error(`No se encontró en memoria local el evento: ${recordId}`));
         try {
@@ -2101,7 +2108,7 @@ Selecciona Cancelar para agregarlas a las existentes.`);
         const eventFiles = await Promise.all(selectedIds.map(fetchWebRecordDataForMerge));
         const merged = mergeEventCategories(eventFiles);
         const baseData = eventFiles[0].data || getSerializableState();
-        const mergedEventName = `${localMode ? (selectedEventsTxtDirectoryHandle ? 'Unión TXT' : 'Unión Local') : 'Unión Web'} - ${eventFiles.map(item => item.eventName || item.fileName).join(' + ')}`;
+        const mergedEventName = `${localMode ? (hasSelectedEventsTxtFolder() ? 'Unión TXT' : 'Unión Local') : 'Unión Web'} - ${eventFiles.map(item => item.eventName || item.fileName).join(' + ')}`;
 
         loadSerializableState({
           ...baseData,
