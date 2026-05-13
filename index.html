@@ -329,8 +329,8 @@
     }
     .layout {
       display: grid;
-      /* Panel lateral reducido 1/6 adicional: 120px -> 100px */
-      grid-template-columns: 100px 1fr;
+      /* Panel lateral izquierdo ampliado 1/3: 100px -> 133px */
+      grid-template-columns: 133px 1fr;
       gap: 8px;
       align-items: start;
     }
@@ -792,16 +792,48 @@
     }
     .numeric-dialog-title { font-size: 16px; font-weight: 700; }
     .numeric-dialog-actions { display: flex; gap: 8px; justify-content: flex-end; }
-    @media (max-width: 980px) {
+    /* Ajuste responsivo del panel Evento / Web / Archivos.
+       En escritorio se mantiene como panel izquierdo.
+       En tablet se sube arriba del detalle y se acomoda en 3 columnas reales.
+       En teléfono se apila para que no haya desplazamiento horizontal ni campos cortados. */
+    @media (max-width: 1100px) {
       .grid-summary, .layout, .totals-grid { grid-template-columns: 1fr; }
       .grid-4 { grid-template-columns: 1fr 1fr; }
       .left-panel {
-        grid-template-columns: repeat(3, minmax(130px, 1fr));
-        overflow-x: auto;
+        width: 100%;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+        overflow: visible;
         padding-bottom: 4px;
         align-items: start;
       }
-      .left-panel > .card { min-width: 130px; }
+      .left-panel > .card {
+        min-width: 0;
+        width: 100%;
+      }
+      .collapsible-summary {
+        min-height: 38px;
+        padding: 8px 10px;
+      }
+      .collapsible-title {
+        font-size: 13px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .config-card .inner,
+      .side-actions-card .inner {
+        padding: 9px;
+      }
+      .config-card input,
+      .config-card button,
+      .side-actions button {
+        font-size: 12px;
+        padding: 8px 9px;
+      }
+      .side-actions {
+        gap: 7px;
+      }
     }
     @media (max-width: 760px) {
       .desktop-table {
@@ -816,12 +848,38 @@
       h1 { font-size: 24px; }
       .toolbar { align-items: stretch; }
       th, td { padding: 8px 10px; }
-      .left-panel { gap: 8px; }
+      .left-panel {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 6px;
+      }
+      .collapsible-summary {
+        padding: 7px 6px;
+      }
+      .collapsible-title {
+        font-size: 12px;
+      }
       .config-card .inner, .side-actions-card .inner { padding: 8px; }
       .side-actions { gap: 6px; }
       .side-actions button { padding: 6px 5px; font-size: 10px; }
       .web-events-filters { grid-template-columns: 1fr; }
       .web-events-table { width: 630px; min-width: 630px; }
+    }
+    @media (max-width: 520px) {
+      .left-panel {
+        grid-template-columns: 1fr;
+      }
+      .left-panel details.collapsible-card:not([open]) .collapsible-summary {
+        justify-content: center;
+      }
+      .collapsible-title {
+        font-size: 13px;
+      }
+      .config-card input,
+      .config-card button,
+      .side-actions button {
+        font-size: 12px;
+        padding: 8px 10px;
+      }
     }
 
 
