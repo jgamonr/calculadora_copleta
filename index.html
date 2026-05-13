@@ -37,6 +37,66 @@
       gap: 12px;
       margin-bottom: 16px;
     }
+
+    .sticky-top-panel {
+      position: sticky;
+      top: 0;
+      z-index: 9000;
+      background: rgba(248, 250, 252, .96);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(226, 232, 240, .95);
+      padding: 8px 0 10px;
+      margin: 0 0 16px;
+      box-shadow: 0 8px 20px rgba(15, 23, 42, .06);
+    }
+    .sticky-top-panel .grid-summary {
+      grid-template-columns: minmax(59px, .5fr) minmax(59px, .5fr) repeat(2, minmax(118px, 1fr)) !important;
+      gap: 8px;
+      margin-bottom: 8px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 2px;
+    }
+    .sticky-top-panel .grid-summary .card {
+      min-width: 118px;
+    }
+    .sticky-top-panel .grid-summary .card.summary-half {
+      min-width: 59px;
+    }
+    .sticky-top-panel .grid-summary .card.summary-half .inner {
+      padding-left: 6px;
+      padding-right: 6px;
+    }
+    .sticky-top-panel .grid-summary .card.summary-half .muted {
+      font-size: 9px;
+      letter-spacing: -.02em;
+    }
+    .sticky-top-panel .grid-summary .card.summary-half .big {
+      font-size: 16px;
+    }
+    .sticky-top-panel .grid-summary .inner {
+      padding: 8px 10px;
+    }
+    .sticky-top-panel .grid-summary .muted {
+      font-size: 11px;
+      white-space: nowrap;
+    }
+    .sticky-top-panel .grid-summary .big {
+      font-size: 18px;
+      line-height: 1.1;
+      white-space: nowrap;
+    }
+    .sticky-top-panel .tabs {
+      margin-bottom: 0;
+      max-width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .sticky-top-panel .tabs button {
+      white-space: nowrap;
+      padding: 8px 12px;
+    }
     .card {
       background: var(--card);
       border: 1px solid var(--border);
@@ -146,16 +206,71 @@
     }
     #categoriesTable tr:nth-child(odd) { background: #ffffff; }
     #categoriesTable tr:nth-child(even) { background: #f3f4f6; }
+
+
+    /* Ajuste compacto en Detalle por localidad:
+       - Tipo reducido a la mitad del ancho anterior.
+       - Campos más pegados con menor padding y columnas más cerradas.
+       Los cálculos no se alteran; solo cambia el espacio visual de captura. */
+    .desktop-table table.manual-detail-table {
+      min-width: 560px;
+      table-layout: fixed;
+    }
+    .manual-detail-table th,
+    .manual-detail-table td {
+      padding: 5px 4px;
+    }
+    .manual-detail-table th:nth-child(1),
+    .manual-detail-table td:nth-child(1) { width: 38px; }
+    .manual-detail-table th:nth-child(2),
+    .manual-detail-table td:nth-child(2) { width: 74px; }
+    .manual-detail-table th:nth-child(3),
+    .manual-detail-table td:nth-child(3) { width: 105px; }
+    .manual-detail-table th:nth-child(4),
+    .manual-detail-table td:nth-child(4) { width: 62px; }
+    .manual-detail-table th:nth-child(5),
+    .manual-detail-table td:nth-child(5) { width: 108px; }
+    .manual-detail-table th:nth-child(6),
+    .manual-detail-table td:nth-child(6) { width: 82px; }
+    .manual-detail-table input {
+      padding: 5px 5px;
+      font-size: 12px;
+      border-radius: 7px;
+    }
+    .manual-detail-table .count-input {
+      width: 58px;
+      padding-left: 3px;
+      padding-right: 3px;
+    }
+    .manual-detail-table input[data-kind="name"],
+    .manual-detail-table input[data-kind="new-name"] {
+      width: 100%;
+      max-width: 100%;
+    }
+    .manual-detail-table input[data-kind="price"],
+    .manual-detail-table input[data-kind="new-price"] {
+      width: 100%;
+      max-width: 58px;
+      padding-left: 4px;
+      padding-right: 4px;
+      text-align: right;
+    }
+    .manual-detail-table button.small {
+      padding: 4px 6px;
+      font-size: 11px;
+      border-radius: 8px;
+    }
     .layout {
       display: grid;
-      grid-template-columns: 240px 1fr;
-      gap: 14px;
+      /* Panel lateral reducido 1/6 adicional: 120px -> 100px */
+      grid-template-columns: 100px 1fr;
+      gap: 8px;
       align-items: start;
     }
     .left-panel {
       align-self: start;
       display: grid;
-      gap: 10px;
+      gap: 6px;
       align-content: start;
     }
     .counter-panel {
@@ -163,53 +278,111 @@
       align-self: start;
     }
     .config-card .inner {
-      padding: 8px 10px;
-      gap: 6px;
+      padding: 5px;
+      gap: 4px;
     }
     .config-card .section-title {
-      font-size: 14px;
-      margin-bottom: 2px;
+      font-size: 12px;
+      margin-bottom: 1px;
     }
     .config-card .field {
       gap: 3px;
     }
     .config-card .field label {
-      font-size: 12px;
+      font-size: 11px;
     }
     .config-card input {
-      padding: 6px 8px;
-      font-size: 13px;
+      padding: 5px;
+      font-size: 11px;
       border-radius: 8px;
     }
     .config-card .softbox {
-      padding: 7px 8px;
-      gap: 4px;
-      font-size: 12px;
+      padding: 5px;
+      gap: 3px;
+      font-size: 10px;
       border-radius: 10px;
     }
     .config-card button {
-      padding: 7px 8px;
-      font-size: 12px;
-      border-radius: 9px;
+      padding: 5px;
+      font-size: 10px;
+      border-radius: 8px;
+    }
+
+
+
+    details.collapsible-card {
+      overflow: hidden;
+    }
+    .collapsible-summary {
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 4px;
+      padding: 6px 5px;
+      cursor: pointer;
+      user-select: none;
+      border-bottom: 1px solid var(--border);
+      font-weight: 800;
+      color: var(--text);
+      background: #ffffff;
+    }
+    .collapsible-summary::-webkit-details-marker {
+      display: none;
+    }
+    .collapsible-summary:focus,
+    .collapsible-summary:focus-visible {
+      outline: none;
+      background: #f59e0b;
+      color: #111827;
+      box-shadow: 0 0 0 4px rgba(245, 158, 11, .22) inset;
+    }
+    .collapsible-title {
+      font-size: 11px;
+      line-height: 1.05;
+    }
+    .collapsible-chevron {
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--soft);
+      border: 1px solid var(--border);
+      font-size: 10px;
+      transition: transform .18s ease;
+      flex: 0 0 auto;
+    }
+    details.collapsible-card[open] .collapsible-chevron {
+      transform: rotate(180deg);
+    }
+    details.collapsible-card:not([open]) .collapsible-summary {
+      border-bottom: 0;
+    }
+    details.collapsible-card > .inner {
+      padding-top: 7px;
     }
 
     .side-actions-card .inner {
-      padding: 10px;
-      gap: 8px;
+      padding: 5px;
+      gap: 4px;
     }
     .side-actions {
       display: grid;
-      gap: 7px;
+      gap: 4px;
     }
     .side-actions button {
       width: 100%;
       justify-content: center;
-      padding: 8px 10px;
-      font-size: 12px;
-      border-radius: 10px;
+      padding: 5px 4px;
+      font-size: 9px;
+      border-radius: 9px;
+      line-height: 1.15;
+      white-space: normal;
     }
     .side-actions .button-group-title {
-      font-size: 11px;
+      font-size: 9px;
       font-weight: 700;
       color: var(--muted);
       text-transform: uppercase;
@@ -279,6 +452,23 @@
       vertical-align: middle;
     }
     th { font-size: 12px; color: var(--muted); }
+    th[data-manual-sort] {
+      cursor: pointer;
+      user-select: none;
+      white-space: nowrap;
+    }
+    th[data-manual-sort]:hover {
+      background: #e2e8f0;
+      color: var(--text);
+    }
+    th.manual-sort-active {
+      background: #dcfce7;
+      color: #166534;
+    }
+    th.manual-sort-active::after {
+      content: " " attr(data-sort-symbol);
+      font-weight: 800;
+    }
     td.right, th.right { text-align: right; }
     td.center, th.center { text-align: center; }
     tr.selected { background: var(--selected); }
@@ -328,13 +518,41 @@
       background: white;
     }
     .web-events-table {
-      min-width: 860px;
+      min-width: 940px;
     }
     .web-events-table tbody tr:nth-child(odd) { background: #ffffff; }
     .web-events-table tbody tr:nth-child(even) { background: #f8fafc; }
     .web-events-table button {
       padding: 6px 10px;
       font-size: 12px;
+    }
+
+    .web-merge-toolbar {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      justify-content: flex-start;
+      flex-wrap: wrap;
+      background: #f8fafc;
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+      padding: 10px;
+    }
+    .web-merge-counter {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .web-event-merge-check {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      accent-color: var(--primary);
+    }
+    .web-event-row.merge-selected {
+      background: #ecfeff !important;
+      outline: 2px solid #06b6d4;
+      outline-offset: -2px;
     }
     .web-events-table th[data-web-sort] {
       cursor: pointer;
@@ -484,12 +702,12 @@
       .grid-summary, .layout, .totals-grid { grid-template-columns: 1fr; }
       .grid-4 { grid-template-columns: 1fr 1fr; }
       .left-panel {
-        grid-template-columns: minmax(220px, 1fr) minmax(220px, 1fr);
+        grid-template-columns: repeat(3, minmax(130px, 1fr));
         overflow-x: auto;
         padding-bottom: 4px;
         align-items: start;
       }
-      .left-panel > .card { min-width: 220px; }
+      .left-panel > .card { min-width: 130px; }
     }
     @media (max-width: 760px) {
       .desktop-table {
@@ -507,9 +725,9 @@
       .left-panel { gap: 8px; }
       .config-card .inner, .side-actions-card .inner { padding: 8px; }
       .side-actions { gap: 6px; }
-      .side-actions button { padding: 7px 8px; font-size: 11px; }
+      .side-actions button { padding: 6px 5px; font-size: 10px; }
       .web-events-filters { grid-template-columns: 1fr; }
-      .web-events-table { min-width: 860px; }
+      .web-events-table { min-width: 940px; }
     }
   </style>
 </head>
@@ -518,57 +736,75 @@
     <h1>Control de ingreso a evento</h1>
     <p class="lead">Lleva conteo manual de asistentes, clasifica tipos de acceso y calcula cargos fiscales y administrativos del evento.</p>
 
-    <div class="grid-summary">
-      <div class="card"><div class="inner"><div class="muted">Total personas</div><div class="big" id="sumTotalPersons">0</div></div></div>
-      <div class="card"><div class="inner"><div class="muted">Pagados</div><div class="big" id="sumPaying">0</div></div></div>
-      <div class="card"><div class="inner"><div class="muted">Ingreso bruto</div><div class="big" id="sumGross">$0.00</div></div></div>
-      <div class="card"><div class="inner"><div class="muted">Cargos totales</div><div class="big" id="sumCharges">$0.00</div></div></div>
-    </div>
+    <div class="sticky-top-panel">
+      <div class="grid-summary">
+        <div class="card summary-half"><div class="inner"><div class="muted">Total personas</div><div class="big" id="sumTotalPersons">0</div></div></div>
+        <div class="card summary-half"><div class="inner"><div class="muted">Pagados</div><div class="big" id="sumPaying">0</div></div></div>
+        <div class="card"><div class="inner"><div class="muted">Ingreso bruto</div><div class="big" id="sumGross">$0.00</div></div></div>
+        <div class="card"><div class="inner"><div class="muted">Cargos totales</div><div class="big" id="sumCharges">$0.00</div></div></div>
+      </div>
 
-    <div class="tabs">
-      <button id="tabEventosWeb" class="active">Eventos guardados Web</button>
-      <button id="tabContador">Detalle por localidad</button>
-      <button id="tabImpuestos">Impuestos</button>
+      <div class="tabs">
+        <button id="tabEventosWeb" class="active">Eventos guardados Web</button>
+        <button id="tabContador">Detalle por localidad</button>
+        <button id="tabImpuestos">Impuestos</button>
+      </div>
     </div>
 
     <div id="viewContador">
       <div class="layout">
         <div class="left-panel">
-          <div class="card config-card"><div class="inner stack">
-            <div class="section-title">Configuración general</div>
-            <div class="field">
-              <label>Evento</label>
-              <input id="eventName" type="text" placeholder="Nombre del evento" />
+          <details class="card collapsible-card config-card" data-collapse-id="evento" open>
+            <summary class="collapsible-summary">
+              <span class="collapsible-title">Evento</span>
+              <span class="collapsible-chevron" aria-hidden="true">▾</span>
+            </summary>
+            <div class="inner stack">
+              <div class="field">
+                <label>Nombre del evento</label>
+                <input id="eventName" type="text" placeholder="Nombre del evento" />
+              </div>
+              <div class="softbox">
+                <div class="row-between"><span>Cortesías / localidades</span><strong id="courtesyPersonsBox">0</strong></div>
+                <div class="row-between"><span>Ingreso bruto</span><strong id="grossBox">$0.00</strong></div>
+              </div>
+              <button id="resetCountsBtn">Reiniciar contadores</button>
             </div>
-            <div class="softbox">
-              <div class="row-between"><span>Cortesías / colalidades</span><strong id="courtesyPersonsBox">0</strong></div>
-              <div class="row-between"><span>Ingreso bruto</span><strong id="grossBox">$0.00</strong></div>
+          </details>
+
+          <details class="card collapsible-card side-actions-card" data-collapse-id="web" open>
+            <summary class="collapsible-summary">
+              <span class="collapsible-title">Web</span>
+              <span class="collapsible-chevron" aria-hidden="true">▾</span>
+            </summary>
+            <div class="inner stack">
+              <div class="side-actions">
+                <button id="saveSheetBtn" type="button" class="active">Guardar Web</button>
+                <button id="loadSheetBtn" type="button">Cargar Web</button>
+              </div>
+              <input id="sheetWebAppUrl" type="hidden" value="https://script.google.com/macros/s/AKfycbwn_NRpcDVdBhdxTgxn8njGAAKoFwMaN2x7nUV3JiArSy8zbGAr69HD90uwHlWqwW57/exec" />
+              <div id="sheetStatus" class="sheet-status" style="display:none;"></div>
             </div>
-            <button id="resetCountsBtn">Reiniciar contadores</button>
-            <input id="sheetWebAppUrl" type="hidden" value="https://script.google.com/macros/s/AKfycbwn_NRpcDVdBhdxTgxn8njGAAKoFwMaN2x7nUV3JiArSy8zbGAr69HD90uwHlWqwW57/exec" />
-            <div id="sheetStatus" class="sheet-status" style="display:none;"></div>
-          </div></div>
+          </details>
 
-          <div class="card side-actions-card"><div class="inner stack">
-            <div class="section-title" style="font-size:14px;margin:0;">Acciones</div>
-            <div class="side-actions">
-              <div class="button-group-title">Web</div>
-              <button id="saveSheetBtn" type="button" class="active">Guardar Web</button>
-              <button id="loadSheetBtn" type="button">Cargar Web</button>
-
-              <div class="button-group-title">Archivos</div>
-              <button id="importTableBtn" type="button" title="Orden: name, count, price.">Importar tabla TXT</button>
-              <button id="generatePdfBtn" type="button">Generar reporte PDF</button>
-              <button id="saveTxtBtn" type="button">Guardar TXT</button>
-              <button id="loadTxtBtn" type="button">Cargar TXT</button>
-
-              <div class="button-group-title">Orden</div>
-              <button id="sortByTypeBtn" type="button">Ordenar por tipo</button>
-              <button id="sortByPriceBtn" type="button">Ordenar por precio unitario</button>
+          <details class="card collapsible-card side-actions-card" data-collapse-id="archivos" open>
+            <summary class="collapsible-summary">
+              <span class="collapsible-title">Archivos</span>
+              <span class="collapsible-chevron" aria-hidden="true">▾</span>
+            </summary>
+            <div class="inner stack">
+              <div class="side-actions">
+                <button id="importTableBtn" type="button" title="Orden: name, count, price.">Importar tabla TXT</button>
+                <button id="mergeEventsBtn" type="button" title="Selecciona 2 o más eventos TXT para homologar localidades y sumar boletos.">Juntar eventos TXT</button>
+                <button id="generatePdfBtn" type="button">Generar reporte PDF</button>
+                <button id="saveTxtBtn" type="button">Guardar TXT</button>
+                <button id="loadTxtBtn" type="button">Cargar TXT</button>
+              </div>
+              <input id="importTableInput" type="file" accept=".txt,text/plain" style="display:none;" />
+              <input id="mergeEventsInput" type="file" accept=".txt,.json,application/json,text/plain" multiple style="display:none;" />
+              <input id="loadTxtInput" type="file" accept=".txt,application/json,text/plain" style="display:none;" />
             </div>
-            <input id="importTableInput" type="file" accept=".txt,text/plain" style="display:none;" />
-            <input id="loadTxtInput" type="file" accept=".txt,application/json,text/plain" style="display:none;" />
-          </div></div>
+          </details>
         </div>
 
         <div class="stack counter-panel">
@@ -579,15 +815,15 @@
               </div>
               <div class="toolbar-right"></div>
             </div>
-            <div class="desktop-table"><table>
+            <div class="desktop-table"><table class="manual-detail-table">
               <thead>
                 <tr>
-                  <th class="center">#</th>
-                  <th class="center">Entradas</th>
-                  <th>Tipo</th>
-                  <th>Precio</th>
-                  <th class="right">Subtotal</th>
-                  <th>Cortesía</th>
+                  <th class="center" data-manual-sort="index">#</th>
+                  <th class="center" data-manual-sort="count">Entradas</th>
+                  <th data-manual-sort="name">Tipo</th>
+                  <th data-manual-sort="price">Precio</th>
+                  <th class="right" data-manual-sort="subtotal">Subtotal</th>
+                  <th data-manual-sort="courtesy">Cortesía</th>
                 </tr>
               </thead>
               <tbody id="categoriesTable"></tbody>
@@ -617,11 +853,16 @@
               </div>
               <button id="refreshWebEventsBtn" type="button" class="active">Buscar eventos</button>
             </div>
-            <div class="note">Puedes elegir un evento guardado para cargar sus datos en la calculadora.</div>
+            <div class="note">Puedes elegir un evento guardado para cargar sus datos o marcar 2 o más eventos para unirlos en una sola tabla homologada.</div>
+            <div class="web-merge-toolbar">
+              <button id="mergeWebEventsBtn" type="button" class="active">Unir eventos seleccionados</button>
+              <span id="webMergeSelectedCount" class="web-merge-counter">Seleccionados: 0 · mínimo 2</span>
+            </div>
             <div class="web-events-table-wrap">
               <table class="web-events-table">
                 <thead>
                   <tr>
+                    <th class="center">Unir</th>
                     <th data-web-sort="recordId">ID / Evento</th>
                     <th data-web-sort="updatedAt">Fecha de captura</th>
                     <th class="right" data-web-sort="totalPersons">Personas</th>
@@ -631,7 +872,7 @@
                   </tr>
                 </thead>
                 <tbody id="webEventsTable">
-                  <tr><td colspan="6" class="web-events-empty">Presiona “Buscar eventos” para ver los registros guardados.</td></tr>
+                  <tr><td colspan="7" class="web-events-empty">Presiona “Buscar eventos” para ver los registros guardados.</td></tr>
                 </tbody>
               </table>
             </div>
@@ -645,37 +886,47 @@
           <div class="card"><div class="inner stack">
             <div class="section-title">Factores de cálculo</div>
 
-            <div class="card" style="border-radius:14px;"><div class="inner stack" style="padding:12px;">
-              <div class="section-title" style="font-size:14px;">Estado</div>
-              <div class="field"><label>Impuesto Estatal (%)</label><input id="stateTaxRate" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" step="0.01" min="0" value="4" /></div>
-              <div class="field"><label>Factor multiplicador del ingreso</label><input id="stateIncomeFactor" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" step="0.0001" min="0" value="1" /></div>
-              <div class="grid-2">
-                <div class="field"><label>Interventores estado</label><input id="stateInterventorCount" type="number" inputmode="numeric" pattern="[0-9]*" min="0" step="1" value="0" /></div>
-                <div class="field"><label>Honorario estado</label><input id="stateInterventorFeePerPerson" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" step="0.01" min="0" value="0" /></div>
+            <details class="card collapsible-card" data-collapse-id="factorEstado" open>
+              <summary class="collapsible-summary">
+                <span class="collapsible-title">Estado</span>
+                <span class="collapsible-chevron" aria-hidden="true">▾</span>
+              </summary>
+              <div class="inner stack" style="padding:12px;">
+                <div class="field"><label>Impuesto Estatal (%)</label><input id="stateTaxRate" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" step="0.01" min="0" value="4" /></div>
+                <div class="field"><label>Factor multiplicador del ingreso</label><input id="stateIncomeFactor" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" step="0.0001" min="0" value="1" /></div>
+                <div class="grid-2">
+                  <div class="field"><label>Interventores estado</label><input id="stateInterventorCount" type="number" inputmode="numeric" pattern="[0-9]*" min="0" step="1" value="0" /></div>
+                  <div class="field"><label>Honorario estado</label><input id="stateInterventorFeePerPerson" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" step="0.01" min="0" value="0" /></div>
+                </div>
+                <div class="field"><label>Multa(+)/Fianza (-) Estado</label><input id="stateFineAmount" type="text" inputmode="decimal" pattern="-?[0-9]*[.,]?[0-9]*" step="0.01" value="0" /></div>
+                <div class="softbox">
+                  <div class="row-between"><span>Promedio localidades pagadas</span><strong id="avgPaidLocality"></strong></div>
+                  <div class="row-between"><span>Valor cortesías para estado</span><strong id="courtesyValueState"></strong></div>
+                  <div class="row-between"><span>Base antes del factor</span><strong id="stateBaseBefore"></strong></div>
+                  <div class="row-between"><span>Base impuesto estado</span><strong id="stateTaxBase"></strong></div>
+                </div>
               </div>
-              <div class="field"><label>Multa(+)/Fianza (-) Estado</label><input id="stateFineAmount" type="text" inputmode="decimal" pattern="-?[0-9]*[.,]?[0-9]*" step="0.01" value="0" /></div>
-              <div class="softbox">
-                <div class="row-between"><span>Promedio localidades pagadas</span><strong id="avgPaidLocality"></strong></div>
-                <div class="row-between"><span>Valor cortesías para estado</span><strong id="courtesyValueState"></strong></div>
-                <div class="row-between"><span>Base antes del factor</span><strong id="stateBaseBefore"></strong></div>
-                <div class="row-between"><span>Base impuesto estado</span><strong id="stateTaxBase"></strong></div>
-              </div>
-            </div></div>
+            </details>
 
-            <div class="card" style="border-radius:14px;"><div class="inner stack" style="padding:12px;">
-              <div class="section-title" style="font-size:14px;">Municipio</div>
-              <div class="field"><label>Impuesto Municipio (%)</label><input id="municipalTaxRate" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" step="0.01" min="0" value="2" /></div>
-              <div class="field"><label>Factor multiplicador del ingreso</label><input id="municipalIncomeFactor" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" step="0.0001" min="0" value="1" /></div>
-              <div class="grid-2">
-                <div class="field"><label>Interventores municipio</label><input id="municipalInterventorCount" type="number" inputmode="numeric" pattern="[0-9]*" min="0" step="1" value="1" /></div>
-                <div class="field"><label>Honorario municipio</label><input id="municipalInterventorFeePerPerson" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" step="0.01" min="0" value="0" /></div>
+            <details class="card collapsible-card" data-collapse-id="factorMunicipio" open>
+              <summary class="collapsible-summary">
+                <span class="collapsible-title">Municipio</span>
+                <span class="collapsible-chevron" aria-hidden="true">▾</span>
+              </summary>
+              <div class="inner stack" style="padding:12px;">
+                <div class="field"><label>Impuesto Municipio (%)</label><input id="municipalTaxRate" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" step="0.01" min="0" value="2" /></div>
+                <div class="field"><label>Factor multiplicador del ingreso</label><input id="municipalIncomeFactor" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" step="0.0001" min="0" value="1" /></div>
+                <div class="grid-2">
+                  <div class="field"><label>Interventores municipio</label><input id="municipalInterventorCount" type="number" inputmode="numeric" pattern="[0-9]*" min="0" step="1" value="1" /></div>
+                  <div class="field"><label>Honorario municipio</label><input id="municipalInterventorFeePerPerson" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" step="0.01" min="0" value="0" /></div>
+                </div>
+                <div class="field"><label>Multa(+)/Fianza (-) Municipio</label><input id="municipalFineAmount" type="text" inputmode="decimal" pattern="-?[0-9]*[.,]?[0-9]*" step="0.01" value="0" /></div>
+                <div class="softbox">
+                  <div class="row-between"><span>Base antes del factor</span><strong id="municipalBaseBefore"></strong></div>
+                  <div class="row-between"><span>Base impuesto municipio</span><strong id="municipalTaxBase"></strong></div>
+                </div>
               </div>
-              <div class="field"><label>Multa(+)/Fianza (-) Municipio</label><input id="municipalFineAmount" type="text" inputmode="decimal" pattern="-?[0-9]*[.,]?[0-9]*" step="0.01" value="0" /></div>
-              <div class="softbox">
-                <div class="row-between"><span>Base antes del factor</span><strong id="municipalBaseBefore"></strong></div>
-                <div class="row-between"><span>Base impuesto municipio</span><strong id="municipalTaxBase"></strong></div>
-              </div>
-            </div></div>
+            </details>
           </div></div>
         </div>
 
@@ -693,50 +944,70 @@
             </div>
 
             <div id="subViewLocalidades" class="stack">
-              <div class="card"><div class="inner stack">
-                <div class="section-title">Concentrado de asistentes por localidad</div>
-                <div class="overflow"><table>
-                  <thead>
-                    <tr>
-                      <th class="center">#</th>
-                      <th class="center">Cantidad de asistentes</th>
-                      <th>Localidad</th>
-                      <th class="right">Precio unitario</th>
-                      <th class="right">Multiplicación</th>
-                    </tr>
-                  </thead>
-                  <tbody id="boletosTable"></tbody>
-                </table></div>
-              </div></div>
+              <details class="card collapsible-card" data-collapse-id="concentradoAsistentes" open>
+                <summary class="collapsible-summary">
+                  <span class="collapsible-title">Concentrado de asistentes por localidad</span>
+                  <span class="collapsible-chevron" aria-hidden="true">▾</span>
+                </summary>
+                <div class="inner stack">
+                  <div class="overflow"><table>
+                    <thead>
+                      <tr>
+                        <th class="center">#</th>
+                        <th class="center">Cantidad de asistentes</th>
+                        <th>Localidad</th>
+                        <th class="right">Precio unitario</th>
+                        <th class="right">Multiplicación</th>
+                      </tr>
+                    </thead>
+                    <tbody id="boletosTable"></tbody>
+                  </table></div>
+                </div>
+              </details>
 
-              <div class="card"><div class="inner stack">
-                <div class="section-title">Concentrado con precio en letra</div>
-                <div class="overflow"><table>
-                  <thead>
-                    <tr>
-                      <th class="center">#</th>
-                      <th>Cantidad de asistentes</th>
-                      <th>Localidad</th>
-                      <th>Precio unitario</th>
-                      <th>Precio unitario en letra</th>
-                      <th class="right">Total</th>
-                    </tr>
-                  </thead>
-                  <tbody id="incomeTable"></tbody>
-                </table></div>
-              </div></div>
+              <details class="card collapsible-card" data-collapse-id="concentradoPrecioLetra" open>
+                <summary class="collapsible-summary">
+                  <span class="collapsible-title">Concentrado con precio en letra</span>
+                  <span class="collapsible-chevron" aria-hidden="true">▾</span>
+                </summary>
+                <div class="inner stack">
+                  <div class="overflow"><table>
+                    <thead>
+                      <tr>
+                        <th class="center">#</th>
+                        <th>Cantidad de asistentes</th>
+                        <th>Localidad</th>
+                        <th>Precio unitario</th>
+                        <th>Precio unitario en letra</th>
+                        <th class="right">Total</th>
+                      </tr>
+                    </thead>
+                    <tbody id="incomeTable"></tbody>
+                  </table></div>
+                </div>
+              </details>
             </div>
 
             <div id="subViewTotales" class="stack" style="display:none;">
               <div class="grid-2">
-                <div class="card"><div class="inner stack">
-                  <div class="section-title">Concentrado estatal</div>
-                  <div class="softbox" id="stateConcentrado"></div>
-                </div></div>
-                <div class="card"><div class="inner stack">
-                  <div class="section-title">Concentrado municipal</div>
-                  <div class="softbox" id="municipalConcentrado"></div>
-                </div></div>
+                <details class="card collapsible-card" data-collapse-id="concentradoEstatal" open>
+                  <summary class="collapsible-summary">
+                    <span class="collapsible-title">Concentrado estatal</span>
+                    <span class="collapsible-chevron" aria-hidden="true">▾</span>
+                  </summary>
+                  <div class="inner stack">
+                    <div class="softbox" id="stateConcentrado"></div>
+                  </div>
+                </details>
+                <details class="card collapsible-card" data-collapse-id="concentradoMunicipal" open>
+                  <summary class="collapsible-summary">
+                    <span class="collapsible-title">Concentrado municipal</span>
+                    <span class="collapsible-chevron" aria-hidden="true">▾</span>
+                  </summary>
+                  <div class="inner stack">
+                    <div class="softbox" id="municipalConcentrado"></div>
+                  </div>
+                </details>
               </div>
 
               <div class="card"><div class="inner stack">
@@ -783,6 +1054,8 @@
       impuestosTab: 'localidades',
       categorySortDesc: false,
       categorySortTypeAsc: false,
+      manualSortKey: 'index',
+      manualSortDir: 'asc',
       stateTaxRate: 4,
       municipalTaxRate: 2,
       stateTaxMode: 'total',
@@ -799,6 +1072,7 @@
       sheetRecordId: localStorage.getItem('sheetRecordId') || '',
       selectedRowId: null,
       webEventsRecords: [],
+      webMergeSelectedRecordIds: [],
       webEventsSortKey: 'updatedAt',
       webEventsSortDir: 'desc',
       newCategoryDraft: { count: '', name: '', price: '', courtesy: false },
@@ -823,6 +1097,8 @@
       delete data.impuestosTab;
       delete data.categorySortDesc;
       delete data.categorySortTypeAsc;
+      delete data.manualSortKey;
+      delete data.manualSortDir;
       delete data.sheetRecordId;
       return data;
     }
@@ -843,12 +1119,21 @@
       exitAutoSaveAlreadySent = false;
     }
 
+    function markDataChanged() {
+      // Marca que sí hubo cambio local para que la pantalla y el autoguardado no se queden con datos viejos.
+      exitAutoSaveAlreadySent = false;
+    }
+
     function hasUnsavedWebChanges() {
       return getWebSaveFingerprint() !== lastWebSaveFingerprint;
     }
 
     function formatMoney(value) {
       return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(Number(value || 0));
+    }
+
+    function formatWholeNumber(value) {
+      return new Intl.NumberFormat('es-MX', { maximumFractionDigits: 0 }).format(Math.round(Number(value || 0)));
     }
 
     function round2(value) {
@@ -910,13 +1195,71 @@
       return `${numberToWordsEs(whole)} pesos ${String(cents).padStart(2, '0')}/100 M.N.`;
     }
 
+    function getCategoryOriginalIndex(item) {
+      return state.categories.findIndex(row => row.id === item.id);
+    }
+
+    function getCategorySortValue(item, key) {
+      switch (key) {
+        case 'count': return n(item.count);
+        case 'name': return normalizeLocalityKey(item.name || '');
+        case 'price': return n(item.price);
+        case 'subtotal': return round2(n(item.price) * n(item.count));
+        case 'courtesy': return item.courtesy ? 1 : 0;
+        case 'index':
+        default: return getCategoryOriginalIndex(item);
+      }
+    }
+
+    function getManualSortDefaultDir(key) {
+      if (key === 'name' || key === 'index') return 'asc';
+      return 'desc';
+    }
+
+    function setManualCategorySort(key) {
+      key = String(key || 'index');
+      if (state.manualSortKey === key) {
+        state.manualSortDir = state.manualSortDir === 'asc' ? 'desc' : 'asc';
+      } else {
+        state.manualSortKey = key;
+        state.manualSortDir = getManualSortDefaultDir(key);
+      }
+      state.categorySortTypeAsc = state.manualSortKey === 'name' && state.manualSortDir === 'asc';
+      state.categorySortDesc = state.manualSortKey === 'price' && state.manualSortDir === 'desc';
+      render();
+    }
+
+    function updateManualSortIndicators() {
+      const key = state.manualSortKey || 'index';
+      const dir = state.manualSortDir === 'desc' ? 'desc' : 'asc';
+      document.querySelectorAll('[data-manual-sort]').forEach(th => {
+        const active = th.dataset.manualSort === key;
+        th.classList.toggle('manual-sort-active', active);
+        th.setAttribute('aria-sort', active ? (dir === 'asc' ? 'ascending' : 'descending') : 'none');
+        th.setAttribute('data-sort-symbol', dir === 'asc' ? '▲' : '▼');
+      });
+    }
+
     function getSortedCategories() {
       const list = [...state.categories];
-      if (state.categorySortTypeAsc) {
-        list.sort((a, b) => String(a.name || '').localeCompare(String(b.name || ''), 'es', { sensitivity: 'base' }));
-      } else if (state.categorySortDesc) {
-        list.sort((a, b) => n(b.price) - n(a.price));
-      }
+      const key = state.manualSortKey || (state.categorySortTypeAsc ? 'name' : (state.categorySortDesc ? 'price' : 'index'));
+      const dir = state.manualSortDir || (state.categorySortDesc ? 'desc' : 'asc');
+      const direction = dir === 'desc' ? -1 : 1;
+
+      list.sort((a, b) => {
+        const av = getCategorySortValue(a, key);
+        const bv = getCategorySortValue(b, key);
+        let result = 0;
+        if (typeof av === 'string' || typeof bv === 'string') {
+          result = String(av || '').localeCompare(String(bv || ''), 'es', { sensitivity: 'base', numeric: true });
+        } else {
+          result = Number(av || 0) - Number(bv || 0);
+        }
+        if (result === 0 && key !== 'index') {
+          result = getCategoryOriginalIndex(a) - getCategoryOriginalIndex(b);
+        }
+        return result * direction;
+      });
       return list;
     }
 
@@ -982,6 +1325,8 @@
         impuestosTab: state.impuestosTab,
         categorySortDesc: state.categorySortDesc,
         categorySortTypeAsc: state.categorySortTypeAsc,
+        manualSortKey: state.manualSortKey,
+        manualSortDir: state.manualSortDir,
         stateTaxRate: state.stateTaxRate,
         municipalTaxRate: state.municipalTaxRate,
         stateTaxMode: state.stateTaxMode,
@@ -1003,6 +1348,8 @@
       const base = getSerializableState();
       const merged = { ...base, ...data };
       Object.assign(state, merged);
+      state.manualSortKey = state.manualSortKey || 'index';
+      state.manualSortDir = state.manualSortDir === 'desc' ? 'desc' : 'asc';
       state.sheetWebAppUrl = FIXED_SHEET_WEB_APP_URL;
       state.sheetRecordId = state.sheetRecordId || localStorage.getItem('sheetRecordId') || '';
       state.categories = Array.isArray(merged.categories) ? merged.categories.map(item => ({
@@ -1054,7 +1401,6 @@
         try {
           const parsed = JSON.parse(String(reader.result || '{}'));
           loadSerializableState(parsed);
-          alert('Datos cargados correctamente.');
         } catch (error) {
           alert('No se pudo cargar el archivo TXT. Verifica que tenga un formato válido.');
         }
@@ -1115,12 +1461,358 @@ Selecciona Cancelar para agregarlas a las existentes.`);
           state.categories = replaceAll ? importedCategories : [...state.categories, ...importedCategories];
           state.selectedRowId = null;
           render();
-          alert(`Se importaron ${importedCategories.length} localidades desde la tabla.`);
         } catch (error) {
           alert(error.message || 'No se pudo importar la tabla TXT.');
         }
       };
       reader.readAsText(file, 'utf-8');
+    }
+
+
+    function readTextFile(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result || ''));
+        reader.onerror = () => reject(new Error(`No se pudo leer el archivo ${file && file.name ? file.name : ''}.`));
+        reader.readAsText(file, 'utf-8');
+      });
+    }
+
+    function normalizeLocalityKey(name) {
+      return String(name || '')
+        .trim()
+        .replace(/\s+/g, ' ')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toUpperCase();
+    }
+
+    function sanitizeImportedCategory(item) {
+      const cleanName = String(item && item.name ? item.name : '').trim().replace(/\s+/g, ' ');
+      const cleanCount = Number.isFinite(n(item && item.count)) ? Math.max(0, n(item.count)) : 0;
+      const cleanPrice = Number.isFinite(n(item && item.price)) ? Math.max(0, n(item.price)) : 0;
+      return {
+        id: Date.now() + Math.random(),
+        name: cleanName,
+        count: cleanCount,
+        price: cleanPrice,
+        courtesy: Boolean(item && item.courtesy) || cleanPrice === 0
+      };
+    }
+
+    function parseEventFileForMerge(text, fileName) {
+      const rawText = String(text || '').trim();
+      if (!rawText) throw new Error(`El archivo ${fileName} está vacío.`);
+
+      try {
+        const parsed = JSON.parse(rawText);
+        const data = parsed && parsed.data && Array.isArray(parsed.data.categories) ? parsed.data : parsed;
+        if (!data || !Array.isArray(data.categories)) {
+          throw new Error('No contiene una lista de localidades.');
+        }
+        const categories = data.categories.map(sanitizeImportedCategory).filter(item => item.name);
+        if (!categories.length) throw new Error('No se encontraron localidades válidas.');
+        return {
+          fileName,
+          eventName: String(data.eventName || parsed.eventName || fileName || 'Evento').trim(),
+          data,
+          categories
+        };
+      } catch (jsonError) {
+        try {
+          const categories = parseTableTxt(rawText).map(sanitizeImportedCategory).filter(item => item.name);
+          if (!categories.length) throw new Error('No se encontraron localidades válidas.');
+          return {
+            fileName,
+            eventName: String(fileName || 'Tabla importada').replace(/\.[^.]+$/, ''),
+            data: null,
+            categories
+          };
+        } catch (tableError) {
+          throw new Error(`El archivo ${fileName} no es un evento TXT válido ni una tabla TXT con columnas name, count y price.`);
+        }
+      }
+    }
+
+    function mergeEventCategories(eventFiles) {
+      const merged = new Map();
+      let duplicatedMatches = 0;
+      let priceConflicts = 0;
+
+      eventFiles.forEach((eventFile, fileIndex) => {
+        eventFile.categories.forEach((category) => {
+          const key = normalizeLocalityKey(category.name);
+          if (!key) return;
+
+          const incomingPrice = Number.isFinite(n(category.price)) ? Math.max(0, n(category.price)) : 0;
+          const incomingCount = Number.isFinite(n(category.count)) ? Math.max(0, n(category.count)) : 0;
+          const incomingCourtesy = Boolean(category.courtesy) || incomingPrice === 0;
+
+          if (!merged.has(key)) {
+            merged.set(key, {
+              id: Date.now() + Math.random(),
+              name: String(category.name || '').trim().replace(/\s+/g, ' '),
+              count: incomingCount,
+              price: incomingPrice,
+              courtesy: incomingCourtesy && incomingPrice === 0,
+              _sourceIndexes: new Set([fileIndex]),
+              _priceOptions: [incomingPrice]
+            });
+            return;
+          }
+
+          const current = merged.get(key);
+          if (!current._sourceIndexes.has(fileIndex)) duplicatedMatches += 1;
+          current._sourceIndexes.add(fileIndex);
+          current.count = round2(n(current.count) + incomingCount);
+
+          if (!current._priceOptions.some(price => round2(price) === round2(incomingPrice))) {
+            current._priceOptions.push(incomingPrice);
+            if (current._priceOptions.length > 1) priceConflicts += 1;
+          }
+
+          if (incomingPrice > n(current.price)) {
+            current.price = incomingPrice;
+            current.name = String(category.name || current.name).trim().replace(/\s+/g, ' ');
+          }
+
+          current.courtesy = n(current.price) === 0 && current.courtesy && incomingCourtesy;
+        });
+      });
+
+      const categories = Array.from(merged.values()).map((item, index) => ({
+        id: index + 1,
+        name: item.name,
+        count: item.count,
+        price: item.price,
+        courtesy: n(item.price) === 0 ? Boolean(item.courtesy) : false
+      }));
+
+      return { categories, duplicatedMatches, priceConflicts };
+    }
+
+    async function handleMergeEventsFiles(fileList) {
+      const files = Array.from(fileList || []);
+      if (files.length < 2) {
+        alert('Selecciona 2 o más archivos TXT de eventos para juntarlos.');
+        return;
+      }
+
+      try {
+        const texts = await Promise.all(files.map(readTextFile));
+        const eventFiles = texts.map((text, index) => parseEventFileForMerge(text, files[index].name));
+        const merged = mergeEventCategories(eventFiles);
+        const baseData = eventFiles[0].data || getSerializableState();
+        const mergedEventName = `Unión - ${eventFiles.map(item => item.eventName || item.fileName).join(' + ')}`;
+
+        loadSerializableState({
+          ...baseData,
+          activeTab: 'contador',
+          eventName: mergedEventName,
+          sheetRecordId: '',
+          categories: merged.categories
+        });
+        state.sheetRecordId = '';
+        localStorage.removeItem('sheetRecordId');
+        syncInputsFromState();
+        activateDetallePorLocalidad();
+
+        const totalBoletos = merged.categories.reduce((acc, item) => acc + n(item.count), 0);
+        const message = `Eventos unidos correctamente.\n\nLocalidades homologadas: ${merged.categories.length}\nBoletos totales: ${totalBoletos}\nCoincidencias sumadas entre archivos: ${merged.duplicatedMatches}\nLocalidades con precio diferente ajustadas al precio más alto: ${merged.priceConflicts}`;
+        if (typeof showWebMessage === 'function') {
+          showWebMessage(message, { title: 'Juntar eventos', autoClose: 6000 });
+        } else {
+          alert(message);
+        }
+      } catch (error) {
+        const message = error && error.message ? error.message : 'No se pudieron juntar los eventos.';
+        if (typeof showWebMessage === 'function') {
+          showWebMessage(message, { title: 'Error al juntar eventos', isError: true, autoClose: 6000 });
+        } else {
+          alert(message);
+        }
+      }
+    }
+
+
+    function getWebRecordId(record) {
+      return String(record && (record.recordId || record.eventName) || '').trim();
+    }
+
+    function updateMergeWebButtonState() {
+      const selected = Array.isArray(state.webMergeSelectedRecordIds) ? state.webMergeSelectedRecordIds : [];
+      const countEl = $('webMergeSelectedCount');
+      const btn = $('mergeWebEventsBtn');
+      if (countEl) countEl.textContent = `Seleccionados: ${selected.length} · mínimo 2`;
+      if (btn) {
+        btn.disabled = selected.length < 2;
+        btn.title = selected.length >= 2
+          ? `Unir ${selected.length} eventos seleccionados desde Web.`
+          : 'Marca 2 o más eventos en la tabla para unirlos.';
+      }
+    }
+
+    function toggleWebMergeSelection(recordId, checked) {
+      recordId = String(recordId || '').trim();
+      if (!recordId) return;
+      const current = Array.isArray(state.webMergeSelectedRecordIds) ? [...state.webMergeSelectedRecordIds] : [];
+      const exists = current.includes(recordId);
+
+      if (checked && !exists) {
+        current.push(recordId);
+      }
+
+      if (!checked && exists) {
+        const index = current.indexOf(recordId);
+        current.splice(index, 1);
+      }
+
+      state.webMergeSelectedRecordIds = current;
+      renderWebEventsList(state.webEventsRecords || []);
+    }
+
+    function normalizeWebEventForMerge(recordId, data) {
+      const container = data && data.data && Array.isArray(data.data.categories) ? data.data : data;
+      if (!container || !Array.isArray(container.categories)) {
+        throw new Error(`El evento ${recordId} no contiene una lista de localidades válida.`);
+      }
+      const categories = container.categories.map(sanitizeImportedCategory).filter(item => item.name);
+      if (!categories.length) {
+        throw new Error(`El evento ${recordId} no tiene localidades válidas para unir.`);
+      }
+      return {
+        fileName: recordId,
+        eventName: String(container.eventName || (data && data.eventName) || recordId || 'Evento Web').trim(),
+        data: container,
+        categories
+      };
+    }
+
+    function fetchWebRecordDataForMerge(recordId) {
+      const url = normalizeSheetUrl();
+      recordId = String(recordId || '').trim();
+      return new Promise((resolve, reject) => {
+        if (!url) {
+          reject(new Error('Falta la URL del Web App.'));
+          return;
+        }
+        if (!recordId) {
+          reject(new Error('Falta el ID del evento Web.'));
+          return;
+        }
+
+        const callbackName = `sheetMergeLoadCallback_${Date.now()}_${Math.floor(Math.random() * 100000)}`;
+        const script = document.createElement('script');
+        const sep = url.includes('?') ? '&' : '?';
+        let done = false;
+
+        const cleanup = () => {
+          if (done) return;
+          done = true;
+          delete window[callbackName];
+          script.remove();
+        };
+
+        window[callbackName] = (response) => {
+          cleanup();
+          if (!response || !response.ok) {
+            reject(new Error(response && response.error ? response.error : `No se encontró el evento Web: ${recordId}`));
+            return;
+          }
+          try {
+            resolve(normalizeWebEventForMerge(recordId, response.data || {}));
+          } catch (error) {
+            reject(error);
+          }
+        };
+
+        script.onerror = () => {
+          cleanup();
+          reject(new Error(`No se pudo cargar desde Web el evento: ${recordId}`));
+        };
+
+        setTimeout(() => {
+          if (done) return;
+          cleanup();
+          reject(new Error(`Tiempo agotado al cargar desde Web el evento: ${recordId}`));
+        }, 15000);
+
+        script.src = `${url}${sep}action=load&recordId=${encodeURIComponent(recordId)}&callback=${encodeURIComponent(callbackName)}&_=${Date.now()}`;
+        document.body.appendChild(script);
+      });
+    }
+
+    async function handleMergeWebEvents() {
+      const selectedIds = Array.isArray(state.webMergeSelectedRecordIds) ? [...state.webMergeSelectedRecordIds] : [];
+      if (selectedIds.length < 2) {
+        showWebMessage('Marca 2 o más eventos guardados Web para poder unirlos.', {
+          title: 'Unir eventos Web',
+          isError: true,
+          autoClose: 3600
+        });
+        return;
+      }
+
+      try {
+        setWebEventsLoading(true, `Cargando ${selectedIds.length} eventos seleccionados y homologando localidades.`, 'Uniendo eventos Web', 'merge');
+        const eventFiles = await Promise.all(selectedIds.map(fetchWebRecordDataForMerge));
+        const merged = mergeEventCategories(eventFiles);
+        const baseData = eventFiles[0].data || getSerializableState();
+        const mergedEventName = `Unión Web - ${eventFiles.map(item => item.eventName || item.fileName).join(' + ')}`;
+
+        loadSerializableState({
+          ...baseData,
+          activeTab: 'contador',
+          eventName: mergedEventName,
+          sheetRecordId: '',
+          categories: merged.categories
+        });
+
+        state.sheetRecordId = '';
+        state.webMergeSelectedRecordIds = [];
+        localStorage.removeItem('sheetRecordId');
+        syncInputsFromState();
+        activateDetallePorLocalidad();
+
+        const totalBoletos = merged.categories.reduce((acc, item) => acc + n(item.count), 0);
+        const message = `${selectedIds.length} eventos Web unidos correctamente.\n\nLocalidades homologadas: ${merged.categories.length}\nBoletos totales: ${totalBoletos}\nCoincidencias sumadas entre eventos: ${merged.duplicatedMatches}\nLocalidades con precio diferente ajustadas al precio más alto: ${merged.priceConflicts}\n\nEl resultado quedó cargado en “Detalle por localidad”.`;
+        showWebMessage(message, { title: 'Unión de eventos Web', autoClose: 7000 });
+        setSheetStatus('Eventos Web unidos. Revisa el resultado y guarda en Web si deseas conservarlo.');
+      } catch (error) {
+        const message = error && error.message ? error.message : 'No se pudieron unir los eventos Web.';
+        showWebMessage(message, { title: 'Error al unir eventos Web', isError: true, autoClose: 6500 });
+        setSheetStatus(message, true);
+      } finally {
+        setWebEventsLoading(false);
+      }
+    }
+
+
+    function focusDetallePorLocalidad() {
+      setTimeout(() => {
+        try {
+          const panel = $('viewContador');
+          if (panel) panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+          const firstCountInput = document.querySelector('#categoriesTable input[data-kind="count"]');
+          if (firstCountInput) {
+            firstCountInput.focus({ preventScroll: true });
+            firstCountInput.select();
+            return;
+          }
+
+          const detalleTab = $('tabContador');
+          if (detalleTab) detalleTab.focus({ preventScroll: true });
+        } catch (error) {
+          console.warn('No se pudo enfocar Detalle por localidad.', error);
+        }
+      }, 90);
+    }
+
+    function activateDetallePorLocalidad() {
+      state.activeTab = 'contador';
+      render();
+      focusDetallePorLocalidad();
     }
 
     function updateCount(id, value) {
@@ -1721,7 +2413,7 @@ Selecciona Cancelar para agregarlas a las existentes.`);
         localStorage.setItem('sheetWebAppUrl', url);
         localStorage.setItem('sheetRecordId', recordId);
         syncInputsFromState();
-        render();
+        activateDetallePorLocalidad();
         markWebSaveBaseline();
         setSheetStatus(`Evento cargado desde Web: ${recordId}`);
       };
@@ -1802,16 +2494,24 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       if (!tbody) return;
       state.webEventsRecords = Array.isArray(records) ? records : [];
       updateWebEventsSortIndicators();
+
+      const validRecordIds = new Set(state.webEventsRecords.map(getWebRecordId).filter(Boolean));
+      state.webMergeSelectedRecordIds = (Array.isArray(state.webMergeSelectedRecordIds) ? state.webMergeSelectedRecordIds : [])
+        .filter(recordId => validRecordIds.has(recordId));
+
       const sortedRecords = sortWebEventsRecords(state.webEventsRecords);
       if (!sortedRecords.length) {
-        tbody.innerHTML = '<tr><td colspan="6" class="web-events-empty">No se encontraron eventos con esos filtros.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" class="web-events-empty">No se encontraron eventos con esos filtros.</td></tr>';
+        updateMergeWebButtonState();
         return;
       }
       tbody.innerHTML = sortedRecords.map((record, index) => {
-        const recordIdText = String(record.recordId || record.eventName || '');
+        const recordIdText = getWebRecordId(record);
         const recordId = escapeHtml(recordIdText);
+        const isSelected = (state.webMergeSelectedRecordIds || []).includes(recordIdText);
         return `
-          <tr class="web-event-row" data-web-record-index="${index}">
+          <tr class="web-event-row${isSelected ? ' merge-selected' : ''}" data-web-record-index="${index}">
+            <td class="center"><input type="checkbox" class="web-event-merge-check" data-web-merge-index="${index}" ${isSelected ? 'checked' : ''} aria-label="Seleccionar ${recordId} para unir" /></td>
             <td><strong>${recordId}</strong></td>
             <td>${escapeHtml(formatWebDate(record.updatedAt))}</td>
             <td class="right">${n(record.totalPersons)}</td>
@@ -1821,12 +2521,20 @@ Selecciona Cancelar para agregarlas a las existentes.`);
           </tr>
         `;
       }).join('');
+      tbody.querySelectorAll('[data-web-merge-index]').forEach(input => {
+        input.onchange = () => {
+          const record = sortedRecords[n(input.dataset.webMergeIndex)];
+          toggleWebMergeSelection(getWebRecordId(record), input.checked);
+        };
+        input.onclick = (e) => e.stopPropagation();
+      });
       tbody.querySelectorAll('[data-web-load-index]').forEach(btn => {
         btn.onclick = () => {
           const record = sortedRecords[n(btn.dataset.webLoadIndex)];
           loadWebRecordById(record && (record.recordId || record.eventName));
         };
       });
+      updateMergeWebButtonState();
       bindWebEventsRowContextMenus(sortedRecords);
     }
 
@@ -1987,7 +2695,8 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       const buttons = [
         { id: 'refreshWebEventsBtn', loadingText: action === 'search' ? 'Buscando...' : null },
         { id: 'saveSheetBtn', loadingText: action === 'save' ? 'Guardando...' : null },
-        { id: 'loadSheetBtn', loadingText: action === 'load' ? 'Cargando...' : null }
+        { id: 'loadSheetBtn', loadingText: action === 'load' ? 'Cargando...' : null },
+        { id: 'mergeWebEventsBtn', loadingText: action === 'merge' ? 'Uniendo...' : null }
       ];
 
       buttons.forEach(({ id, loadingText }) => {
@@ -2008,7 +2717,9 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       const dateFrom = $('webEventDateFrom') ? $('webEventDateFrom').value : '';
       const dateTo = $('webEventDateTo') ? $('webEventDateTo').value : '';
       const tbody = $('webEventsTable');
-      if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="web-events-empty">Buscando eventos guardados...</td></tr>';
+      state.webMergeSelectedRecordIds = [];
+      updateMergeWebButtonState();
+      if (tbody) tbody.innerHTML = '<tr><td colspan="7" class="web-events-empty">Buscando eventos guardados...</td></tr>';
       setWebEventsLoading(true, 'Buscando eventos guardados en Web. Espera a que termine la consulta.', 'Buscando eventos guardados', 'search');
 
       const callbackName = `sheetListCallback_${Date.now()}_${Math.floor(Math.random() * 100000)}`;
@@ -2057,9 +2768,10 @@ Selecciona Cancelar para agregarlas a las existentes.`);
     function bindTopInputs() {
       $('eventName').oninput = e => { state.eventName = e.target.value; };
       if ($('sheetWebAppUrl')) $('sheetWebAppUrl').value = FIXED_SHEET_WEB_APP_URL;
-      if ($('saveSheetBtn')) $('saveSheetBtn').onclick = saveToGoogleSheet;
-      if ($('loadSheetBtn')) $('loadSheetBtn').onclick = loadFromGoogleSheet;
-      if ($('refreshWebEventsBtn')) $('refreshWebEventsBtn').onclick = refreshWebEventsList;
+      if ($('saveSheetBtn')) $('saveSheetBtn').onclick = () => { collapsePanelById('web'); saveToGoogleSheet(); };
+      if ($('loadSheetBtn')) $('loadSheetBtn').onclick = () => { collapsePanelById('web'); loadFromGoogleSheet(); };
+      if ($('refreshWebEventsBtn')) $('refreshWebEventsBtn').onclick = () => { collapsePanelById('web'); refreshWebEventsList(); };
+      if ($('mergeWebEventsBtn')) $('mergeWebEventsBtn').onclick = () => { collapsePanelById('web'); handleMergeWebEvents(); };
       document.querySelectorAll('[data-web-sort]').forEach(th => {
         th.onclick = () => setWebEventsSort(th.dataset.webSort);
         th.setAttribute('tabindex', '0');
@@ -2068,6 +2780,17 @@ Selecciona Cancelar para agregarlas a las existentes.`);
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
             setWebEventsSort(th.dataset.webSort);
+          }
+        });
+      });
+      document.querySelectorAll('[data-manual-sort]').forEach(th => {
+        th.onclick = () => setManualCategorySort(th.dataset.manualSort);
+        th.setAttribute('tabindex', '0');
+        th.setAttribute('role', 'button');
+        th.addEventListener('keydown', e => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            setManualCategorySort(th.dataset.manualSort);
           }
         });
       });
@@ -2084,25 +2807,21 @@ Selecciona Cancelar para agregarlas a las existentes.`);
         state.selectedRowId = null;
         render();
       };
-      $('sortByTypeBtn').onclick = () => {
-        state.categorySortTypeAsc = !state.categorySortTypeAsc;
-        if (state.categorySortTypeAsc) state.categorySortDesc = false;
-        render();
-      };
-      $('sortByPriceBtn').onclick = () => {
-        state.categorySortDesc = !state.categorySortDesc;
-        if (state.categorySortDesc) state.categorySortTypeAsc = false;
-        render();
-      };
-      $('importTableBtn').onclick = () => $('importTableInput').click();
+      $('importTableBtn').onclick = () => { collapsePanelById('archivos'); $('importTableInput').click(); };
       $('importTableInput').onchange = (e) => {
         const file = e.target.files && e.target.files[0];
         if (file) handleImportTableTxt(file);
         e.target.value = '';
       };
-      $('generatePdfBtn').onclick = openReportPdf;
-      $('saveTxtBtn').onclick = saveTxtFile;
-      $('loadTxtBtn').onclick = () => $('loadTxtInput').click();
+      if ($('mergeEventsBtn')) $('mergeEventsBtn').onclick = () => { collapsePanelById('archivos'); $('mergeEventsInput').click(); };
+      if ($('mergeEventsInput')) $('mergeEventsInput').onchange = (e) => {
+        const files = e.target.files;
+        if (files && files.length) handleMergeEventsFiles(files);
+        e.target.value = '';
+      };
+      $('generatePdfBtn').onclick = () => { collapsePanelById('archivos'); openReportPdf(); };
+      $('saveTxtBtn').onclick = () => { collapsePanelById('archivos'); saveTxtFile(); };
+      $('loadTxtBtn').onclick = () => { collapsePanelById('archivos'); $('loadTxtInput').click(); };
       $('loadTxtInput').onchange = (e) => {
         const file = e.target.files && e.target.files[0];
         if (file) handleLoadTxt(file);
@@ -2415,7 +3134,6 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       hideManualContextMenu();
       markDataChanged();
       render();
-      showWebMessage('Localidad eliminada correctamente.', { title: 'Localidad eliminada', autoClose: 1800 });
     }
 
     function bindManualRowContextMenus() {
@@ -2460,12 +3178,9 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       const mobile = $('categoriesMobile');
       tbody.innerHTML = '';
       mobile.innerHTML = '';
-      $('sortByTypeBtn').textContent = state.categorySortTypeAsc ? 'Ordenado por tipo: A-Z' : 'Ordenar por tipo';
-      $('sortByPriceBtn').textContent = state.categorySortDesc ? 'Ordenado por precio unitario' : 'Ordenar por precio unitario';
-      $('sortByTypeBtn').classList.toggle('sort-active', state.categorySortTypeAsc);
-      $('sortByPriceBtn').classList.toggle('sort-active', state.categorySortDesc);
-      $('sortByTypeBtn').setAttribute('aria-pressed', state.categorySortTypeAsc ? 'true' : 'false');
-      $('sortByPriceBtn').setAttribute('aria-pressed', state.categorySortDesc ? 'true' : 'false');
+      const manualSortKey = state.manualSortKey || 'index';
+      const manualSortDir = state.manualSortDir === 'desc' ? 'desc' : 'asc';
+      updateManualSortIndicators();
 
       calc.sortedCategories.forEach(item => {
         const tr = document.createElement('tr');
@@ -2712,10 +3427,36 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       `;
     }
 
+
+
+    function bindCollapsiblePanels() {
+      document.querySelectorAll('[data-collapse-id]').forEach(panel => {
+        const id = String(panel.dataset.collapseId || '').trim();
+        if (!id) return;
+        const storageKey = `panelColapsable_${id}`;
+        const savedState = localStorage.getItem(storageKey);
+        if (savedState === 'cerrado') panel.removeAttribute('open');
+        if (savedState === 'abierto') panel.setAttribute('open', '');
+        panel.addEventListener('toggle', () => {
+          localStorage.setItem(storageKey, panel.open ? 'abierto' : 'cerrado');
+        });
+      });
+    }
+
+    function collapsePanelById(panelId) {
+      const cleanId = String(panelId || '').trim();
+      if (!cleanId) return;
+      const panel = document.querySelector(`[data-collapse-id="${cleanId}"]`);
+      if (!panel) return;
+      panel.removeAttribute('open');
+      localStorage.setItem(`panelColapsable_${cleanId}`, 'cerrado');
+    }
+
+
     function render() {
       const calc = compute();
-      $('sumTotalPersons').textContent = calc.totalPersons;
-      $('sumPaying').textContent = calc.payingPersons;
+      $('sumTotalPersons').textContent = formatWholeNumber(calc.totalPersons);
+      $('sumPaying').textContent = formatWholeNumber(calc.payingPersons);
       $('sumGross').textContent = formatMoney(calc.grossIncome);
       $('sumCharges').textContent = formatMoney(calc.totalCharges);
       $('courtesyPersonsBox').textContent = calc.courtesyPersons;
@@ -2778,6 +3519,8 @@ Selecciona Cancelar para agregarlas a las existentes.`);
     bindTaxInputs();
     configureAllNumericInputs();
     bindAutoSaveBeforeExit();
+    bindCollapsiblePanels();
+    updateMergeWebButtonState();
     syncInputsFromState();
     render();
   </script>
