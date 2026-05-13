@@ -329,50 +329,51 @@
     }
     .layout {
       display: grid;
-      /* Panel lateral izquierdo ampliado 1/3: 100px -> 133px */
-      grid-template-columns: 133px 1fr;
-      gap: 8px;
+      grid-template-columns: 1fr;
+      gap: 14px;
       align-items: start;
     }
     .left-panel {
       align-self: start;
       display: grid;
-      gap: 6px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
       align-content: start;
+      width: 100%;
     }
     .counter-panel {
       min-width: 0;
       align-self: start;
     }
     .config-card .inner {
-      padding: 5px;
-      gap: 4px;
+      padding: 9px;
+      gap: 7px;
     }
     .config-card .section-title {
-      font-size: 12px;
-      margin-bottom: 1px;
+      font-size: 13px;
+      margin-bottom: 2px;
     }
     .config-card .field {
       gap: 3px;
     }
     .config-card .field label {
-      font-size: 11px;
+      font-size: 12px;
     }
     .config-card input {
-      padding: 5px;
-      font-size: 11px;
-      border-radius: 8px;
+      padding: 8px 9px;
+      font-size: 12px;
+      border-radius: 9px;
     }
     .config-card .softbox {
-      padding: 5px;
-      gap: 3px;
-      font-size: 10px;
-      border-radius: 10px;
+      padding: 8px 9px;
+      gap: 5px;
+      font-size: 12px;
+      border-radius: 11px;
     }
     .config-card button {
-      padding: 5px;
-      font-size: 10px;
-      border-radius: 8px;
+      padding: 8px 9px;
+      font-size: 12px;
+      border-radius: 9px;
     }
 
 
@@ -386,7 +387,7 @@
       align-items: center;
       justify-content: space-between;
       gap: 4px;
-      padding: 6px 5px;
+      padding: 8px 10px;
       cursor: pointer;
       user-select: none;
       border-bottom: 1px solid var(--border);
@@ -405,8 +406,8 @@
       box-shadow: 0 0 0 4px rgba(245, 158, 11, .22) inset;
     }
     .collapsible-title {
-      font-size: 11px;
-      line-height: 1.05;
+      font-size: 13px;
+      line-height: 1.15;
     }
     .collapsible-chevron {
       width: 18px;
@@ -432,24 +433,24 @@
     }
 
     .side-actions-card .inner {
-      padding: 5px;
-      gap: 4px;
+      padding: 9px;
+      gap: 7px;
     }
     .side-actions {
       display: grid;
-      gap: 4px;
+      gap: 7px;
     }
     .side-actions button {
       width: 100%;
       justify-content: center;
-      padding: 5px 4px;
-      font-size: 9px;
-      border-radius: 9px;
-      line-height: 1.15;
+      padding: 8px 9px;
+      font-size: 12px;
+      border-radius: 10px;
+      line-height: 1.2;
       white-space: normal;
     }
     .side-actions .button-group-title {
-      font-size: 9px;
+      font-size: 10px;
       font-weight: 700;
       color: var(--muted);
       text-transform: uppercase;
@@ -548,6 +549,61 @@
     .desktop-table table {
       min-width: 920px;
     }
+
+
+    /* Columnas ajustables por el usuario.
+       Arrastra el borde derecho del encabezado para cambiar el ancho.
+       Los anchos se guardan en localStorage para conservarlos al volver a abrir la app. */
+    .overflow {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    table.resizable-table {
+      table-layout: fixed;
+      width: max-content;
+      min-width: 100%;
+    }
+    table.resizable-table th {
+      position: relative;
+    }
+    table.resizable-table th .col-resize-handle {
+      position: absolute;
+      top: 0;
+      right: -4px;
+      width: 9px;
+      height: 100%;
+      cursor: col-resize;
+      user-select: none;
+      touch-action: none;
+      z-index: 6;
+    }
+    table.resizable-table th .col-resize-handle::after {
+      content: "";
+      position: absolute;
+      top: 18%;
+      bottom: 18%;
+      left: 4px;
+      width: 2px;
+      border-radius: 999px;
+      background: transparent;
+      transition: background .15s ease, box-shadow .15s ease;
+    }
+    table.resizable-table th:hover .col-resize-handle::after,
+    table.resizable-table th .col-resize-handle:focus-visible::after {
+      background: #2563eb;
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, .16);
+    }
+    body.resizing-column,
+    body.resizing-column * {
+      cursor: col-resize !important;
+      user-select: none !important;
+    }
+    .column-resize-hint {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: -4px;
+    }
     .mobile-cards { display: none; }
     .cat-mobile {
       border: 1px solid var(--border);
@@ -564,6 +620,90 @@
     .sheet-panel input[readonly] { background: #f1f5f9; color: var(--muted); cursor: not-allowed; }
     .sheet-actions { display: flex; gap: 8px; flex-wrap: wrap; }
     .sheet-status { font-size: 12px; color: var(--muted); min-height: 16px; }
+
+    .memory-mode-line {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text);
+      background: var(--soft);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px;
+      cursor: pointer;
+    }
+    .memory-mode-line input {
+      width: auto;
+      min-width: 16px;
+      height: 16px;
+      padding: 0;
+      margin: 0;
+      cursor: pointer;
+    }
+    .memory-mode-note {
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.25;
+      margin-top: -4px;
+    }
+    .event-storage-mode-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      background: var(--soft);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 8px 10px;
+    }
+    .event-storage-mode-bar .memory-mode-line {
+      background: #ffffff;
+      padding: 7px 9px;
+      margin: 0;
+    }
+    .event-source-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 92px;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 800;
+      background: #0f172a;
+      color: #ffffff;
+      white-space: nowrap;
+    }
+    .event-source-badge.local {
+      background: #166534;
+    }
+    .event-source-badge.folder {
+      background: #7c2d12;
+    }
+    .event-folder-controls {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+      width: 100%;
+    }
+    .event-folder-controls button {
+      padding: 7px 10px;
+      font-size: 12px;
+      border-radius: 10px;
+    }
+    .event-folder-status {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+      line-height: 1.25;
+      min-width: min(260px, 100%);
+    }
+    .event-folder-status.ready { color: #166534; }
+    .event-folder-status.warn { color: #92400e; }
 
     .web-events-panel {
       margin-top: 12px;
@@ -792,48 +932,11 @@
     }
     .numeric-dialog-title { font-size: 16px; font-weight: 700; }
     .numeric-dialog-actions { display: flex; gap: 8px; justify-content: flex-end; }
-    /* Ajuste responsivo del panel Evento / Web / Archivos.
-       En escritorio se mantiene como panel izquierdo.
-       En tablet se sube arriba del detalle y se acomoda en 3 columnas reales.
-       En teléfono se apila para que no haya desplazamiento horizontal ni campos cortados. */
+    /* Panel Evento / Web / Archivos siempre arriba del contenido.
+       Ya no se usa panel lateral izquierdo en escritorio, tablet ni teléfono. */
     @media (max-width: 1100px) {
-      .grid-summary, .layout, .totals-grid { grid-template-columns: 1fr; }
+      .grid-summary, .totals-grid { grid-template-columns: 1fr; }
       .grid-4 { grid-template-columns: 1fr 1fr; }
-      .left-panel {
-        width: 100%;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 10px;
-        overflow: visible;
-        padding-bottom: 4px;
-        align-items: start;
-      }
-      .left-panel > .card {
-        min-width: 0;
-        width: 100%;
-      }
-      .collapsible-summary {
-        min-height: 38px;
-        padding: 8px 10px;
-      }
-      .collapsible-title {
-        font-size: 13px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-      .config-card .inner,
-      .side-actions-card .inner {
-        padding: 9px;
-      }
-      .config-card input,
-      .config-card button,
-      .side-actions button {
-        font-size: 12px;
-        padding: 8px 9px;
-      }
-      .side-actions {
-        gap: 7px;
-      }
     }
     @media (max-width: 760px) {
       .desktop-table {
@@ -869,7 +972,7 @@
         grid-template-columns: 1fr;
       }
       .left-panel details.collapsible-card:not([open]) .collapsible-summary {
-        justify-content: center;
+        justify-content: space-between;
       }
       .collapsible-title {
         font-size: 13px;
@@ -948,6 +1051,11 @@
               <span class="collapsible-chevron" aria-hidden="true">▾</span>
             </summary>
             <div class="inner stack">
+              <label class="memory-mode-line" title="Controla si los eventos guardados trabajan en Web o en la memoria local del navegador.">
+                <input id="localMemorySaveMode" type="checkbox" data-local-memory-toggle />
+                <span>Eventos guardados en memoria local</span>
+              </label>
+              <div class="memory-mode-note">Activado = guardar, cargar, buscar y unir eventos locales. Desactivado = eventos Web.</div>
               <div class="side-actions">
                 <button id="saveSheetBtn" type="button" class="active">Guardar Web</button>
                 <button id="loadSheetBtn" type="button">Cargar Web</button>
@@ -959,11 +1067,13 @@
 
           <details class="card collapsible-card side-actions-card" data-collapse-id="archivos" open>
             <summary class="collapsible-summary">
-              <span class="collapsible-title">Archivos</span>
+              <span class="collapsible-title">OFF LINE</span>
               <span class="collapsible-chevron" aria-hidden="true">▾</span>
             </summary>
             <div class="inner stack">
               <div class="side-actions">
+                <button id="selectEventsFolderBtn" type="button" title="Selecciona la carpeta local donde se guardan y se buscarán los eventos TXT.">Seleccionar carpeta eventos TXT</button>
+                <div id="eventsFolderStatus" class="event-folder-status">Sin carpeta TXT seleccionada.</div>
                 <button id="importTableBtn" type="button" title="Orden: name, count, price.">Importar tabla TXT</button>
                 <button id="mergeEventsBtn" type="button" title="Selecciona 2 o más eventos TXT para homologar localidades y sumar boletos.">Juntar eventos TXT</button>
                 <button id="generatePdfBtn" type="button">Generar reporte PDF</button>
@@ -973,6 +1083,7 @@
               <input id="importTableInput" type="file" accept=".txt,text/plain" style="display:none;" />
               <input id="mergeEventsInput" type="file" accept=".txt,.json,application/json,text/plain" multiple style="display:none;" />
               <input id="loadTxtInput" type="file" accept=".txt,application/json,text/plain" style="display:none;" />
+              <input id="eventsFolderFallbackInput" type="file" accept=".txt,application/json,text/plain" webkitdirectory directory multiple style="display:none;" />
             </div>
           </details>
         </div>
@@ -981,11 +1092,11 @@
           <div class="card"><div class="inner stack">
             <div class="toolbar">
               <div class="toolbar-left">
-                <div class="section-title" style="margin:0;">Detalle por localidad</div>
+                <div><div class="section-title" style="margin:0;">Detalle por localidad</div><div class="column-resize-hint">Arrastra el borde derecho de cada encabezado para modificar el ancho de columnas.</div></div>
               </div>
               <div class="toolbar-right"></div>
             </div>
-            <div class="desktop-table"><table class="manual-detail-table">
+            <div class="desktop-table"><table class="manual-detail-table resizable-table" data-resizable-id="detalleLocalidad">
               <thead>
                 <tr>
                   <th class="center" data-manual-sort="index">#</th>
@@ -1007,7 +1118,18 @@
     <div id="viewEventosWeb" style="display:none;">
       <div class="stack">
           <div class="card web-events-panel"><div class="inner stack">
-            <div class="section-title">Eventos guardados en Web</div>
+            <div><div class="section-title" id="webEventsSectionTitle">Eventos guardados en Web</div><div class="column-resize-hint">Arrastra el borde derecho de cada encabezado para modificar el ancho de columnas.</div></div>
+            <div class="event-storage-mode-bar">
+              <label class="memory-mode-line" title="Controla si esta lista busca eventos guardados en Web o en la memoria local del navegador.">
+                <input id="localMemoryEventsMode" type="checkbox" data-local-memory-toggle />
+                <span id="eventSourceModeLabel">Buscar eventos en memoria local</span>
+              </label>
+              <span id="eventSourceBadge" class="event-source-badge">WEB</span>
+              <div class="event-folder-controls">
+                <button id="selectEventsFolderListBtn" type="button">Seleccionar carpeta TXT</button>
+                <span id="eventsFolderStatusList" class="event-folder-status">Sin carpeta TXT seleccionada.</span>
+              </div>
+            </div>
             <div class="web-events-filters">
               <div class="field">
                 <label>Filtrar por ID / evento</label>
@@ -1023,13 +1145,13 @@
               </div>
               <button id="refreshWebEventsBtn" type="button" class="active">Buscar eventos</button>
             </div>
-            <div class="note">Puedes elegir un evento guardado para cargar sus datos o marcar 2 o más eventos para unirlos en una sola tabla homologada.</div>
+            <div class="note" id="webEventsSourceNote">Puedes elegir un evento guardado Web para cargar sus datos o marcar 2 o más eventos para unirlos en una sola tabla homologada.</div>
             <div class="web-merge-toolbar">
               <button id="mergeWebEventsBtn" type="button" class="active">Unir eventos seleccionados</button>
               <span id="webMergeSelectedCount" class="web-merge-counter">Seleccionados: 0 · mínimo 2</span>
             </div>
             <div class="web-events-table-wrap">
-              <table class="web-events-table">
+              <table class="web-events-table resizable-table" data-resizable-id="eventosTxtCarpeta">
                 <thead>
                   <tr>
                     <th class="center web-col-merge">Unir</th>
@@ -1102,7 +1224,7 @@
 
         <div class="stack">
           <div class="card"><div class="inner stack">
-            <div class="section-title">Concentrados</div>
+            <div><div class="section-title">Concentrados</div><div class="column-resize-hint">En los concentrados también puedes arrastrar el borde derecho de cada encabezado para cambiar el ancho.</div></div>
             <div class="grid-2">
               <div class="card"><div class="inner"><div class="muted">Ingreso bruto cobrado</div><div class="big" style="font-size:22px;" id="grossIncomeCard"></div></div></div>
               <div class="card"><div class="inner"><div class="muted">Valor cortesías para estado</div><div class="big" style="font-size:22px;" id="courtesyStateCard"></div></div></div>
@@ -1115,7 +1237,7 @@
                   <span class="collapsible-chevron" aria-hidden="true">▾</span>
                 </summary>
                 <div class="inner stack">
-                  <div class="overflow"><table>
+                  <div class="overflow"><table class="resizable-table concentrado-asistentes-table" data-resizable-id="concentradoAsistentes">
                     <thead>
                       <tr>
                         <th class="center">#</th>
@@ -1136,7 +1258,7 @@
                   <span class="collapsible-chevron" aria-hidden="true">▾</span>
                 </summary>
                 <div class="inner stack">
-                  <div class="overflow"><table>
+                  <div class="overflow"><table class="resizable-table concentrado-letra-table" data-resizable-id="concentradoLetra">
                     <thead>
                       <tr>
                         <th class="center">#</th>
@@ -1212,6 +1334,16 @@
 
   <script>
     const FIXED_SHEET_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwn_NRpcDVdBhdxTgxn8njGAAKoFwMaN2x7nUV3JiArSy8zbGAr69HD90uwHlWqwW57/exec";
+    const LOCAL_MEMORY_EVENTS_KEY = 'contadorEventosMemoriaLocal_v1';
+    const LOCAL_MEMORY_MODE_KEY = 'guardarEnMemoriaLocal';
+    const LOCAL_TXT_FOLDER_HANDLE_DB = 'contadorEventosTxtFolderDb_v1';
+    const LOCAL_TXT_FOLDER_HANDLE_STORE = 'handles';
+    const LOCAL_TXT_FOLDER_HANDLE_KEY = 'eventosTxtFolderHandle';
+    const LOCAL_TXT_FOLDER_NAME_KEY = 'contadorEventosCarpetaTxtNombre_v1';
+    let selectedEventsTxtDirectoryHandle = null;
+    let selectedEventsTxtFolderFiles = [];
+    let selectedEventsTxtFolderVirtualName = '';
+
 
     const state = {
       activeTab: 'eventosWeb',
@@ -1235,6 +1367,7 @@
       municipalFineAmount: 0,
       sheetWebAppUrl: FIXED_SHEET_WEB_APP_URL,
       sheetRecordId: localStorage.getItem('sheetRecordId') || '',
+      useLocalMemorySave: localStorage.getItem(LOCAL_MEMORY_MODE_KEY) === '1',
       selectedRowId: null,
       webEventsRecords: [],
       webMergeSelectedRecordIds: [],
@@ -1543,19 +1676,44 @@
       $('municipalFineAmount').value = state.municipalFineAmount;
       if ($('sheetWebAppUrl')) $('sheetWebAppUrl').value = state.sheetWebAppUrl || '';
       if ($('sheetRecordId')) $('sheetRecordId').value = state.sheetRecordId || '';
+      if ($('localMemorySaveMode')) $('localMemorySaveMode').checked = Boolean(state.useLocalMemorySave);
+      updateStorageModeLabels();
     }
 
-    function saveTxtFile() {
+    function getSafeTxtFileName(baseName) {
+      const safeEventName = String(baseName || 'contador_ingreso_evento')
+        .trim()
+        .replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ_\- ]/g, '')
+        .replace(/\s+/g, '_') || 'contador_ingreso_evento';
+      return safeEventName.toLowerCase().endsWith('.txt') ? safeEventName : `${safeEventName}.txt`;
+    }
+
+    async function saveTxtFile() {
+      if (document.activeElement && document.activeElement.dataset && document.activeElement.dataset.kind) {
+        applyManualTableFieldValue(document.activeElement);
+      }
       const payload = JSON.stringify(getSerializableState(), null, 2);
+      const fileName = getSafeTxtFileName(state.eventName || state.sheetRecordId || 'contador_ingreso_evento');
+
+      if (selectedEventsTxtDirectoryHandle) {
+        try {
+          await saveTxtToSelectedFolder(fileName, payload);
+          setSheetStatus(`TXT guardado en carpeta seleccionada: ${fileName}`);
+          if (isLocalMemoryMode()) refreshWebEventsList();
+          return;
+        } catch (error) {
+          console.error(error);
+          setSheetStatus(error && error.message ? error.message : 'No se pudo guardar en la carpeta seleccionada. Se descargará el TXT.', true);
+        }
+      } else if (Array.isArray(selectedEventsTxtFolderFiles) && selectedEventsTxtFolderFiles.length) {
+        setSheetStatus('La carpeta está en modo lectura; el TXT se descargará. Guárdalo manualmente dentro de la carpeta seleccionada.', true);
+      }
+
       const blob = new Blob([payload], { type: 'text/plain;charset=utf-8' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      const safeEventName = (state.eventName || 'contador_ingreso_evento')
-        .trim()
-        .replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ_\- ]/g, '')
-        .replace(/\s+/g, '_');
-      a.download = `${safeEventName}.txt`;
+      a.download = fileName;
       a.click();
       URL.revokeObjectURL(url);
     }
@@ -1808,12 +1966,13 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       const selected = Array.isArray(state.webMergeSelectedRecordIds) ? state.webMergeSelectedRecordIds : [];
       const countEl = $('webMergeSelectedCount');
       const btn = $('mergeWebEventsBtn');
-      if (countEl) countEl.textContent = `Seleccionados: ${selected.length} · mínimo 2`;
+      const sourceName = isLocalMemoryMode() ? getLocalEventsSourceName() : 'Web';
+      if (countEl) countEl.textContent = `Seleccionados: ${selected.length} · mínimo 2 · fuente: ${sourceName}`;
       if (btn) {
         btn.disabled = selected.length < 2;
         btn.title = selected.length >= 2
-          ? `Unir ${selected.length} eventos seleccionados desde Web.`
-          : 'Marca 2 o más eventos en la tabla para unirlos.';
+          ? `Unir ${selected.length} eventos seleccionados desde ${sourceName}.`
+          : `Marca 2 o más eventos de ${sourceName} en la tabla para unirlos.`;
       }
     }
 
@@ -1854,6 +2013,22 @@ Selecciona Cancelar para agregarlas a las existentes.`);
     }
 
     function fetchWebRecordDataForMerge(recordId) {
+      if (isLocalMemoryMode()) {
+        recordId = String(recordId || '').trim();
+        if (selectedEventsTxtDirectoryHandle) {
+          return getTxtFolderRecord(recordId).then(record => {
+            if (!record) throw new Error(`No se encontró en la carpeta TXT el evento: ${recordId}`);
+            return normalizeWebEventForMerge(recordId, record.data || record);
+          });
+        }
+        const record = getLocalMemoryRecord(recordId);
+        if (!record) return Promise.reject(new Error(`No se encontró en memoria local el evento: ${recordId}`));
+        try {
+          return Promise.resolve(normalizeWebEventForMerge(recordId, record.data || record));
+        } catch (error) {
+          return Promise.reject(error);
+        }
+      }
       const url = normalizeSheetUrl();
       recordId = String(recordId || '').trim();
       return new Promise((resolve, reject) => {
@@ -1909,9 +2084,11 @@ Selecciona Cancelar para agregarlas a las existentes.`);
 
     async function handleMergeWebEvents() {
       const selectedIds = Array.isArray(state.webMergeSelectedRecordIds) ? [...state.webMergeSelectedRecordIds] : [];
+      const localMode = isLocalMemoryMode();
+      const sourceName = localMode ? getLocalEventsSourceName() : 'Web';
       if (selectedIds.length < 2) {
-        showWebMessage('Marca 2 o más eventos guardados Web para poder unirlos.', {
-          title: 'Unir eventos Web',
+        showWebMessage(`Marca 2 o más eventos guardados en ${sourceName} para poder unirlos.`, {
+          title: `Unir eventos ${localMode ? 'locales' : 'Web'}`,
           isError: true,
           autoClose: 3600
         });
@@ -1919,11 +2096,11 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       }
 
       try {
-        setWebEventsLoading(true, `Cargando ${selectedIds.length} eventos seleccionados y homologando localidades.`, 'Uniendo eventos Web', 'merge');
+        setWebEventsLoading(true, `Cargando ${selectedIds.length} eventos seleccionados desde ${sourceName} y homologando localidades.`, `Uniendo eventos ${localMode ? 'locales' : 'Web'}`, 'merge');
         const eventFiles = await Promise.all(selectedIds.map(fetchWebRecordDataForMerge));
         const merged = mergeEventCategories(eventFiles);
         const baseData = eventFiles[0].data || getSerializableState();
-        const mergedEventName = `Unión Web - ${eventFiles.map(item => item.eventName || item.fileName).join(' + ')}`;
+        const mergedEventName = `${localMode ? (selectedEventsTxtDirectoryHandle ? 'Unión TXT' : 'Unión Local') : 'Unión Web'} - ${eventFiles.map(item => item.eventName || item.fileName).join(' + ')}`;
 
         loadSerializableState({
           ...baseData,
@@ -1940,12 +2117,12 @@ Selecciona Cancelar para agregarlas a las existentes.`);
         activateDetallePorLocalidad();
 
         const totalBoletos = merged.categories.reduce((acc, item) => acc + n(item.count), 0);
-        const message = `${selectedIds.length} eventos Web unidos correctamente.\n\nLocalidades homologadas: ${merged.categories.length}\nBoletos totales: ${totalBoletos}\nCoincidencias sumadas entre eventos: ${merged.duplicatedMatches}\nLocalidades con precio diferente ajustadas al precio más alto: ${merged.priceConflicts}\n\nEl resultado quedó cargado en “Detalle por localidad”.`;
-        showWebMessage(message, { title: 'Unión de eventos Web', autoClose: 7000 });
-        setSheetStatus('Eventos Web unidos. Revisa el resultado y guarda en Web si deseas conservarlo.');
+        const message = `${selectedIds.length} eventos de ${sourceName} unidos correctamente.\n\nLocalidades homologadas: ${merged.categories.length}\nBoletos totales: ${totalBoletos}\nCoincidencias sumadas entre eventos: ${merged.duplicatedMatches}\nLocalidades con precio diferente ajustadas al precio más alto: ${merged.priceConflicts}\n\nEl resultado quedó cargado en “Detalle por localidad”.`;
+        showWebMessage(message, { title: `Unión de eventos ${sourceName}`, autoClose: 7000 });
+        setSheetStatus(`Eventos de ${sourceName} unidos. Revisa el resultado y guárdalo si deseas conservarlo.`);
       } catch (error) {
-        const message = error && error.message ? error.message : 'No se pudieron unir los eventos Web.';
-        showWebMessage(message, { title: 'Error al unir eventos Web', isError: true, autoClose: 6500 });
+        const message = error && error.message ? error.message : `No se pudieron unir los eventos de ${sourceName}.`;
+        showWebMessage(message, { title: `Error al unir eventos ${sourceName}`, isError: true, autoClose: 6500 });
         setSheetStatus(message, true);
       } finally {
         setWebEventsLoading(false);
@@ -2275,6 +2452,556 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       return Boolean(isError);
     }
 
+    function getLocalMemoryModeToggles() {
+      return Array.from(document.querySelectorAll('[data-local-memory-toggle]'));
+    }
+
+    function isLocalMemoryMode() {
+      return Boolean(state.useLocalMemorySave);
+    }
+
+    function hasSelectedEventsTxtFolder() {
+      return Boolean(selectedEventsTxtDirectoryHandle) || (Array.isArray(selectedEventsTxtFolderFiles) && selectedEventsTxtFolderFiles.length > 0);
+    }
+
+    function getLocalEventsSourceName() {
+      return hasSelectedEventsTxtFolder() ? 'carpeta TXT' : 'memoria local';
+    }
+
+    function getSelectedEventsFolderName() {
+      if (selectedEventsTxtDirectoryHandle && selectedEventsTxtDirectoryHandle.name) return selectedEventsTxtDirectoryHandle.name;
+      if (selectedEventsTxtFolderVirtualName) return selectedEventsTxtFolderVirtualName;
+      return localStorage.getItem(LOCAL_TXT_FOLDER_NAME_KEY) || '';
+    }
+
+    function updateFolderStatusLabels() {
+      const folderName = getSelectedEventsFolderName();
+      const selected = hasSelectedEventsTxtFolder();
+      const supported = 'showDirectoryPicker' in window;
+      const readOnly = !selectedEventsTxtDirectoryHandle && selectedEventsTxtFolderFiles && selectedEventsTxtFolderFiles.length > 0;
+      const message = selected
+        ? `Carpeta TXT seleccionada: ${folderName}${readOnly ? ' (modo lectura)' : ''}`
+        : (folderName
+          ? `Última carpeta usada: ${folderName}. Vuelve a seleccionarla para autorizar la búsqueda.`
+          : (supported ? 'Sin carpeta TXT seleccionada. Se usará memoria local del navegador.' : 'Sin carpeta TXT seleccionada. Usa el selector alterno de carpeta para leer archivos TXT.'));
+
+      ['eventsFolderStatus', 'eventsFolderStatusList'].forEach(id => {
+        const el = $(id);
+        if (!el) return;
+        el.textContent = message;
+        el.classList.toggle('ready', selected);
+        el.classList.toggle('warn', !selected && Boolean(folderName));
+      });
+    }
+
+    function updateStorageModeLabels() {
+      const localMode = Boolean(state.useLocalMemorySave);
+      const folderSelected = hasSelectedEventsTxtFolder();
+      const localSourceName = getLocalEventsSourceName();
+      const saveBtn = $('saveSheetBtn');
+      const loadBtn = $('loadSheetBtn');
+      const refreshBtn = $('refreshWebEventsBtn');
+      const mergeBtn = $('mergeWebEventsBtn');
+      const status = $('sheetStatus');
+      const sectionTitle = $('webEventsSectionTitle');
+      const sourceNote = $('webEventsSourceNote');
+      const modeLabel = $('eventSourceModeLabel');
+      const sourceBadge = $('eventSourceBadge');
+      const tabEventos = $('tabEventosWeb');
+
+      getLocalMemoryModeToggles().forEach(input => { input.checked = localMode; });
+
+      const setButtonText = (btn, text) => {
+        if (!btn) return;
+        btn.dataset.defaultText = text;
+        if (!btn.disabled) btn.textContent = text;
+      };
+
+      setButtonText(saveBtn, localMode ? (folderSelected ? 'Guardar TXT carpeta' : 'Guardar Local') : 'Guardar Web');
+      setButtonText(loadBtn, localMode ? (folderSelected ? 'Cargar desde carpeta' : 'Cargar Local') : 'Cargar Web');
+      setButtonText(refreshBtn, localMode ? (folderSelected ? 'Buscar TXT' : 'Buscar locales') : 'Buscar Web');
+      setButtonText(mergeBtn, localMode ? `Unir ${folderSelected ? 'TXT' : 'locales'} seleccionados` : 'Unir eventos Web seleccionados');
+
+      if (sectionTitle) sectionTitle.textContent = localMode ? `Eventos guardados en ${localSourceName}` : 'Eventos guardados en Web';
+      if (tabEventos) tabEventos.textContent = localMode ? (folderSelected ? 'Eventos TXT' : 'Eventos guardados Local') : 'Eventos guardados Web';
+      if (sourceNote) {
+        sourceNote.textContent = localMode
+          ? (folderSelected
+            ? 'La lista busca archivos .txt dentro de la carpeta seleccionada. Puedes cargar uno o marcar 2 o más para unirlos.'
+            : 'La lista busca eventos guardados en la memoria local de este navegador. Puedes cargar uno o marcar 2 o más para unirlos.')
+          : 'La lista busca eventos guardados en Web. Puedes cargar uno o marcar 2 o más para unirlos.';
+      }
+      if (modeLabel) modeLabel.textContent = localMode ? `Usando ${localSourceName}` : 'Cambiar búsqueda a memoria local / carpeta TXT';
+      if (sourceBadge) {
+        sourceBadge.textContent = localMode ? (folderSelected ? 'TXT' : 'LOCAL') : 'WEB';
+        sourceBadge.classList.toggle('local', localMode && !folderSelected);
+        sourceBadge.classList.toggle('folder', localMode && folderSelected);
+      }
+      updateFolderStatusLabels();
+      if (status && !status.textContent) {
+        status.style.display = localMode ? 'block' : 'none';
+        status.textContent = localMode ? `Modo ${localSourceName} activo.` : '';
+      }
+    }
+
+    function setLocalMemoryMode(enabled) {
+      state.useLocalMemorySave = Boolean(enabled);
+      localStorage.setItem(LOCAL_MEMORY_MODE_KEY, state.useLocalMemorySave ? '1' : '0');
+      updateStorageModeLabels();
+      const tbody = $('webEventsTable');
+      if (tbody) {
+        tbody.innerHTML = `<tr><td colspan="7" class="web-events-empty">${state.useLocalMemorySave ? 'Presiona “Buscar locales” para ver eventos guardados en este navegador.' : 'Presiona “Buscar Web” para ver los registros guardados en Web.'}</td></tr>`;
+      }
+      state.webEventsRecords = [];
+      state.webMergeSelectedRecordIds = [];
+      updateMergeWebButtonState();
+      const localSourceName = getLocalEventsSourceName();
+      setSheetStatus(state.useLocalMemorySave ? `Modo ${localSourceName} activo. Eventos guardados buscará, cargará, unirá y guardará según la fuente local disponible.` : 'Modo Web activo. Eventos guardados buscará, cargará, unirá y guardará en la base Web.');
+    }
+
+    function getLocalMemoryRecords() {
+      try {
+        const parsed = JSON.parse(localStorage.getItem(LOCAL_MEMORY_EVENTS_KEY) || '[]');
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (error) {
+        console.warn('No se pudo leer la memoria local de eventos.', error);
+        return [];
+      }
+    }
+
+    function setLocalMemoryRecords(records) {
+      localStorage.setItem(LOCAL_MEMORY_EVENTS_KEY, JSON.stringify(Array.isArray(records) ? records : []));
+    }
+
+    function openTxtFolderHandleDb() {
+      return new Promise((resolve, reject) => {
+        if (!('indexedDB' in window)) {
+          resolve(null);
+          return;
+        }
+        const request = indexedDB.open(LOCAL_TXT_FOLDER_HANDLE_DB, 1);
+        request.onupgradeneeded = () => {
+          const db = request.result;
+          if (!db.objectStoreNames.contains(LOCAL_TXT_FOLDER_HANDLE_STORE)) {
+            db.createObjectStore(LOCAL_TXT_FOLDER_HANDLE_STORE);
+          }
+        };
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      });
+    }
+
+    async function saveSelectedDirectoryHandleForReuse(handle) {
+      try {
+        const db = await openTxtFolderHandleDb();
+        if (!db || !handle) return;
+        await new Promise((resolve, reject) => {
+          const tx = db.transaction(LOCAL_TXT_FOLDER_HANDLE_STORE, 'readwrite');
+          tx.objectStore(LOCAL_TXT_FOLDER_HANDLE_STORE).put(handle, LOCAL_TXT_FOLDER_HANDLE_KEY);
+          tx.oncomplete = resolve;
+          tx.onerror = () => reject(tx.error);
+        });
+        db.close();
+      } catch (error) {
+        console.warn('No se pudo guardar el permiso de carpeta para reutilizarlo.', error);
+      }
+    }
+
+    async function loadSelectedDirectoryHandleForReuse() {
+      try {
+        const db = await openTxtFolderHandleDb();
+        if (!db) return null;
+        const handle = await new Promise((resolve, reject) => {
+          const tx = db.transaction(LOCAL_TXT_FOLDER_HANDLE_STORE, 'readonly');
+          const req = tx.objectStore(LOCAL_TXT_FOLDER_HANDLE_STORE).get(LOCAL_TXT_FOLDER_HANDLE_KEY);
+          req.onsuccess = () => resolve(req.result || null);
+          req.onerror = () => reject(req.error);
+        });
+        db.close();
+        return handle || null;
+      } catch (error) {
+        console.warn('No se pudo recuperar la carpeta TXT guardada.', error);
+        return null;
+      }
+    }
+
+    async function restoreSelectedEventsTxtFolder() {
+      const handle = await loadSelectedDirectoryHandleForReuse();
+      if (!handle) {
+        updateStorageModeLabels();
+        return;
+      }
+      selectedEventsTxtDirectoryHandle = handle;
+      selectedEventsTxtFolderFiles = [];
+      selectedEventsTxtFolderVirtualName = '';
+      localStorage.setItem(LOCAL_TXT_FOLDER_NAME_KEY, handle.name || 'Carpeta seleccionada');
+      updateStorageModeLabels();
+    }
+
+    function getFolderNameFromFallbackFiles(files) {
+      const first = Array.from(files || [])[0];
+      const rel = first && first.webkitRelativePath ? String(first.webkitRelativePath) : '';
+      return rel ? rel.split('/')[0] : 'Carpeta seleccionada';
+    }
+
+    function useFallbackFolderFiles(files) {
+      const txtFiles = Array.from(files || []).filter(file => String(file && file.name || '').toLowerCase().endsWith('.txt'));
+      if (!txtFiles.length) {
+        showWebMessage('La carpeta seleccionada no contiene archivos .txt válidos para leer.', {
+          title: 'Carpeta sin TXT',
+          isError: true,
+          autoClose: 6000
+        });
+        return;
+      }
+      selectedEventsTxtDirectoryHandle = null;
+      selectedEventsTxtFolderFiles = txtFiles;
+      selectedEventsTxtFolderVirtualName = getFolderNameFromFallbackFiles(files);
+      localStorage.setItem(LOCAL_TXT_FOLDER_NAME_KEY, selectedEventsTxtFolderVirtualName);
+      updateStorageModeLabels();
+      setSheetStatus(`Carpeta TXT seleccionada en modo lectura: ${selectedEventsTxtFolderVirtualName}. Archivos TXT encontrados: ${txtFiles.length}.`);
+      if (!state.useLocalMemorySave) setLocalMemoryMode(true);
+      else refreshWebEventsList();
+    }
+
+    function openFallbackFolderSelector() {
+      const input = $('eventsFolderFallbackInput');
+      if (!input) {
+        showWebMessage('No está disponible el selector alterno de carpeta.', { title: 'Carpeta TXT no disponible', isError: true, autoClose: 5000 });
+        return;
+      }
+      input.value = '';
+      input.click();
+    }
+
+    async function verifyDirectoryPermission(handle, readWrite = false) {
+      if (!handle || !handle.queryPermission || !handle.requestPermission) return true;
+      const options = { mode: readWrite ? 'readwrite' : 'read' };
+      if ((await handle.queryPermission(options)) === 'granted') return true;
+      return (await handle.requestPermission(options)) === 'granted';
+    }
+
+    async function selectEventsTxtFolder(event) {
+      if (event && typeof event.preventDefault === 'function') event.preventDefault();
+      if (event && typeof event.stopPropagation === 'function') event.stopPropagation();
+
+      if (!('showDirectoryPicker' in window)) {
+        openFallbackFolderSelector();
+        return;
+      }
+
+      try {
+        const handle = await window.showDirectoryPicker({ mode: 'readwrite', startIn: 'documents' });
+        const allowed = await verifyDirectoryPermission(handle, true);
+        if (!allowed) {
+          setSheetStatus('No se otorgó permiso para leer y escribir en la carpeta seleccionada.', true);
+          return;
+        }
+        selectedEventsTxtDirectoryHandle = handle;
+        selectedEventsTxtFolderFiles = [];
+        selectedEventsTxtFolderVirtualName = '';
+        localStorage.setItem(LOCAL_TXT_FOLDER_NAME_KEY, handle.name || 'Carpeta seleccionada');
+        await saveSelectedDirectoryHandleForReuse(handle);
+        updateStorageModeLabels();
+        setSheetStatus(`Carpeta TXT seleccionada: ${handle.name}. La búsqueda local leerá archivos .txt de esa carpeta.`);
+        if (!state.useLocalMemorySave) setLocalMemoryMode(true);
+        else refreshWebEventsList();
+      } catch (error) {
+        if (error && error.name === 'AbortError') return;
+        console.warn('No se pudo usar el selector moderno de carpeta; se abrirá el selector alterno.', error);
+        openFallbackFolderSelector();
+      }
+    }
+
+    async function saveTxtToSelectedFolder(fileName, contents) {
+      if (!selectedEventsTxtDirectoryHandle) throw new Error('No hay carpeta TXT seleccionada.');
+      const allowed = await verifyDirectoryPermission(selectedEventsTxtDirectoryHandle, true);
+      if (!allowed) throw new Error('No hay permiso para guardar en la carpeta TXT seleccionada.');
+      const fileHandle = await selectedEventsTxtDirectoryHandle.getFileHandle(fileName, { create: true });
+      const writable = await fileHandle.createWritable();
+      await writable.write(contents);
+      await writable.close();
+      return fileHandle;
+    }
+
+    function summarizeEventDataForList(data) {
+      const categories = Array.isArray(data && data.categories) ? data.categories : [];
+      const totalPersons = categories.reduce((acc, item) => acc + n(item.count), 0);
+      const payingCategories = categories.filter(item => !item.courtesy && n(item.price) > 0);
+      const payingPersons = payingCategories.reduce((acc, item) => acc + n(item.count), 0);
+      const courtesyPersons = categories.filter(item => item.courtesy || n(item.price) === 0).reduce((acc, item) => acc + n(item.count), 0);
+      const grossIncome = round2(categories.reduce((acc, item) => acc + n(item.price) * n(item.count), 0));
+      const averagePaidLocalityPrice = payingCategories.length ? round2(payingCategories.reduce((acc, item) => acc + n(item.price), 0) / payingCategories.length) : 0;
+      const courtesyEstimatedValueForState = round2(courtesyPersons * averagePaidLocalityPrice);
+      const stateTaxBase = round2((grossIncome + courtesyEstimatedValueForState) * n((data && data.stateIncomeFactor) || 1));
+      const municipalTaxBase = round2(grossIncome * n((data && data.municipalIncomeFactor) || 1));
+      const stateTaxAmount = round2(stateTaxBase * (n((data && data.stateTaxRate) || 0) / 100));
+      const municipalTaxAmount = round2(municipalTaxBase * (n((data && data.municipalTaxRate) || 0) / 100));
+      const totalStateAdministrative = round2(n(data && data.stateInterventorCount) * n(data && data.stateInterventorFeePerPerson) + n(data && data.stateFineAmount));
+      const totalMunicipalAdministrative = round2(n(data && data.municipalInterventorCount) * n(data && data.municipalInterventorFeePerPerson) + n(data && data.municipalFineAmount));
+      const totalCharges = round2(stateTaxAmount + municipalTaxAmount + totalStateAdministrative + totalMunicipalAdministrative);
+      return { totalPersons, payingPersons, courtesyPersons, grossIncome, totalCharges };
+    }
+
+    function buildTxtFolderRecordFromParsed(parsed, file) {
+      const data = parsed && parsed.data && Array.isArray(parsed.data.categories) ? parsed.data : parsed;
+      if (!data || !Array.isArray(data.categories)) return null;
+      const fileBaseName = String(file && file.name ? file.name : 'evento').replace(/\.[^.]+$/, '');
+      const recordId = String((parsed && parsed.recordId) || data.sheetRecordId || data.eventName || fileBaseName).trim() || fileBaseName;
+      const eventName = String((parsed && parsed.eventName) || data.eventName || recordId).trim() || recordId;
+      const summary = (parsed && parsed.summary) || summarizeEventDataForList(data);
+      const updatedAt = (parsed && parsed.updatedAt) || (file && file.lastModified ? new Date(file.lastModified).toISOString() : new Date().toISOString());
+      return {
+        recordId, eventName,
+        createdAt: (parsed && parsed.createdAt) || updatedAt,
+        updatedAt,
+        totalPersons: summary.totalPersons || 0,
+        payingPersons: summary.payingPersons || 0,
+        courtesyPersons: summary.courtesyPersons || 0,
+        grossIncome: summary.grossIncome || 0,
+        totalCharges: summary.totalCharges || 0,
+        summary, data,
+        fileName: file && file.name ? file.name : `${recordId}.txt`,
+        localTxtFolder: true
+      };
+    }
+
+    function filterEventRecordsForList(records, idFilter = '', dateFrom = '', dateTo = '') {
+      const idText = String(idFilter || '').trim().toLowerCase();
+      const from = String(dateFrom || '').trim();
+      const to = String(dateTo || '').trim();
+      return (Array.isArray(records) ? records : []).filter(record => {
+        const id = String(record.recordId || record.eventName || record.fileName || '').toLowerCase();
+        if (idText && !id.includes(idText)) return false;
+        if (from || to) {
+          const d = new Date(record.updatedAt || record.createdAt || '');
+          if (Number.isNaN(d.getTime())) return false;
+          const dateOnly = d.toISOString().slice(0, 10);
+          if (from && dateOnly < from) return false;
+          if (to && dateOnly > to) return false;
+        }
+        return true;
+      });
+    }
+
+    async function getTxtFolderRecordsForList(idFilter = '', dateFrom = '', dateTo = '') {
+      const records = [];
+
+      if (selectedEventsTxtDirectoryHandle) {
+        const allowed = await verifyDirectoryPermission(selectedEventsTxtDirectoryHandle, false);
+        if (!allowed) throw new Error('No hay permiso para leer la carpeta TXT seleccionada.');
+        for await (const [name, handle] of selectedEventsTxtDirectoryHandle.entries()) {
+          if (!handle || handle.kind !== 'file') continue;
+          if (!String(name || '').toLowerCase().endsWith('.txt')) continue;
+          try {
+            const file = await handle.getFile();
+            const text = await file.text();
+            const parsed = JSON.parse(String(text || '{}'));
+            const record = buildTxtFolderRecordFromParsed(parsed, file);
+            if (record) records.push(record);
+          } catch (error) {
+            console.warn(`Se omitió el archivo TXT no válido: ${name}`, error);
+          }
+        }
+        return filterEventRecordsForList(records, idFilter, dateFrom, dateTo);
+      }
+
+      if (Array.isArray(selectedEventsTxtFolderFiles) && selectedEventsTxtFolderFiles.length) {
+        for (const file of selectedEventsTxtFolderFiles) {
+          if (!String(file && file.name || '').toLowerCase().endsWith('.txt')) continue;
+          try {
+            const text = await file.text();
+            const parsed = JSON.parse(String(text || '{}'));
+            const record = buildTxtFolderRecordFromParsed(parsed, file);
+            if (record) records.push(record);
+          } catch (error) {
+            console.warn(`Se omitió el archivo TXT no válido: ${file && file.name}`, error);
+          }
+        }
+        return filterEventRecordsForList(records, idFilter, dateFrom, dateTo);
+      }
+
+      return [];
+    }
+
+    async function getTxtFolderRecord(recordId) {
+      const cleanId = String(recordId || '').trim();
+      if (!cleanId) return null;
+      const fromCurrentList = (state.webEventsRecords || []).find(record => record && record.localTxtFolder && getWebRecordId(record) === cleanId);
+      if (fromCurrentList) return fromCurrentList;
+      const records = await getTxtFolderRecordsForList('', '', '');
+      return records.find(record => getWebRecordId(record) === cleanId) || null;
+    }
+
+    async function loadTxtFolderRecordById(recordId) {
+      try {
+        const record = await getTxtFolderRecord(recordId);
+        if (!record) {
+          setSheetStatus(`No se encontró el TXT en la carpeta seleccionada: ${recordId}`, true);
+          return;
+        }
+        loadSerializableState(record.data || {});
+        state.sheetRecordId = getWebRecordId(record);
+        localStorage.setItem('sheetRecordId', state.sheetRecordId);
+        syncInputsFromState();
+        activateDetallePorLocalidad();
+        markWebSaveBaseline();
+        setSheetStatus(`Evento cargado desde carpeta TXT: ${record.fileName}`);
+      } catch (error) {
+        console.error(error);
+        setSheetStatus(error && error.message ? error.message : 'No se pudo cargar el TXT desde la carpeta.', true);
+      }
+    }
+
+    async function deleteTxtFolderRecordById(recordId) {
+      try {
+        const record = await getTxtFolderRecord(recordId);
+        if (!record || !record.fileName) {
+          setSheetStatus(`No se encontró el TXT en la carpeta seleccionada: ${recordId}`, true);
+          return;
+        }
+        const allowed = await verifyDirectoryPermission(selectedEventsTxtDirectoryHandle, true);
+        if (!allowed) throw new Error('No hay permiso para borrar archivos de la carpeta TXT seleccionada.');
+        await selectedEventsTxtDirectoryHandle.removeEntry(record.fileName);
+        setSheetStatus(`TXT borrado de la carpeta seleccionada: ${record.fileName}`);
+        refreshWebEventsList();
+      } catch (error) {
+        console.error(error);
+        setSheetStatus(error && error.message ? error.message : 'No se pudo borrar el TXT de la carpeta seleccionada.', true);
+      }
+    }
+
+    function getLocalMemoryRecord(recordId) {
+      const cleanId = String(recordId || '').trim();
+      return getLocalMemoryRecords().find(record => String(record.recordId || record.eventName || '').trim() === cleanId) || null;
+    }
+
+    function checkExistingLocalRecord(recordId) {
+      return Boolean(getLocalMemoryRecord(recordId));
+    }
+
+    function getAvailableLocalRecordId(desiredRecordId) {
+      const originalId = String(desiredRecordId || '').trim();
+      if (!checkExistingLocalRecord(originalId)) {
+        return { recordId: originalId, wasSequenced: false };
+      }
+
+      const baseName = getSequencedBaseName(originalId) || originalId;
+      for (let index = 2; index <= 999; index++) {
+        const candidate = `${baseName} (${index})`;
+        if (!checkExistingLocalRecord(candidate)) {
+          return { recordId: candidate, wasSequenced: true };
+        }
+      }
+
+      return { recordId: `${baseName} (${Date.now()})`, wasSequenced: true };
+    }
+
+    function savePayloadToLocalMemory(payload, options = {}) {
+      const { overwrite = true } = options;
+      if (!payload || !payload.recordId) throw new Error('No se puede guardar sin ID de evento.');
+      const records = getLocalMemoryRecords();
+      const cleanId = String(payload.recordId || '').trim();
+      const existingIndex = records.findIndex(record => String(record.recordId || record.eventName || '').trim() === cleanId);
+      const existing = existingIndex >= 0 ? records[existingIndex] : null;
+      const summary = payload.summary || {};
+      const record = {
+        recordId: cleanId,
+        eventName: payload.eventName || cleanId,
+        createdAt: existing && existing.createdAt ? existing.createdAt : new Date().toISOString(),
+        updatedAt: payload.updatedAt || new Date().toISOString(),
+        totalPersons: summary.totalPersons || 0,
+        payingPersons: summary.payingPersons || 0,
+        courtesyPersons: summary.courtesyPersons || 0,
+        grossIncome: summary.grossIncome || 0,
+        totalCharges: summary.totalCharges || 0,
+        summary,
+        data: payload.data || getSerializableState(),
+        localMemory: true
+      };
+
+      if (existingIndex >= 0 && overwrite) {
+        records[existingIndex] = record;
+      } else {
+        records.push(record);
+      }
+      setLocalMemoryRecords(records);
+      return record;
+    }
+
+    async function saveToLocalMemoryFromCurrent() {
+      if (isWebSaveInProgress) return;
+      try {
+        if (document.activeElement && document.activeElement.dataset && document.activeElement.dataset.kind) {
+          applyManualTableFieldValue(document.activeElement);
+        }
+
+        const requestedRecordId = normalizeSheetRecordId();
+        if (!requestedRecordId) return;
+
+        if (!hasUnsavedWebChanges()) {
+          setSheetStatus('No hay cambios nuevos por guardar en memoria local.');
+          return;
+        }
+
+        isWebSaveInProgress = true;
+        setWebEventsLoading(true, 'Guardando la información en memoria local del navegador.', 'Guardando memoria local', 'save');
+        const available = getAvailableLocalRecordId(requestedRecordId);
+        if (available.wasSequenced) {
+          setCurrentEventRecordId(available.recordId);
+          render();
+          setSheetStatus(`El evento ya existía en memoria local. Se guardará como: ${available.recordId}`);
+        }
+
+        const payload = getSheetPayload();
+        if (!payload.recordId) return;
+        payload.localMemory = true;
+        savePayloadToLocalMemory(payload, { overwrite: true });
+        markWebSaveBaseline();
+        setSheetStatus(available.wasSequenced ? `Datos guardados en memoria local como: ${available.recordId}` : 'Datos guardados en memoria local.');
+      } catch (error) {
+        console.error(error);
+        setSheetStatus(error && error.message ? error.message : 'No se pudo guardar en memoria local.', true);
+      } finally {
+        isWebSaveInProgress = false;
+        setWebEventsLoading(false);
+      }
+    }
+
+    function loadLocalMemoryRecordById(recordId) {
+      recordId = String(recordId || '').trim();
+      if (!recordId) return;
+      const record = getLocalMemoryRecord(recordId);
+      if (!record) {
+        setSheetStatus(`No se encontró el evento en memoria local: ${recordId}`, true);
+        return;
+      }
+      loadSerializableState(record.data || {});
+      state.sheetRecordId = recordId;
+      localStorage.setItem('sheetRecordId', recordId);
+      syncInputsFromState();
+      activateDetallePorLocalidad();
+      markWebSaveBaseline();
+      setSheetStatus(`Evento cargado desde memoria local: ${recordId}`);
+    }
+
+    function getLocalMemoryRecordsForList(idFilter = '', dateFrom = '', dateTo = '') {
+      return filterEventRecordsForList(getLocalMemoryRecords(), idFilter, dateFrom, dateTo);
+    }
+
+    function deleteLocalMemoryRecordById(recordId) {
+      recordId = String(recordId || '').trim();
+      const records = getLocalMemoryRecords();
+      const next = records.filter(record => String(record.recordId || record.eventName || '').trim() !== recordId);
+      if (next.length === records.length) {
+        setSheetStatus(`No se encontró el evento en memoria local: ${recordId}`, true);
+        return;
+      }
+      setLocalMemoryRecords(next);
+      setSheetStatus(`Evento borrado de memoria local: ${recordId}`);
+      refreshWebEventsList();
+    }
+
     function setSheetStatus(message, isError = false) {
       const el = $('sheetStatus');
       if (el) {
@@ -2303,7 +3030,7 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       if (eventInput) state.eventName = eventInput.value.trim();
       const recordId = String(state.eventName || '').trim();
       if (!recordId) {
-        setSheetStatus('Captura el nombre del evento para guardar o cargar en Web.', true);
+        setSheetStatus(isLocalMemoryMode() ? 'Captura el nombre del evento para guardar o cargar en memoria local.' : 'Captura el nombre del evento para guardar o cargar en Web.', true);
         if (eventInput) eventInput.focus();
         return '';
       }
@@ -2414,6 +3141,10 @@ Selecciona Cancelar para agregarlas a las existentes.`);
     }
 
     async function saveToGoogleSheet() {
+      if (isLocalMemoryMode()) {
+        await saveToLocalMemoryFromCurrent();
+        return;
+      }
       if (isWebSaveInProgress) return;
 
       const url = normalizeSheetUrl();
@@ -2510,6 +3241,20 @@ Selecciona Cancelar para agregarlas a las existentes.`);
         if (exitAutoSaveAlreadySent) return;
         if (isWebSaveInProgress) return;
 
+        if (isLocalMemoryMode()) {
+          if (document.activeElement && document.activeElement.dataset && document.activeElement.dataset.kind) {
+            applyManualTableFieldValue(document.activeElement);
+          }
+          if (!hasUnsavedWebChanges()) return;
+          const payload = getWebPayloadForAutoSave();
+          if (!payload) return;
+          payload.action = 'saveLocal';
+          payload.localMemory = true;
+          savePayloadToLocalMemory(payload, { overwrite: true });
+          exitAutoSaveAlreadySent = true;
+          return;
+        }
+
         const url = normalizeSheetUrl();
         if (!url) return;
         if (document.activeElement && document.activeElement.dataset && document.activeElement.dataset.kind) {
@@ -2553,6 +3298,11 @@ Selecciona Cancelar para agregarlas a las existentes.`);
     }
 
     function loadWebRecordById(recordId) {
+      if (isLocalMemoryMode()) {
+        if (hasSelectedEventsTxtFolder()) loadTxtFolderRecordById(recordId);
+        else loadLocalMemoryRecordById(recordId);
+        return;
+      }
       const url = normalizeSheetUrl();
       recordId = String(recordId || '').trim();
       if (!recordId) {
@@ -2805,6 +3555,26 @@ Selecciona Cancelar para agregarlas a las existentes.`);
     }
 
     async function deleteWebRecordById(recordId) {
+      if (isLocalMemoryMode()) {
+        recordId = String(recordId || '').trim();
+        if (!recordId) return;
+        const folderMode = hasSelectedEventsTxtFolder();
+        const confirmDeleteLocal = await showWebMessage(`¿Deseas borrar el evento de ${folderMode ? 'la carpeta TXT' : 'memoria local'}?
+
+${recordId}`, {
+          title: folderMode ? 'Confirmar borrado TXT' : 'Confirmar borrado local',
+          confirm: true,
+          okText: 'Borrar',
+          cancelText: 'Cancelar',
+          danger: true,
+          autoClose: 0
+        });
+        if (confirmDeleteLocal) {
+          if (folderMode) deleteTxtFolderRecordById(recordId);
+          else deleteLocalMemoryRecordById(recordId);
+        }
+        return;
+      }
       const url = normalizeSheetUrl();
       recordId = String(recordId || '').trim();
       if (!recordId) {
@@ -2880,7 +3650,9 @@ Selecciona Cancelar para agregarlas a las existentes.`);
         { id: 'refreshWebEventsBtn', loadingText: action === 'search' ? 'Buscando...' : null },
         { id: 'saveSheetBtn', loadingText: action === 'save' ? 'Guardando...' : null },
         { id: 'loadSheetBtn', loadingText: action === 'load' ? 'Cargando...' : null },
-        { id: 'mergeWebEventsBtn', loadingText: action === 'merge' ? 'Uniendo...' : null }
+        { id: 'mergeWebEventsBtn', loadingText: action === 'merge' ? 'Uniendo...' : null },
+        { id: 'selectEventsFolderBtn', loadingText: null },
+        { id: 'selectEventsFolderListBtn', loadingText: null }
       ];
 
       buttons.forEach(({ id, loadingText }) => {
@@ -2892,17 +3664,42 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       });
     }
 
-    function refreshWebEventsList() {
-      const url = normalizeSheetUrl();
-      if (!url) {
-        return;
-      }
+    async function refreshWebEventsList() {
       const idFilter = $('webEventFilterId') ? $('webEventFilterId').value.trim() : '';
       const dateFrom = $('webEventDateFrom') ? $('webEventDateFrom').value : '';
       const dateTo = $('webEventDateTo') ? $('webEventDateTo').value : '';
       const tbody = $('webEventsTable');
       state.webMergeSelectedRecordIds = [];
       updateMergeWebButtonState();
+
+      if (isLocalMemoryMode()) {
+        if (hasSelectedEventsTxtFolder()) {
+          if (tbody) tbody.innerHTML = '<tr><td colspan="7" class="web-events-empty">Buscando eventos TXT en la carpeta seleccionada...</td></tr>';
+          setWebEventsLoading(true, 'Leyendo archivos .txt de la carpeta seleccionada.', 'Buscando eventos TXT', 'search');
+          try {
+            const records = await getTxtFolderRecordsForList(idFilter, dateFrom, dateTo);
+            renderWebEventsList(records);
+            setSheetStatus(`Eventos TXT encontrados en carpeta: ${records.length}`);
+          } catch (error) {
+            console.error(error);
+            renderWebEventsList([]);
+            setSheetStatus(error && error.message ? error.message : 'No se pudo leer la carpeta TXT seleccionada.', true);
+          } finally {
+            setWebEventsLoading(false);
+          }
+          return;
+        }
+        if (tbody) tbody.innerHTML = '<tr><td colspan="7" class="web-events-empty">Buscando eventos en memoria local...</td></tr>';
+        const records = getLocalMemoryRecordsForList(idFilter, dateFrom, dateTo);
+        renderWebEventsList(records);
+        setSheetStatus(`Eventos en memoria local encontrados: ${records.length}`);
+        return;
+      }
+
+      const url = normalizeSheetUrl();
+      if (!url) {
+        return;
+      }
       if (tbody) tbody.innerHTML = '<tr><td colspan="7" class="web-events-empty">Buscando eventos guardados...</td></tr>';
       setWebEventsLoading(true, 'Buscando eventos guardados en Web. Espera a que termine la consulta.', 'Buscando eventos guardados', 'search');
 
@@ -2952,8 +3749,15 @@ Selecciona Cancelar para agregarlas a las existentes.`);
     function bindTopInputs() {
       $('eventName').oninput = e => { state.eventName = e.target.value; };
       if ($('sheetWebAppUrl')) $('sheetWebAppUrl').value = FIXED_SHEET_WEB_APP_URL;
+      getLocalMemoryModeToggles().forEach(input => {
+        input.checked = Boolean(state.useLocalMemorySave);
+        input.onchange = (e) => setLocalMemoryMode(e.target.checked);
+      });
+      updateStorageModeLabels();
       if ($('saveSheetBtn')) $('saveSheetBtn').onclick = () => { collapsePanelById('web'); saveToGoogleSheet(); };
       if ($('loadSheetBtn')) $('loadSheetBtn').onclick = () => { collapsePanelById('web'); loadFromGoogleSheet(); };
+      if ($('selectEventsFolderBtn')) $('selectEventsFolderBtn').onclick = (e) => { e.preventDefault(); collapsePanelById('archivos'); selectEventsTxtFolder(e); };
+      if ($('selectEventsFolderListBtn')) $('selectEventsFolderListBtn').onclick = (e) => { e.preventDefault(); collapsePanelById('web'); selectEventsTxtFolder(e); };
       if ($('refreshWebEventsBtn')) $('refreshWebEventsBtn').onclick = () => { collapsePanelById('web'); refreshWebEventsList(); };
       if ($('mergeWebEventsBtn')) $('mergeWebEventsBtn').onclick = () => { collapsePanelById('web'); handleMergeWebEvents(); };
       document.querySelectorAll('[data-web-sort]').forEach(th => {
@@ -3001,6 +3805,11 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       if ($('mergeEventsInput')) $('mergeEventsInput').onchange = (e) => {
         const files = e.target.files;
         if (files && files.length) handleMergeEventsFiles(files);
+        e.target.value = '';
+      };
+      if ($('eventsFolderFallbackInput')) $('eventsFolderFallbackInput').onchange = (e) => {
+        const files = e.target.files;
+        if (files && files.length) useFallbackFolderFiles(files);
         e.target.value = '';
       };
       $('generatePdfBtn').onclick = () => { collapsePanelById('archivos'); openReportPdf(); };
@@ -3613,11 +4422,44 @@ Selecciona Cancelar para agregarlas a las existentes.`);
 
 
 
+    const ACTION_PANEL_IDS = ['evento', 'web', 'archivos'];
+    let syncingActionPanels = false;
+
+    function isActionPanelId(id) {
+      return ACTION_PANEL_IDS.includes(String(id || '').trim());
+    }
+
+    function setActionPanelsOpen(open) {
+      syncingActionPanels = true;
+      ACTION_PANEL_IDS.forEach(id => {
+        const panel = document.querySelector(`[data-collapse-id="${id}"]`);
+        if (!panel) return;
+        if (open) panel.setAttribute('open', '');
+        else panel.removeAttribute('open');
+        localStorage.setItem(`panelColapsable_${id}`, open ? 'abierto' : 'cerrado');
+      });
+      localStorage.setItem('panelColapsable_eventoWebOffline_todos', open ? 'abierto' : 'cerrado');
+      setTimeout(() => { syncingActionPanels = false; }, 0);
+    }
+
     function bindCollapsiblePanels() {
+      const savedActionState = localStorage.getItem('panelColapsable_eventoWebOffline_todos');
       document.querySelectorAll('[data-collapse-id]').forEach(panel => {
         const id = String(panel.dataset.collapseId || '').trim();
         if (!id) return;
         const storageKey = `panelColapsable_${id}`;
+
+        if (isActionPanelId(id)) {
+          const stateToApply = savedActionState || localStorage.getItem(storageKey);
+          if (stateToApply === 'cerrado') panel.removeAttribute('open');
+          if (stateToApply === 'abierto') panel.setAttribute('open', '');
+          panel.addEventListener('toggle', () => {
+            if (syncingActionPanels) return;
+            setActionPanelsOpen(panel.open);
+          });
+          return;
+        }
+
         const savedState = localStorage.getItem(storageKey);
         if (savedState === 'cerrado') panel.removeAttribute('open');
         if (savedState === 'abierto') panel.setAttribute('open', '');
@@ -3630,6 +4472,10 @@ Selecciona Cancelar para agregarlas a las existentes.`);
     function collapsePanelById(panelId) {
       const cleanId = String(panelId || '').trim();
       if (!cleanId) return;
+      if (isActionPanelId(cleanId)) {
+        setActionPanelsOpen(false);
+        return;
+      }
       const panel = document.querySelector(`[data-collapse-id="${cleanId}"]`);
       if (!panel) return;
       panel.removeAttribute('open');
@@ -3668,6 +4514,168 @@ Selecciona Cancelar para agregarlas a las existentes.`);
     }
 
 
+
+    const RESIZABLE_TABLE_WIDTHS_KEY = 'anchosColumnasTablasEvento_v1';
+    const RESIZABLE_TABLE_DEFAULT_WIDTHS = {
+      eventosTxtCarpeta: [38, 150, 140, 78, 118, 118, 70],
+      detalleLocalidad: [38, 78, 150, 74, 122, 92],
+      concentradoAsistentes: [42, 132, 220, 132, 142],
+      concentradoLetra: [42, 138, 190, 132, 280, 132]
+    };
+
+    function getResizableStoredWidths() {
+      try {
+        return JSON.parse(localStorage.getItem(RESIZABLE_TABLE_WIDTHS_KEY) || '{}') || {};
+      } catch (error) {
+        return {};
+      }
+    }
+
+    function saveResizableStoredWidths(tableId, widths) {
+      if (!tableId || !Array.isArray(widths)) return;
+      const all = getResizableStoredWidths();
+      all[tableId] = widths.map(value => Math.max(34, Math.round(Number(value) || 34)));
+      localStorage.setItem(RESIZABLE_TABLE_WIDTHS_KEY, JSON.stringify(all));
+    }
+
+    function getResizableTableId(table) {
+      return table ? (table.dataset.resizableId || table.id || '') : '';
+    }
+
+    function getResizableColumnCount(table) {
+      return table ? table.querySelectorAll('thead th').length : 0;
+    }
+
+    function ensureResizableColgroup(table) {
+      if (!table) return null;
+      const colCount = getResizableColumnCount(table);
+      if (!colCount) return null;
+      let colgroup = table.querySelector(':scope > colgroup');
+      if (!colgroup) {
+        colgroup = document.createElement('colgroup');
+        table.insertBefore(colgroup, table.firstChild);
+      }
+      while (colgroup.children.length < colCount) {
+        colgroup.appendChild(document.createElement('col'));
+      }
+      while (colgroup.children.length > colCount) {
+        colgroup.removeChild(colgroup.lastElementChild);
+      }
+      return colgroup;
+    }
+
+    function getDefaultResizableWidths(table) {
+      const tableId = getResizableTableId(table);
+      const ths = Array.from(table.querySelectorAll('thead th'));
+      const defaults = RESIZABLE_TABLE_DEFAULT_WIDTHS[tableId] || [];
+      return ths.map((th, index) => {
+        const rectWidth = Math.round(th.getBoundingClientRect().width || 0);
+        return Math.max(34, rectWidth || defaults[index] || 110);
+      });
+    }
+
+    function applyResizableWidths(table, widths) {
+      if (!table || !Array.isArray(widths) || !widths.length) return;
+      const colgroup = ensureResizableColgroup(table);
+      if (!colgroup) return;
+      const normalized = widths.map(value => Math.max(34, Math.round(Number(value) || 34)));
+      Array.from(colgroup.children).forEach((col, index) => {
+        col.style.width = `${normalized[index] || 90}px`;
+      });
+      const totalWidth = normalized.reduce((acc, value) => acc + value, 0);
+      const parentWidth = table.parentElement ? Math.ceil(table.parentElement.getBoundingClientRect().width || 0) : 0;
+      table.style.width = `${Math.max(totalWidth, parentWidth)}px`;
+      table.style.minWidth = '100%';
+    }
+
+    function getCurrentResizableWidths(table) {
+      const colgroup = ensureResizableColgroup(table);
+      if (!colgroup) return [];
+      const fallback = getDefaultResizableWidths(table);
+      return Array.from(colgroup.children).map((col, index) => {
+        const styled = parseFloat(col.style.width || '');
+        return Math.max(34, Math.round(styled || fallback[index] || 90));
+      });
+    }
+
+    function setupResizableTable(table) {
+      if (!table) return;
+      const tableId = getResizableTableId(table);
+      if (!tableId) return;
+      const colgroup = ensureResizableColgroup(table);
+      if (!colgroup) return;
+      const stored = getResizableStoredWidths()[tableId];
+      const widths = Array.isArray(stored) && stored.length === getResizableColumnCount(table)
+        ? stored
+        : getDefaultResizableWidths(table);
+      applyResizableWidths(table, widths);
+
+      if (table.dataset.resizableReady === '1') return;
+      table.dataset.resizableReady = '1';
+      const ths = Array.from(table.querySelectorAll('thead th'));
+      ths.forEach((th, index) => {
+        if (th.querySelector(':scope > .col-resize-handle')) return;
+        const handle = document.createElement('span');
+        handle.className = 'col-resize-handle';
+        handle.tabIndex = 0;
+        handle.title = 'Arrastra para cambiar el ancho. Doble clic para restablecer esta columna.';
+        handle.setAttribute('role', 'separator');
+        handle.setAttribute('aria-orientation', 'vertical');
+        handle.dataset.colIndex = String(index);
+        th.appendChild(handle);
+
+        handle.addEventListener('click', (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+        });
+
+        handle.addEventListener('dblclick', (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          const defaults = getDefaultResizableWidths(table);
+          const current = getCurrentResizableWidths(table);
+          current[index] = (RESIZABLE_TABLE_DEFAULT_WIDTHS[tableId] || defaults)[index] || defaults[index] || 90;
+          applyResizableWidths(table, current);
+          saveResizableStoredWidths(tableId, current);
+        });
+
+        handle.addEventListener('pointerdown', (event) => {
+          if (event.button !== undefined && event.button !== 0) return;
+          event.preventDefault();
+          event.stopPropagation();
+          const startX = event.clientX;
+          const startWidths = getCurrentResizableWidths(table);
+          const startWidth = startWidths[index] || 90;
+          const minWidth = 34;
+          document.body.classList.add('resizing-column');
+          handle.setPointerCapture?.(event.pointerId);
+
+          const onMove = (moveEvent) => {
+            const delta = moveEvent.clientX - startX;
+            const next = [...startWidths];
+            next[index] = Math.max(minWidth, Math.round(startWidth + delta));
+            applyResizableWidths(table, next);
+          };
+
+          const onUp = () => {
+            document.body.classList.remove('resizing-column');
+            saveResizableStoredWidths(tableId, getCurrentResizableWidths(table));
+            window.removeEventListener('pointermove', onMove, true);
+            window.removeEventListener('pointerup', onUp, true);
+            window.removeEventListener('pointercancel', onUp, true);
+          };
+
+          window.addEventListener('pointermove', onMove, true);
+          window.addEventListener('pointerup', onUp, true);
+          window.addEventListener('pointercancel', onUp, true);
+        });
+      });
+    }
+
+    function refreshResizableTables() {
+      document.querySelectorAll('table.resizable-table').forEach(setupResizableTable);
+    }
+
     function render() {
       updateStickyOffsets();
       const calc = compute();
@@ -3701,6 +4709,7 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       renderCategories();
       renderConcentrados(calc);
       updateStickyOffsets();
+      setTimeout(refreshResizableTables, 0);
     }
 
     function escapeHtml(str) {
@@ -3728,7 +4737,7 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       hideManualContextMenu();
       hideWebEventsContextMenu();
     }, true);
-    window.addEventListener('resize', updateStickyOffsets);
+    window.addEventListener('resize', () => { updateStickyOffsets(); refreshResizableTables(); });
 
     $('tabContador').onclick = () => { state.activeTab = 'contador'; render(); };
     $('tabImpuestos').onclick = () => { state.activeTab = 'impuestos'; render(); };
@@ -3746,6 +4755,10 @@ Selecciona Cancelar para agregarlas a las existentes.`);
     syncInputsFromState();
     updateStickyOffsets();
     render();
+    restoreSelectedEventsTxtFolder().then(() => {
+      syncInputsFromState();
+      render();
+    });
   </script>
 </body>
 </html>
