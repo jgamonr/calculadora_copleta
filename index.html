@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Control de ingreso a evento</title>
+  <title>Control de ingreso a evento - concentrados visibles solo en impuestos</title>
   <style>
     :root {
       --bg: #f8fafc;
@@ -50,6 +50,50 @@
       margin: 0 0 16px;
       box-shadow: 0 8px 20px rgba(15, 23, 42, .06);
     }
+    .sticky-header-body {
+      display: block;
+    }
+    .sticky-header-toggle {
+      position: absolute;
+      top: 7px;
+      right: 6px;
+      z-index: 3;
+      min-width: 68px;
+      padding: 5px 8px;
+      border-radius: 999px;
+      border-color: var(--primary);
+      background: var(--primary);
+      color: var(--primary-text);
+      font-size: 10px;
+      line-height: 1.1;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, .18);
+    }
+    .sticky-header-toggle:focus,
+    .sticky-header-toggle:focus-visible {
+      background: #f59e0b;
+      color: #111827;
+      border-color: #b45309;
+    }
+    .sticky-top-panel.sticky-collapsed {
+      width: fit-content;
+      max-width: 100%;
+      margin-left: auto;
+      padding: 5px 6px;
+      border: 1px solid rgba(226, 232, 240, .95);
+      border-top: 0;
+      border-radius: 0 0 14px 14px;
+      box-shadow: 0 8px 18px rgba(15, 23, 42, .10);
+    }
+    .sticky-top-panel.sticky-collapsed .sticky-header-body {
+      display: none;
+    }
+    .sticky-top-panel.sticky-collapsed .sticky-header-toggle {
+      position: static;
+      min-width: 98px;
+      padding: 6px 10px;
+      font-size: 11px;
+      box-shadow: none;
+    }
     .sticky-top-panel .grid-summary {
       grid-template-columns: minmax(59px, .5fr) minmax(59px, .5fr) repeat(2, minmax(118px, 1fr)) !important;
       gap: 8px;
@@ -57,6 +101,7 @@
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
       padding-bottom: 2px;
+      padding-right: 80px;
     }
     .sticky-top-panel .grid-summary .card {
       min-width: 118px;
@@ -94,6 +139,28 @@
       -webkit-overflow-scrolling: touch;
     }
     .sticky-top-panel .tabs button {
+      white-space: nowrap;
+      padding: 8px 12px;
+    }
+
+    .sticky-top-panel .impuestos-subtabs-sticky {
+      margin-bottom: 0;
+    }
+
+    .impuestos-subtabs-sticky {
+      display: none;
+      width: fit-content;
+      max-width: 100%;
+      margin: 8px 0 0;
+      background: rgba(255, 255, 255, .97);
+      box-shadow: none;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .impuestos-subtabs-sticky.show {
+      display: inline-flex;
+    }
+    .impuestos-subtabs-sticky button {
       white-space: nowrap;
       padding: 8px 12px;
     }
@@ -518,13 +585,39 @@
       background: white;
     }
     .web-events-table {
-      min-width: 940px;
+      width: 560px;
+      min-width: 560px;
+      max-width: 100%;
+      table-layout: fixed;
+    }
+    .web-events-table th,
+    .web-events-table td {
+      padding: 5px 6px;
+    }
+    .web-events-table .web-col-merge { width: 34px; }
+    .web-events-table .web-col-id { width: 110px; }
+    .web-events-table .web-col-date { width: 128px; }
+    .web-events-table .web-col-money { width: 110px; }
+    .web-events-table .web-col-load { width: 62px; }
+    .web-events-table .web-cell-clip {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .web-events-table .web-event-merge-check {
+      width: 16px;
+      height: 16px;
+      padding: 0;
+      margin: 0 auto;
+      display: block;
     }
     .web-events-table tbody tr:nth-child(odd) { background: #ffffff; }
     .web-events-table tbody tr:nth-child(even) { background: #f8fafc; }
     .web-events-table button {
-      padding: 6px 10px;
+      padding: 6px 9px;
       font-size: 12px;
+      min-width: 58px;
     }
 
     .web-merge-toolbar {
@@ -727,7 +820,17 @@
       .side-actions { gap: 6px; }
       .side-actions button { padding: 6px 5px; font-size: 10px; }
       .web-events-filters { grid-template-columns: 1fr; }
-      .web-events-table { min-width: 940px; }
+      .web-events-table { width: 560px; min-width: 560px; }
+    }
+
+
+    /* Botones de Concentrados: ocultos por defecto aunque también usen la clase .subtabs.
+       Solo se muestran cuando render() agrega la clase .show en la pestaña Impuestos. */
+    .sticky-top-panel .impuestos-subtabs-sticky {
+      display: none !important;
+    }
+    .sticky-top-panel .impuestos-subtabs-sticky.show {
+      display: inline-flex !important;
     }
   </style>
 </head>
@@ -736,18 +839,26 @@
     <h1>Control de ingreso a evento</h1>
     <p class="lead">Lleva conteo manual de asistentes, clasifica tipos de acceso y calcula cargos fiscales y administrativos del evento.</p>
 
-    <div class="sticky-top-panel">
-      <div class="grid-summary">
-        <div class="card summary-half"><div class="inner"><div class="muted">Total personas</div><div class="big" id="sumTotalPersons">0</div></div></div>
-        <div class="card summary-half"><div class="inner"><div class="muted">Pagados</div><div class="big" id="sumPaying">0</div></div></div>
-        <div class="card"><div class="inner"><div class="muted">Ingreso bruto</div><div class="big" id="sumGross">$0.00</div></div></div>
-        <div class="card"><div class="inner"><div class="muted">Cargos totales</div><div class="big" id="sumCharges">$0.00</div></div></div>
-      </div>
+    <div class="sticky-top-panel" id="stickyTopPanel">
+      <button id="stickyHeaderToggle" class="sticky-header-toggle" type="button" aria-expanded="true" aria-controls="stickyHeaderBody">Ocultar ▲</button>
+      <div class="sticky-header-body" id="stickyHeaderBody">
+        <div class="grid-summary">
+          <div class="card summary-half"><div class="inner"><div class="muted">Total personas</div><div class="big" id="sumTotalPersons">0</div></div></div>
+          <div class="card summary-half"><div class="inner"><div class="muted">Pagados</div><div class="big" id="sumPaying">0</div></div></div>
+          <div class="card"><div class="inner"><div class="muted">Ingreso bruto</div><div class="big" id="sumGross">$0.00</div></div></div>
+          <div class="card"><div class="inner"><div class="muted">Cargos totales</div><div class="big" id="sumCharges">$0.00</div></div></div>
+        </div>
 
-      <div class="tabs">
-        <button id="tabEventosWeb" class="active">Eventos guardados Web</button>
-        <button id="tabContador">Detalle por localidad</button>
-        <button id="tabImpuestos">Impuestos</button>
+        <div class="tabs">
+          <button id="tabEventosWeb" class="active">Eventos guardados Web</button>
+          <button id="tabContador">Detalle por localidad</button>
+          <button id="tabImpuestos">Impuestos</button>
+        </div>
+
+        <div class="subtabs impuestos-subtabs-sticky" id="impuestosSubtabsSticky">
+          <button id="subLocalidades" class="active">Concentrados por localidad</button>
+          <button id="subTotales">Concentrados de totales</button>
+        </div>
       </div>
     </div>
 
@@ -862,17 +973,16 @@
               <table class="web-events-table">
                 <thead>
                   <tr>
-                    <th class="center">Unir</th>
-                    <th data-web-sort="recordId">ID / Evento</th>
-                    <th data-web-sort="updatedAt">Fecha de captura</th>
-                    <th class="right" data-web-sort="totalPersons">Personas</th>
-                    <th class="right" data-web-sort="grossIncome">Ingreso bruto</th>
-                    <th class="right" data-web-sort="totalCharges">Cargos</th>
-                    <th class="center">Cargar</th>
+                    <th class="center web-col-merge">Unir</th>
+                    <th class="web-col-id" data-web-sort="recordId">ID / Evento</th>
+                    <th class="web-col-date" data-web-sort="updatedAt">Fecha de captura</th>
+                    <th class="right web-col-money" data-web-sort="grossIncome">Ingreso bruto</th>
+                    <th class="right web-col-money" data-web-sort="totalCharges">Cargos</th>
+                    <th class="center web-col-load">Cargar</th>
                   </tr>
                 </thead>
                 <tbody id="webEventsTable">
-                  <tr><td colspan="7" class="web-events-empty">Presiona “Buscar eventos” para ver los registros guardados.</td></tr>
+                  <tr><td colspan="6" class="web-events-empty">Presiona “Buscar eventos” para ver los registros guardados.</td></tr>
                 </tbody>
               </table>
             </div>
@@ -936,11 +1046,6 @@
             <div class="grid-2">
               <div class="card"><div class="inner"><div class="muted">Ingreso bruto cobrado</div><div class="big" style="font-size:22px;" id="grossIncomeCard"></div></div></div>
               <div class="card"><div class="inner"><div class="muted">Valor cortesías para estado</div><div class="big" style="font-size:22px;" id="courtesyStateCard"></div></div></div>
-            </div>
-
-            <div class="subtabs">
-              <button id="subLocalidades" class="active">Concentrados por localidad</button>
-              <button id="subTotales">Concentrados de totales</button>
             </div>
 
             <div id="subViewLocalidades" class="stack">
@@ -1897,7 +2002,17 @@ Selecciona Cancelar para agregarlas a las existentes.`);
           .right { text-align:right; }
           .center { text-align:center; }
           @media print { body { margin:18px; } }
-        </style>
+      
+
+    /* Botones de Concentrados: ocultos por defecto aunque también usen la clase .subtabs.
+       Solo se muestran cuando render() agrega la clase .show en la pestaña Impuestos. */
+    .sticky-top-panel .impuestos-subtabs-sticky {
+      display: none !important;
+    }
+    .sticky-top-panel .impuestos-subtabs-sticky.show {
+      display: inline-flex !important;
+    }
+  </style>
       </head>
       <body>
         <h1>Reporte del evento</h1>
@@ -2501,7 +2616,7 @@ Selecciona Cancelar para agregarlas a las existentes.`);
 
       const sortedRecords = sortWebEventsRecords(state.webEventsRecords);
       if (!sortedRecords.length) {
-        tbody.innerHTML = '<tr><td colspan="7" class="web-events-empty">No se encontraron eventos con esos filtros.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" class="web-events-empty">No se encontraron eventos con esos filtros.</td></tr>';
         updateMergeWebButtonState();
         return;
       }
@@ -2511,13 +2626,12 @@ Selecciona Cancelar para agregarlas a las existentes.`);
         const isSelected = (state.webMergeSelectedRecordIds || []).includes(recordIdText);
         return `
           <tr class="web-event-row${isSelected ? ' merge-selected' : ''}" data-web-record-index="${index}">
-            <td class="center"><input type="checkbox" class="web-event-merge-check" data-web-merge-index="${index}" ${isSelected ? 'checked' : ''} aria-label="Seleccionar ${recordId} para unir" /></td>
-            <td><strong>${recordId}</strong></td>
-            <td>${escapeHtml(formatWebDate(record.updatedAt))}</td>
-            <td class="right">${n(record.totalPersons)}</td>
-            <td class="right">${formatMoney(record.grossIncome)}</td>
-            <td class="right">${formatMoney(record.totalCharges)}</td>
-            <td class="center"><button type="button" class="small active" data-web-load-index="${index}">Cargar</button></td>
+            <td class="center web-col-merge"><input type="checkbox" class="web-event-merge-check" data-web-merge-index="${index}" ${isSelected ? 'checked' : ''} aria-label="Seleccionar ${recordId} para unir" /></td>
+            <td class="web-cell-clip web-col-id" title="${recordId}"><strong>${recordId}</strong></td>
+            <td class="web-cell-clip web-col-date" title="${escapeHtml(formatWebDate(record.updatedAt))}">${escapeHtml(formatWebDate(record.updatedAt))}</td>
+            <td class="right web-col-money">${formatMoney(record.grossIncome)}</td>
+            <td class="right web-col-money">${formatMoney(record.totalCharges)}</td>
+            <td class="center web-col-load"><button type="button" class="small active" data-web-load-index="${index}">Cargar</button></td>
           </tr>
         `;
       }).join('');
@@ -3452,8 +3566,40 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       localStorage.setItem(`panelColapsable_${cleanId}`, 'cerrado');
     }
 
+    function bindStickyHeaderCollapse() {
+      const panel = $('stickyTopPanel') || document.querySelector('.sticky-top-panel');
+      const toggleBtn = $('stickyHeaderToggle');
+      if (!panel || !toggleBtn) return;
+
+      const storageKey = 'stickyHeaderColapsable';
+      const setCollapsed = (collapsed) => {
+        panel.classList.toggle('sticky-collapsed', Boolean(collapsed));
+        toggleBtn.textContent = collapsed ? 'Mostrar ▼' : 'Ocultar ▲';
+        toggleBtn.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+        localStorage.setItem(storageKey, collapsed ? 'cerrado' : 'abierto');
+        setTimeout(updateStickyOffsets, 0);
+      };
+
+      setCollapsed(localStorage.getItem(storageKey) === 'cerrado');
+      toggleBtn.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        setCollapsed(!panel.classList.contains('sticky-collapsed'));
+      });
+    }
+
+
+
+    function updateStickyOffsets() {
+      const stickyPanel = document.querySelector('.sticky-top-panel');
+      if (!stickyPanel) return;
+      const height = Math.ceil(stickyPanel.getBoundingClientRect().height || stickyPanel.offsetHeight || 112);
+      document.documentElement.style.setProperty('--sticky-main-height', `${height}px`);
+    }
+
 
     function render() {
+      updateStickyOffsets();
       const calc = compute();
       $('sumTotalPersons').textContent = formatWholeNumber(calc.totalPersons);
       $('sumPaying').textContent = formatWholeNumber(calc.payingPersons);
@@ -3475,12 +3621,16 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       $('tabContador').classList.toggle('active', state.activeTab === 'contador');
       $('tabImpuestos').classList.toggle('active', state.activeTab === 'impuestos');
       $('tabEventosWeb').classList.toggle('active', state.activeTab === 'eventosWeb');
+      if ($('impuestosSubtabsSticky')) {
+        $('impuestosSubtabsSticky').classList.toggle('show', state.activeTab === 'impuestos');
+      }
       $('subViewLocalidades').style.display = state.impuestosTab === 'localidades' ? '' : 'none';
       $('subViewTotales').style.display = state.impuestosTab === 'totales' ? '' : 'none';
       $('subLocalidades').classList.toggle('active', state.impuestosTab === 'localidades');
       $('subTotales').classList.toggle('active', state.impuestosTab === 'totales');
       renderCategories();
       renderConcentrados(calc);
+      updateStickyOffsets();
     }
 
     function escapeHtml(str) {
@@ -3508,6 +3658,7 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       hideManualContextMenu();
       hideWebEventsContextMenu();
     }, true);
+    window.addEventListener('resize', updateStickyOffsets);
 
     $('tabContador').onclick = () => { state.activeTab = 'contador'; render(); };
     $('tabImpuestos').onclick = () => { state.activeTab = 'impuestos'; render(); };
@@ -3520,8 +3671,10 @@ Selecciona Cancelar para agregarlas a las existentes.`);
     configureAllNumericInputs();
     bindAutoSaveBeforeExit();
     bindCollapsiblePanels();
+    bindStickyHeaderCollapse();
     updateMergeWebButtonState();
     syncInputsFromState();
+    updateStickyOffsets();
     render();
   </script>
 </body>
