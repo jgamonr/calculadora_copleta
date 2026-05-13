@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Control de ingreso a evento - concentrados visibles solo en impuestos 1.X</title>
+  <title>Control de ingreso a evento - concentrados visibles solo en impuestos</title>
   <style>
     :root {
       --bg: #f8fafc;
@@ -4443,10 +4443,36 @@ ${recordId}`, {
 
 
     const ACTION_PANEL_IDS = ['evento', 'web', 'archivos'];
+    const SYNCED_COLLAPSE_GROUPS = [
+      {
+        key: 'concentradosEstadoMunicipio',
+        ids: ['concentradoEstatal', 'concentradoMunicipal']
+      }
+    ];
     let syncingActionPanels = false;
+    let syncingSyncedPanels = false;
 
     function isActionPanelId(id) {
       return ACTION_PANEL_IDS.includes(String(id || '').trim());
+    }
+
+    function getSyncedCollapseGroup(id) {
+      const cleanId = String(id || '').trim();
+      return SYNCED_COLLAPSE_GROUPS.find(group => group.ids.includes(cleanId)) || null;
+    }
+
+    function setSyncedCollapseGroupOpen(group, open) {
+      if (!group || !Array.isArray(group.ids)) return;
+      syncingSyncedPanels = true;
+      group.ids.forEach(id => {
+        const panel = document.querySelector(`[data-collapse-id="${id}"]`);
+        if (!panel) return;
+        if (open) panel.setAttribute('open', '');
+        else panel.removeAttribute('open');
+        localStorage.setItem(`panelColapsable_${id}`, open ? 'abierto' : 'cerrado');
+      });
+      localStorage.setItem(`panelColapsableGrupo_${group.key}`, open ? 'abierto' : 'cerrado');
+      setTimeout(() => { syncingSyncedPanels = false; }, 0);
     }
 
     function setActionPanelsOpen(open) {
@@ -4476,6 +4502,19 @@ ${recordId}`, {
           panel.addEventListener('toggle', () => {
             if (syncingActionPanels) return;
             setActionPanelsOpen(panel.open);
+          });
+          return;
+        }
+
+        const syncedGroup = getSyncedCollapseGroup(id);
+        if (syncedGroup) {
+          const savedGroupState = localStorage.getItem(`panelColapsableGrupo_${syncedGroup.key}`);
+          const savedState = savedGroupState || localStorage.getItem(storageKey);
+          if (savedState === 'cerrado') panel.removeAttribute('open');
+          if (savedState === 'abierto') panel.setAttribute('open', '');
+          panel.addEventListener('toggle', () => {
+            if (syncingSyncedPanels) return;
+            setSyncedCollapseGroupOpen(syncedGroup, panel.open);
           });
           return;
         }
