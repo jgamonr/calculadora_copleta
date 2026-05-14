@@ -1,11 +1,11 @@
 // Service Worker - Control Eventos
-// Versión: 20260514_2015
+// Versión: 20260514_fullscreen_autosave_1min
 
-const CACHE_NAME = 'control-eventos-webfix-02';
+const CACHE_NAME = 'control-eventos-fullscreen-autosave-1min';
 const APP_SHELL = [
   "./",
-  "./index.html?v=20260514_2015",
-  "./manifest.webmanifest?v=20260514_2015"
+  "./index.html?v=fullscreen_autosave_1min",
+  "./manifest.webmanifest?v=fullscreen_autosave_1min"
 ];
 
 self.addEventListener("install", event => {
@@ -32,10 +32,10 @@ self.addEventListener("fetch", event => {
       fetch(req, { cache: "no-store" })
         .then(response => {
           const copy = response.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put("./index.html?v=20260514_2015", copy));
+          caches.open(CACHE_NAME).then(cache => cache.put("./index.html?v=fullscreen_autosave_1min", copy));
           return response;
         })
-        .catch(() => caches.match("./index.html?v=20260514_2015").then(r => r || caches.match("./index.html")))
+        .catch(() => caches.match("./index.html?v=fullscreen_autosave_1min").then(r => r || caches.match("./index.html")))
     );
     return;
   }

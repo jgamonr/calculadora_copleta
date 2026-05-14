@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <!-- Versión publicada: 20260514_1315 -->
+  <!-- Versión publicada: 20260514_fullscreen_autosave_1min -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Control de ingreso a evento - concentrados visibles solo en impuestos</title>
@@ -19,16 +19,24 @@
       --danger: #b91c1c;
     }
     * { box-sizing: border-box; }
+    html, body {
+      width: 100%;
+      min-height: 100%;
+    }
     body {
       margin: 0;
       font-family: Arial, Helvetica, sans-serif;
       background: var(--bg);
       color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
     }
     .wrap {
-      max-width: 1280px;
-      margin: 0 auto;
-      padding: 14px;
+      width: 100%;
+      max-width: none;
+      min-height: 100vh;
+      margin: 0;
+      padding: 10px;
     }
     h1 { margin: 0 0 6px; font-size: 28px; }
     p.lead { margin: 0 0 16px; color: var(--muted); }
@@ -1421,7 +1429,7 @@
     const LOCAL_INDEXEDDB_STORE = 'eventos';
     const LOCAL_INDEXEDDB_BACKUP_VERSION = 1;
     const LOCAL_AUTODRAFT_RECORD_ID = 'BORRADOR_AUTOMATICO';
-    const LOCAL_AUTODRAFT_INTERVAL_MS = 10000;
+    const LOCAL_AUTODRAFT_INTERVAL_MS = 60 * 1000;
     const LOCAL_AUTODRAFT_NOTICE_KEY = 'contadorEventosBorradorAvisado_v1';
     const LOCAL_TXT_FOLDER_HANDLE_DB = 'contadorEventosTxtFolderDb_v1';
     const LOCAL_TXT_FOLDER_HANDLE_STORE = 'handles';
@@ -2346,7 +2354,7 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       const reportHtml = `<!DOCTYPE html>
       <html lang="es">
       <head>
-  <!-- Versión publicada: 20260514_1315 -->
+  <!-- Versión publicada: 20260514_fullscreen_autosave_1min -->
         <meta charset="UTF-8">
         <title>Reporte del evento</title>
         <style>
