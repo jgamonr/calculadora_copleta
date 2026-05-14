@@ -751,6 +751,26 @@
     .web-events-table .web-col-persons { width: 72px; }
     .web-events-table .web-col-money { width: 104px; }
     .web-events-table .web-col-load { width: 58px; }
+    .web-events-table .web-col-delete { width: 66px; }
+    .local-indexeddb-actions {
+      display: none;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+      width: 100%;
+    }
+    .local-indexeddb-actions.show { display: flex; }
+    .local-indexeddb-actions button {
+      padding: 7px 10px;
+      font-size: 12px;
+      border-radius: 10px;
+    }
+    .local-storage-note {
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.3;
+      width: 100%;
+    }
     .web-events-table .web-cell-clip {
       overflow: hidden;
       text-overflow: ellipsis;
@@ -820,6 +840,29 @@
       color: var(--muted);
       text-align: center;
       padding: 14px;
+    }
+
+
+    .web-events-bulk-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      justify-content: flex-start;
+      flex-wrap: wrap;
+      background: #f8fafc;
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+      padding: 10px;
+      margin-top: 10px;
+    }
+    .web-events-bulk-actions button {
+      min-width: 120px;
+    }
+    .web-event-row {
+      cursor: pointer;
+    }
+    .web-event-row:hover {
+      background: #eff6ff !important;
     }
 
     .web-loading-backdrop {
@@ -1035,6 +1078,7 @@
 
         <div class="tabs">
           <button id="tabEventosWeb" class="active">Eventos guardados Web</button>
+          <button id="tabEventosLocal">Eventos guardados Local</button>
           <button id="tabContador">Detalle por localidad</button>
           <button id="tabImpuestos">Impuestos</button>
         </div>
@@ -1073,11 +1117,11 @@
               <span class="collapsible-chevron" aria-hidden="true">▾</span>
             </summary>
             <div class="inner stack">
-              <label class="memory-mode-line" title="Controla si los eventos guardados trabajan en Web o en la memoria local del navegador.">
+              <label class="memory-mode-line" title="Controla si los eventos guardados trabajan en Web o en la IndexedDB local del navegador.">
                 <input id="localMemorySaveMode" type="checkbox" data-local-memory-toggle />
-                <span>Eventos guardados en memoria local</span>
+                <span>Eventos guardados Local</span>
               </label>
-              <div class="memory-mode-note">Activado = guardar, cargar, buscar y unir eventos locales. Desactivado = eventos Web.</div>
+              <div class="memory-mode-note">Activado = guardar, cargar, buscar y unir eventos en IndexedDB. Desactivado = eventos Web.</div>
               <div class="side-actions">
                 <button id="saveSheetBtn" type="button" class="active">Guardar Web</button>
                 <button id="loadSheetBtn" type="button">Cargar Web</button>
@@ -1141,11 +1185,19 @@
           <div class="card web-events-panel"><div class="inner stack">
             <div><div class="section-title" id="webEventsSectionTitle">Eventos guardados en Web</div><div class="column-resize-hint">Arrastra el borde derecho de cada encabezado para modificar el ancho de columnas.</div></div>
             <div class="event-storage-mode-bar">
-              <label class="memory-mode-line" title="Controla si esta lista busca eventos guardados en Web o en la memoria local del navegador.">
+              <label class="memory-mode-line" title="Controla si esta lista busca eventos guardados en Web o en la IndexedDB local del navegador.">
                 <input id="localMemoryEventsMode" type="checkbox" data-local-memory-toggle />
-                <span id="eventSourceModeLabel">Buscar eventos en memoria local</span>
+                <span id="eventSourceModeLabel">Buscar eventos en IndexedDB local</span>
               </label>
               <span id="eventSourceBadge" class="event-source-badge">WEB</span>
+              <div class="local-indexeddb-actions" id="localIndexedDbActions">
+                <button id="saveLocalEventBtn" type="button" class="active">Guardar Local</button>
+                <button id="searchLocalEventBtn" type="button">Buscar Local</button>
+                <button id="exportLocalBackupBtn" type="button">Exportar respaldo local</button>
+                <button id="importLocalBackupBtn" type="button">Importar respaldo local</button>
+                <input id="importLocalBackupInput" type="file" accept=".json,application/json" style="display:none;" />
+                <div id="localStoragePersistentNote" class="local-storage-note">Los eventos locales se guardan en IndexedDB dentro de este navegador/dispositivo.</div>
+              </div>
               <div class="event-folder-controls">
                 <button id="selectEventsFolderListBtn" type="button">Seleccionar carpeta TXT</button>
                 <span id="eventsFolderStatusList" class="event-folder-status">Sin carpeta TXT seleccionada.</span>
@@ -1167,27 +1219,28 @@
               <button id="refreshWebEventsBtn" type="button" class="active">Buscar eventos</button>
             </div>
             <div class="note" id="webEventsSourceNote">Puedes elegir un evento guardado Web para cargar sus datos o marcar 2 o más eventos para unirlos en una sola tabla homologada.</div>
-            <div class="web-merge-toolbar">
-              <button id="mergeWebEventsBtn" type="button" class="active">Unir eventos seleccionados</button>
-              <span id="webMergeSelectedCount" class="web-merge-counter">Seleccionados: 0 · mínimo 2</span>
-            </div>
             <div class="web-events-table-wrap">
               <table class="web-events-table resizable-table" data-resizable-id="eventosTxtCarpeta">
                 <thead>
                   <tr>
-                    <th class="center web-col-merge">Unir</th>
+                    <th class="center web-col-merge">Sel.</th>
                     <th class="web-col-id" data-web-sort="recordId">ID / Evento</th>
                     <th class="web-col-date" data-web-sort="updatedAt">Fecha de captura</th>
                     <th class="right web-col-persons" data-web-sort="totalPersons">Personas</th>
                     <th class="right web-col-money" data-web-sort="grossIncome">Ingreso bruto</th>
                     <th class="right web-col-money" data-web-sort="totalCharges">Cargos</th>
-                    <th class="center web-col-load">Cargar</th>
                   </tr>
                 </thead>
                 <tbody id="webEventsTable">
-                  <tr><td colspan="7" class="web-events-empty">Presiona “Buscar eventos” para ver los registros guardados.</td></tr>
+                  <tr><td colspan="6" class="web-events-empty">Presiona “Buscar eventos” para ver los registros guardados.</td></tr>
                 </tbody>
               </table>
+            </div>
+            <div class="web-events-bulk-actions" id="webEventsBulkActions">
+              <button id="loadSelectedWebEventBtn" type="button">Cargar seleccionado</button>
+              <button id="mergeWebEventsBtn" type="button" class="active">Unir seleccionados</button>
+              <button id="deleteSelectedWebEventsBtn" type="button" class="danger">Eliminar seleccionados</button>
+              <span id="webMergeSelectedCount" class="web-merge-counter">Seleccionados: 0 · mínimo 2</span>
             </div>
           </div></div>
       </div>
@@ -1359,6 +1412,10 @@
     const FIXED_SHEET_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwn_NRpcDVdBhdxTgxn8njGAAKoFwMaN2x7nUV3JiArSy8zbGAr69HD90uwHlWqwW57/exec";
     const LOCAL_MEMORY_EVENTS_KEY = 'contadorEventosMemoriaLocal_v1';
     const LOCAL_MEMORY_MODE_KEY = 'guardarEnMemoriaLocal';
+    const LOCAL_INDEXEDDB_NAME = 'ControlEventosDB';
+    const LOCAL_INDEXEDDB_VERSION = 1;
+    const LOCAL_INDEXEDDB_STORE = 'eventos';
+    const LOCAL_INDEXEDDB_BACKUP_VERSION = 1;
     const LOCAL_TXT_FOLDER_HANDLE_DB = 'contadorEventosTxtFolderDb_v1';
     const LOCAL_TXT_FOLDER_HANDLE_STORE = 'handles';
     const LOCAL_TXT_FOLDER_HANDLE_KEY = 'eventosTxtFolderHandle';
@@ -1999,14 +2056,30 @@ Selecciona Cancelar para agregarlas a las existentes.`);
     function updateMergeWebButtonState() {
       const selected = Array.isArray(state.webMergeSelectedRecordIds) ? state.webMergeSelectedRecordIds : [];
       const countEl = $('webMergeSelectedCount');
-      const btn = $('mergeWebEventsBtn');
+      const mergeBtn = $('mergeWebEventsBtn');
+      const loadSelectedBtn = $('loadSelectedWebEventBtn');
+      const deleteSelectedBtn = $('deleteSelectedWebEventsBtn');
+      const loadBtn = $('loadSelectedWebEventBtn');
+      const deleteBtn = $('deleteSelectedWebEventsBtn');
       const sourceName = isLocalMemoryMode() ? getLocalEventsSourceName() : 'Web';
-      if (countEl) countEl.textContent = `Seleccionados: ${selected.length} · mínimo 2 · fuente: ${sourceName}`;
-      if (btn) {
-        btn.disabled = selected.length < 2;
-        btn.title = selected.length >= 2
+      if (countEl) countEl.textContent = `Seleccionados: ${selected.length} · cargar: 1 · unir: mínimo 2 · fuente: ${sourceName}`;
+      if (mergeBtn) {
+        mergeBtn.disabled = selected.length < 2;
+        mergeBtn.title = selected.length >= 2
           ? `Unir ${selected.length} eventos seleccionados desde ${sourceName}.`
-          : `Marca 2 o más eventos de ${sourceName} en la tabla para unirlos.`;
+          : `Selecciona 2 o más eventos de ${sourceName} en la tabla para unirlos.`;
+      }
+      if (loadBtn) {
+        loadBtn.disabled = selected.length !== 1;
+        loadBtn.title = selected.length === 1
+          ? `Cargar el evento seleccionado desde ${sourceName}.`
+          : 'Selecciona exactamente 1 evento para cargarlo.';
+      }
+      if (deleteBtn) {
+        deleteBtn.disabled = selected.length < 1;
+        deleteBtn.title = selected.length >= 1
+          ? `Eliminar ${selected.length} evento(s) seleccionado(s) desde ${sourceName}.`
+          : 'Selecciona uno o más eventos para eliminarlos.';
       }
     }
 
@@ -2053,7 +2126,7 @@ Selecciona Cancelar para agregarlas a las existentes.`);
         // iPad/iOS no permite usar FileSystemDirectoryHandle como Windows/Chrome.
         // En ese caso la carpeta se carga con el selector alterno y los TXT quedan
         // como File objects en selectedEventsTxtFolderFiles. La unión debe buscar
-        // también ahí; antes solo buscaba en memoria local y por eso decía que
+        // también ahí; antes solo buscaba en IndexedDB local y por eso decía que
         // no encontraba los TXT seleccionados.
         if (hasSelectedEventsTxtFolder()) {
           return getTxtFolderRecord(recordId).then(record => {
@@ -2062,13 +2135,10 @@ Selecciona Cancelar para agregarlas a las existentes.`);
           });
         }
 
-        const record = getLocalMemoryRecord(recordId);
-        if (!record) return Promise.reject(new Error(`No se encontró en memoria local el evento: ${recordId}`));
-        try {
-          return Promise.resolve(normalizeWebEventForMerge(recordId, record.data || record));
-        } catch (error) {
-          return Promise.reject(error);
-        }
+        return getLocalEvent(recordId).then(record => {
+          if (!record) throw new Error(`No se encontró en IndexedDB local el evento: ${recordId}`);
+          return normalizeWebEventForMerge(recordId, record.data || record);
+        });
       }
       const url = normalizeSheetUrl();
       recordId = String(recordId || '').trim();
@@ -2506,7 +2576,7 @@ Selecciona Cancelar para agregarlas a las existentes.`);
     }
 
     function getLocalEventsSourceName() {
-      return hasSelectedEventsTxtFolder() ? 'carpeta TXT' : 'memoria local';
+      return hasSelectedEventsTxtFolder() ? 'carpeta TXT' : 'IndexedDB local';
     }
 
     function getSelectedEventsFolderName() {
@@ -2524,7 +2594,7 @@ Selecciona Cancelar para agregarlas a las existentes.`);
         ? `Carpeta TXT seleccionada: ${folderName}${readOnly ? ' (modo lectura)' : ''}`
         : (folderName
           ? `Última carpeta usada: ${folderName}. Vuelve a seleccionarla para autorizar la búsqueda.`
-          : (supported ? 'Sin carpeta TXT seleccionada. Se usará memoria local del navegador.' : 'Sin carpeta TXT seleccionada. Usa el selector alterno de carpeta para leer archivos TXT.'));
+          : (supported ? 'Sin carpeta TXT seleccionada. Se usará IndexedDB local del navegador.' : 'Sin carpeta TXT seleccionada. Usa el selector alterno de carpeta para leer archivos TXT.'));
 
       ['eventsFolderStatus', 'eventsFolderStatusList'].forEach(id => {
         const el = $(id);
@@ -2543,12 +2613,16 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       const loadBtn = $('loadSheetBtn');
       const refreshBtn = $('refreshWebEventsBtn');
       const mergeBtn = $('mergeWebEventsBtn');
+      const loadSelectedBtn = $('loadSelectedWebEventBtn');
+      const deleteSelectedBtn = $('deleteSelectedWebEventsBtn');
       const status = $('sheetStatus');
       const sectionTitle = $('webEventsSectionTitle');
       const sourceNote = $('webEventsSourceNote');
       const modeLabel = $('eventSourceModeLabel');
       const sourceBadge = $('eventSourceBadge');
       const tabEventos = $('tabEventosWeb');
+      const tabEventosLocal = $('tabEventosLocal');
+      const localActions = $('localIndexedDbActions');
 
       getLocalMemoryModeToggles().forEach(input => { input.checked = localMode; });
 
@@ -2561,18 +2635,22 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       setButtonText(saveBtn, localMode ? (folderSelected ? 'Guardar TXT carpeta' : 'Guardar Local') : 'Guardar Web');
       setButtonText(loadBtn, localMode ? (folderSelected ? 'Cargar desde carpeta' : 'Cargar Local') : 'Cargar Web');
       setButtonText(refreshBtn, localMode ? (folderSelected ? 'Buscar TXT' : 'Buscar locales') : 'Buscar Web');
-      setButtonText(mergeBtn, localMode ? `Unir ${folderSelected ? 'TXT' : 'locales'} seleccionados` : 'Unir eventos Web seleccionados');
+      setButtonText(mergeBtn, localMode ? `Unir ${folderSelected ? 'TXT' : 'locales'}` : 'Unir Web');
+      setButtonText(loadSelectedBtn, localMode ? `Cargar ${folderSelected ? 'TXT' : 'local'}` : 'Cargar Web');
+      setButtonText(deleteSelectedBtn, localMode ? `Eliminar ${folderSelected ? 'TXT' : 'locales'}` : 'Eliminar Web');
 
       if (sectionTitle) sectionTitle.textContent = localMode ? `Eventos guardados en ${localSourceName}` : 'Eventos guardados en Web';
-      if (tabEventos) tabEventos.textContent = localMode ? (folderSelected ? 'Eventos TXT' : 'Eventos guardados Local') : 'Eventos guardados Web';
+      if (tabEventos) tabEventos.textContent = 'Eventos guardados Web';
+      if (tabEventosLocal) tabEventosLocal.textContent = folderSelected && localMode ? 'Eventos TXT' : 'Eventos guardados Local';
+      if (localActions) localActions.classList.toggle('show', localMode && !folderSelected);
       if (sourceNote) {
         sourceNote.textContent = localMode
           ? (folderSelected
-            ? 'La lista busca archivos .txt dentro de la carpeta seleccionada. Puedes cargar uno o marcar 2 o más para unirlos.'
-            : 'La lista busca eventos guardados en la memoria local de este navegador. Puedes cargar uno o marcar 2 o más para unirlos.')
-          : 'La lista busca eventos guardados en Web. Puedes cargar uno o marcar 2 o más para unirlos.';
+            ? 'La lista busca archivos .txt dentro de la carpeta seleccionada. Selecciona filas y usa los botones debajo de la tabla para cargar, unir o eliminar.'
+            : 'La lista busca eventos guardados en IndexedDB dentro de este navegador/dispositivo. Selecciona filas y usa los botones debajo de la tabla para cargar, unir o eliminar.')
+          : 'La lista busca eventos guardados en Web. Selecciona filas y usa los botones debajo de la tabla para cargar, unir o eliminar.';
       }
-      if (modeLabel) modeLabel.textContent = localMode ? `Usando ${localSourceName}` : 'Cambiar búsqueda a memoria local / carpeta TXT';
+      if (modeLabel) modeLabel.textContent = localMode ? `Usando ${localSourceName}` : 'Cambiar búsqueda a IndexedDB local / carpeta TXT';
       if (sourceBadge) {
         sourceBadge.textContent = localMode ? (folderSelected ? 'TXT' : 'LOCAL') : 'WEB';
         sourceBadge.classList.toggle('local', localMode && !folderSelected);
@@ -2591,13 +2669,14 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       updateStorageModeLabels();
       const tbody = $('webEventsTable');
       if (tbody) {
-        tbody.innerHTML = `<tr><td colspan="7" class="web-events-empty">${state.useLocalMemorySave ? 'Presiona “Buscar locales” para ver eventos guardados en este navegador.' : 'Presiona “Buscar Web” para ver los registros guardados en Web.'}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" class="web-events-empty">${state.useLocalMemorySave ? 'Presiona “Buscar locales” para ver eventos guardados en este navegador.' : 'Presiona “Buscar Web” para ver los registros guardados en Web.'}</td></tr>`;
       }
       state.webEventsRecords = [];
       state.webMergeSelectedRecordIds = [];
       updateMergeWebButtonState();
       const localSourceName = getLocalEventsSourceName();
       setSheetStatus(state.useLocalMemorySave ? `Modo ${localSourceName} activo. Eventos guardados buscará, cargará, unirá y guardará según la fuente local disponible.` : 'Modo Web activo. Eventos guardados buscará, cargará, unirá y guardará en la base Web.');
+      if (state.useLocalMemorySave && !hasSelectedEventsTxtFolder()) requestPersistentLocalStorage();
     }
 
     function getLocalMemoryRecords() {
@@ -2605,13 +2684,342 @@ Selecciona Cancelar para agregarlas a las existentes.`);
         const parsed = JSON.parse(localStorage.getItem(LOCAL_MEMORY_EVENTS_KEY) || '[]');
         return Array.isArray(parsed) ? parsed : [];
       } catch (error) {
-        console.warn('No se pudo leer la memoria local de eventos.', error);
+        console.warn('No se pudo leer la IndexedDB local de eventos.', error);
         return [];
       }
     }
 
     function setLocalMemoryRecords(records) {
       localStorage.setItem(LOCAL_MEMORY_EVENTS_KEY, JSON.stringify(Array.isArray(records) ? records : []));
+    }
+
+
+    function openLocalDB() {
+      return new Promise((resolve, reject) => {
+        if (!('indexedDB' in window)) {
+          reject(new Error('Este navegador no tiene IndexedDB disponible.'));
+          return;
+        }
+        const request = indexedDB.open(LOCAL_INDEXEDDB_NAME, LOCAL_INDEXEDDB_VERSION);
+        request.onupgradeneeded = () => {
+          const db = request.result;
+          let store;
+          if (!db.objectStoreNames.contains(LOCAL_INDEXEDDB_STORE)) {
+            store = db.createObjectStore(LOCAL_INDEXEDDB_STORE, { keyPath: 'recordId' });
+          } else {
+            store = request.transaction.objectStore(LOCAL_INDEXEDDB_STORE);
+          }
+          const indexes = [
+            ['eventName', 'eventName'],
+            ['updatedAt', 'updatedAt'],
+            ['createdAt', 'createdAt'],
+            ['totalPersons', 'totalPersons'],
+            ['grossIncome', 'grossIncome']
+          ];
+          indexes.forEach(([name, keyPath]) => {
+            if (!store.indexNames.contains(name)) store.createIndex(name, keyPath, { unique: false });
+          });
+        };
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error || new Error('No se pudo abrir IndexedDB.'));
+      });
+    }
+
+    function withLocalStore(mode, callback) {
+      return openLocalDB().then(db => new Promise((resolve, reject) => {
+        const tx = db.transaction(LOCAL_INDEXEDDB_STORE, mode);
+        const store = tx.objectStore(LOCAL_INDEXEDDB_STORE);
+        let result;
+        tx.oncomplete = () => { db.close(); resolve(result); };
+        tx.onerror = () => { const err = tx.error || new Error('Error en IndexedDB.'); db.close(); reject(err); };
+        try { result = callback(store); } catch (error) { tx.abort(); reject(error); }
+      }));
+    }
+
+    function requestToPromise(request) {
+      return new Promise((resolve, reject) => {
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error || new Error('Error en operación IndexedDB.'));
+      });
+    }
+
+    async function requestPersistentLocalStorage() {
+      const note = $('localStoragePersistentNote');
+      try {
+        if (!navigator.storage || !navigator.storage.persist) {
+          if (note) note.textContent = 'Los eventos locales se guardan en IndexedDB dentro de este navegador/dispositivo.';
+          return false;
+        }
+        const persisted = await navigator.storage.persist();
+        if (note) {
+          note.textContent = persisted
+            ? 'Almacenamiento local persistente activo. Los eventos quedan guardados en IndexedDB de este dispositivo.'
+            : 'Los eventos se guardan en IndexedDB. Haz respaldos periódicos por si el navegador libera espacio.';
+        }
+        return persisted;
+      } catch (error) {
+        if (note) note.textContent = 'Los eventos se guardan en IndexedDB. Haz respaldos periódicos.';
+        return false;
+      }
+    }
+
+    function slugLocalRecordId(value) {
+      const clean = String(value || 'Evento')
+        .trim()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-zA-Z0-9_\- ]/g, '')
+        .replace(/\s+/g, '_')
+        .replace(/_+/g, '_')
+        .replace(/^_+|_+$/g, '');
+      return clean || `Evento_${Date.now()}`;
+    }
+
+    async function getLocalEvent(recordId) {
+      const cleanId = String(recordId || '').trim();
+      if (!cleanId) return null;
+      return withLocalStore('readonly', store => requestToPromise(store.get(cleanId)));
+    }
+
+    async function getAllLocalEvents() {
+      return withLocalStore('readonly', store => requestToPromise(store.getAll())).then(records => Array.isArray(records) ? records : []);
+    }
+
+    async function saveLocalEvent(payload, options = {}) {
+      const { overwrite = true } = options;
+      if (!payload || !payload.recordId) throw new Error('No se puede guardar sin ID de evento.');
+      const cleanId = String(payload.recordId || '').trim();
+      const existing = await getLocalEvent(cleanId);
+      if (existing && !overwrite) throw new Error(`Ya existe un evento local con el ID: ${cleanId}`);
+      const summary = payload.summary || {};
+      const now = payload.updatedAt || new Date().toISOString();
+      const data = { ...(payload.data || getSerializableState()) };
+      data.recordId = cleanId;
+      data.createdAt = existing && existing.createdAt ? existing.createdAt : (payload.createdAt || now);
+      data.updatedAt = now;
+      const record = {
+        recordId: cleanId,
+        eventName: payload.eventName || data.eventName || cleanId,
+        createdAt: data.createdAt,
+        updatedAt: now,
+        totalPersons: Number(summary.totalPersons || 0),
+        payingPersons: Number(summary.payingPersons || 0),
+        courtesyPersons: Number(summary.courtesyPersons || 0),
+        grossIncome: Number(summary.grossIncome || 0),
+        totalCharges: Number(summary.totalCharges || 0),
+        summary,
+        data,
+        indexedDBLocal: true,
+        localMemory: true
+      };
+      await withLocalStore('readwrite', store => store.put(record));
+      return record;
+    }
+
+    async function deleteLocalEvent(recordId) {
+      const cleanId = String(recordId || '').trim();
+      if (!cleanId) return false;
+      const existing = await getLocalEvent(cleanId);
+      if (!existing) return false;
+      await withLocalStore('readwrite', store => store.delete(cleanId));
+      return true;
+    }
+
+    async function searchLocalEvents(filters = {}) {
+      const records = await getAllLocalEvents();
+      return filterEventRecordsForList(records, filters.idFilter || '', filters.dateFrom || '', filters.dateTo || '');
+    }
+
+    function buildLocalEventPayloadFromCurrent(recordId) {
+      const calc = compute();
+      const data = getSerializableState();
+      data.recordId = recordId;
+      data.updatedAt = new Date().toISOString();
+      return {
+        action: 'saveLocal',
+        recordId,
+        updatedAt: data.updatedAt,
+        eventName: state.eventName || recordId,
+        summary: {
+          totalPersons: calc.totalPersons,
+          payingPersons: calc.payingPersons,
+          courtesyPersons: calc.courtesyPersons,
+          grossIncome: calc.grossIncome,
+          totalCharges: calc.totalCharges
+        },
+        data
+      };
+    }
+
+    async function getCurrentLocalRecordIdForSave() {
+      const eventInput = $('eventName');
+      if (eventInput) state.eventName = eventInput.value.trim();
+      if (!state.eventName) {
+        setSheetStatus('Captura el nombre del evento para guardar localmente.', true);
+        if (eventInput) eventInput.focus();
+        return '';
+      }
+      const existingId = String(state.sheetRecordId || '').trim();
+      if (existingId && await getLocalEvent(existingId)) return existingId;
+      return slugLocalRecordId(state.eventName);
+    }
+
+    async function saveLocalEventFromCurrent() {
+      if (isWebSaveInProgress) return;
+      try {
+        if (document.activeElement && document.activeElement.dataset && document.activeElement.dataset.kind) {
+          applyManualTableFieldValue(document.activeElement);
+        }
+        const recordId = await getCurrentLocalRecordIdForSave();
+        if (!recordId) return;
+        isWebSaveInProgress = true;
+        setWebEventsLoading(true, 'Guardando el evento en IndexedDB local.', 'Guardando Local', 'save');
+        const existed = Boolean(await getLocalEvent(recordId));
+        const payload = buildLocalEventPayloadFromCurrent(recordId);
+        const record = await saveLocalEvent(payload, { overwrite: true });
+        state.sheetRecordId = record.recordId;
+        localStorage.setItem('sheetRecordId', record.recordId);
+        markWebSaveBaseline();
+        await requestPersistentLocalStorage();
+        setSheetStatus(existed ? `Evento local actualizado: ${record.recordId}` : `Evento local guardado: ${record.recordId}`);
+        showWebMessage(existed ? `Evento local actualizado:\n${record.recordId}` : `Evento guardado localmente en IndexedDB:\n${record.recordId}`, { title: 'Guardar Local', autoClose: 2600 });
+        if (state.activeTab === 'eventosWeb' && isLocalMemoryMode() && !hasSelectedEventsTxtFolder()) await refreshWebEventsList();
+      } catch (error) {
+        console.error(error);
+        const msg = error && error.message ? error.message : 'No se pudo guardar el evento local.';
+        setSheetStatus(msg, true);
+        showWebMessage(msg, { title: 'Error Local', isError: true, autoClose: 6000 });
+      } finally {
+        isWebSaveInProgress = false;
+        setWebEventsLoading(false);
+      }
+    }
+
+    async function loadLocalEventById(recordId) {
+      recordId = String(recordId || '').trim();
+      if (!recordId) return;
+      try {
+        const record = await getLocalEvent(recordId);
+        if (!record) {
+          setSheetStatus(`No se encontró el evento local: ${recordId}`, true);
+          return;
+        }
+        loadSerializableState(record.data || record);
+        state.sheetRecordId = recordId;
+        localStorage.setItem('sheetRecordId', recordId);
+        syncInputsFromState();
+        activateDetallePorLocalidad();
+        markWebSaveBaseline();
+        setSheetStatus(`Evento cargado desde IndexedDB local: ${recordId}`);
+        showWebMessage(`Evento local cargado:\n${recordId}`, { title: 'Cargar Local', autoClose: 2200 });
+      } catch (error) {
+        const msg = error && error.message ? error.message : 'No se pudo cargar el evento local.';
+        setSheetStatus(msg, true);
+        showWebMessage(msg, { title: 'Error Local', isError: true, autoClose: 6000 });
+      }
+    }
+
+    async function deleteLocalEventByIdIndexed(recordId, options = {}) {
+      recordId = String(recordId || '').trim();
+      if (!recordId) return;
+      const ok = await deleteLocalEvent(recordId);
+      if (!ok) {
+        setSheetStatus(`No se encontró el evento local: ${recordId}`, true);
+        return;
+      }
+      if (!options.silent) setSheetStatus(`Evento local eliminado: ${recordId}`);
+      if (!options.skipRefresh) await refreshWebEventsList();
+    }
+
+    async function exportLocalBackup() {
+      try {
+        const events = await getAllLocalEvents();
+        const backup = {
+          app: 'Control de ingreso a evento',
+          storage: 'IndexedDB',
+          version: LOCAL_INDEXEDDB_BACKUP_VERSION,
+          exportedAt: new Date().toISOString(),
+          events
+        };
+        const date = new Date().toISOString().slice(0, 10);
+        const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `respaldo_eventos_locales_${date}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        setSheetStatus(`Respaldo local exportado. Eventos: ${events.length}`);
+      } catch (error) {
+        const msg = error && error.message ? error.message : 'No se pudo exportar el respaldo local.';
+        setSheetStatus(msg, true);
+        showWebMessage(msg, { title: 'Error de respaldo', isError: true, autoClose: 6000 });
+      }
+    }
+
+    async function importLocalBackup(file) {
+      if (!file) return;
+      try {
+        const text = await readTextFile(file);
+        const parsed = JSON.parse(String(text || '{}'));
+        const events = Array.isArray(parsed.events) ? parsed.events : (Array.isArray(parsed) ? parsed : []);
+        if (!events.length) throw new Error('El respaldo no contiene eventos compatibles.');
+        let replaceMode = 'ask';
+        let imported = 0;
+        let skipped = 0;
+        let copied = 0;
+        for (const event of events) {
+          if (!event || !event.recordId) { skipped++; continue; }
+          let record = { ...event };
+          const existing = await getLocalEvent(record.recordId);
+          if (existing) {
+            if (replaceMode === 'ask') {
+              const choice = await showWebMessage(`El evento local ya existe:\n${record.recordId}\n\nAceptar = reemplazar todos los duplicados.\nCancelar = guardar duplicados como copia.`, {
+                title: 'Importar respaldo local',
+                confirm: true,
+                okText: 'Reemplazar',
+                cancelText: 'Guardar como copia',
+                autoClose: 0
+              });
+              replaceMode = choice ? 'replace' : 'copy';
+            }
+            if (replaceMode === 'copy') {
+              const base = getSequencedBaseName(record.recordId) || record.recordId;
+              let nextId = '';
+              for (let i = 2; i <= 999; i++) {
+                const candidate = `${base} (${i})`;
+                if (!(await getLocalEvent(candidate))) { nextId = candidate; break; }
+              }
+              record.recordId = nextId || `${base} (${Date.now()})`;
+              if (record.data) record.data.recordId = record.recordId;
+              copied++;
+            }
+          }
+          await saveLocalEvent({
+            recordId: record.recordId,
+            eventName: record.eventName || record.recordId,
+            createdAt: record.createdAt,
+            updatedAt: record.updatedAt || new Date().toISOString(),
+            summary: record.summary || {
+              totalPersons: record.totalPersons || 0,
+              payingPersons: record.payingPersons || 0,
+              courtesyPersons: record.courtesyPersons || 0,
+              grossIncome: record.grossIncome || 0,
+              totalCharges: record.totalCharges || 0
+            },
+            data: record.data || record
+          }, { overwrite: true });
+          imported++;
+        }
+        await refreshWebEventsList();
+        const msg = `Respaldo importado correctamente.\nEventos importados: ${imported}\nCopias creadas: ${copied}\nOmitidos: ${skipped}`;
+        setSheetStatus(msg);
+        showWebMessage(msg, { title: 'Importar respaldo local', autoClose: 6000 });
+      } catch (error) {
+        const msg = error && error.message ? error.message : 'No se pudo importar el respaldo local.';
+        setSheetStatus(msg, true);
+        showWebMessage(msg, { title: 'Error de importación', isError: true, autoClose: 6000 });
+      }
     }
 
     function openTxtFolderHandleDb() {
@@ -2938,7 +3346,7 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       }
     }
 
-    async function deleteTxtFolderRecordById(recordId) {
+    async function deleteTxtFolderRecordById(recordId, options = {}) {
       try {
         const record = await getTxtFolderRecord(recordId);
         if (!record || !record.fileName) {
@@ -2948,143 +3356,55 @@ Selecciona Cancelar para agregarlas a las existentes.`);
         const allowed = await verifyDirectoryPermission(selectedEventsTxtDirectoryHandle, true);
         if (!allowed) throw new Error('No hay permiso para borrar archivos de la carpeta TXT seleccionada.');
         await selectedEventsTxtDirectoryHandle.removeEntry(record.fileName);
-        setSheetStatus(`TXT borrado de la carpeta seleccionada: ${record.fileName}`);
-        refreshWebEventsList();
+        if (!options.silent) setSheetStatus(`TXT borrado de la carpeta seleccionada: ${record.fileName}`);
+        if (!options.skipRefresh) refreshWebEventsList();
       } catch (error) {
         console.error(error);
         setSheetStatus(error && error.message ? error.message : 'No se pudo borrar el TXT de la carpeta seleccionada.', true);
       }
     }
 
-    function getLocalMemoryRecord(recordId) {
-      const cleanId = String(recordId || '').trim();
-      return getLocalMemoryRecords().find(record => String(record.recordId || record.eventName || '').trim() === cleanId) || null;
+    async function getLocalMemoryRecord(recordId) {
+      return getLocalEvent(recordId);
     }
 
-    function checkExistingLocalRecord(recordId) {
-      return Boolean(getLocalMemoryRecord(recordId));
+    async function checkExistingLocalRecord(recordId) {
+      return Boolean(await getLocalEvent(recordId));
     }
 
-    function getAvailableLocalRecordId(desiredRecordId) {
+    async function getAvailableLocalRecordId(desiredRecordId) {
       const originalId = String(desiredRecordId || '').trim();
-      if (!checkExistingLocalRecord(originalId)) {
+      if (!(await checkExistingLocalRecord(originalId))) {
         return { recordId: originalId, wasSequenced: false };
       }
-
       const baseName = getSequencedBaseName(originalId) || originalId;
       for (let index = 2; index <= 999; index++) {
         const candidate = `${baseName} (${index})`;
-        if (!checkExistingLocalRecord(candidate)) {
+        if (!(await checkExistingLocalRecord(candidate))) {
           return { recordId: candidate, wasSequenced: true };
         }
       }
-
       return { recordId: `${baseName} (${Date.now()})`, wasSequenced: true };
     }
 
-    function savePayloadToLocalMemory(payload, options = {}) {
-      const { overwrite = true } = options;
-      if (!payload || !payload.recordId) throw new Error('No se puede guardar sin ID de evento.');
-      const records = getLocalMemoryRecords();
-      const cleanId = String(payload.recordId || '').trim();
-      const existingIndex = records.findIndex(record => String(record.recordId || record.eventName || '').trim() === cleanId);
-      const existing = existingIndex >= 0 ? records[existingIndex] : null;
-      const summary = payload.summary || {};
-      const record = {
-        recordId: cleanId,
-        eventName: payload.eventName || cleanId,
-        createdAt: existing && existing.createdAt ? existing.createdAt : new Date().toISOString(),
-        updatedAt: payload.updatedAt || new Date().toISOString(),
-        totalPersons: summary.totalPersons || 0,
-        payingPersons: summary.payingPersons || 0,
-        courtesyPersons: summary.courtesyPersons || 0,
-        grossIncome: summary.grossIncome || 0,
-        totalCharges: summary.totalCharges || 0,
-        summary,
-        data: payload.data || getSerializableState(),
-        localMemory: true
-      };
-
-      if (existingIndex >= 0 && overwrite) {
-        records[existingIndex] = record;
-      } else {
-        records.push(record);
-      }
-      setLocalMemoryRecords(records);
-      return record;
+    async function savePayloadToLocalMemory(payload, options = {}) {
+      return saveLocalEvent(payload, options);
     }
 
     async function saveToLocalMemoryFromCurrent() {
-      if (isWebSaveInProgress) return;
-      try {
-        if (document.activeElement && document.activeElement.dataset && document.activeElement.dataset.kind) {
-          applyManualTableFieldValue(document.activeElement);
-        }
-
-        const requestedRecordId = normalizeSheetRecordId();
-        if (!requestedRecordId) return;
-
-        if (!hasUnsavedWebChanges()) {
-          setSheetStatus('No hay cambios nuevos por guardar en memoria local.');
-          return;
-        }
-
-        isWebSaveInProgress = true;
-        setWebEventsLoading(true, 'Guardando la información en memoria local del navegador.', 'Guardando memoria local', 'save');
-        const available = getAvailableLocalRecordId(requestedRecordId);
-        if (available.wasSequenced) {
-          setCurrentEventRecordId(available.recordId);
-          render();
-          setSheetStatus(`El evento ya existía en memoria local. Se guardará como: ${available.recordId}`);
-        }
-
-        const payload = getSheetPayload();
-        if (!payload.recordId) return;
-        payload.localMemory = true;
-        savePayloadToLocalMemory(payload, { overwrite: true });
-        markWebSaveBaseline();
-        setSheetStatus(available.wasSequenced ? `Datos guardados en memoria local como: ${available.recordId}` : 'Datos guardados en memoria local.');
-      } catch (error) {
-        console.error(error);
-        setSheetStatus(error && error.message ? error.message : 'No se pudo guardar en memoria local.', true);
-      } finally {
-        isWebSaveInProgress = false;
-        setWebEventsLoading(false);
-      }
+      return saveLocalEventFromCurrent();
     }
 
-    function loadLocalMemoryRecordById(recordId) {
-      recordId = String(recordId || '').trim();
-      if (!recordId) return;
-      const record = getLocalMemoryRecord(recordId);
-      if (!record) {
-        setSheetStatus(`No se encontró el evento en memoria local: ${recordId}`, true);
-        return;
-      }
-      loadSerializableState(record.data || {});
-      state.sheetRecordId = recordId;
-      localStorage.setItem('sheetRecordId', recordId);
-      syncInputsFromState();
-      activateDetallePorLocalidad();
-      markWebSaveBaseline();
-      setSheetStatus(`Evento cargado desde memoria local: ${recordId}`);
+    async function loadLocalMemoryRecordById(recordId) {
+      return loadLocalEventById(recordId);
     }
 
-    function getLocalMemoryRecordsForList(idFilter = '', dateFrom = '', dateTo = '') {
-      return filterEventRecordsForList(getLocalMemoryRecords(), idFilter, dateFrom, dateTo);
+    async function getLocalMemoryRecordsForList(idFilter = '', dateFrom = '', dateTo = '') {
+      return searchLocalEvents({ idFilter, dateFrom, dateTo });
     }
 
-    function deleteLocalMemoryRecordById(recordId) {
-      recordId = String(recordId || '').trim();
-      const records = getLocalMemoryRecords();
-      const next = records.filter(record => String(record.recordId || record.eventName || '').trim() !== recordId);
-      if (next.length === records.length) {
-        setSheetStatus(`No se encontró el evento en memoria local: ${recordId}`, true);
-        return;
-      }
-      setLocalMemoryRecords(next);
-      setSheetStatus(`Evento borrado de memoria local: ${recordId}`);
-      refreshWebEventsList();
+    async function deleteLocalMemoryRecordById(recordId, options = {}) {
+      return deleteLocalEventByIdIndexed(recordId, options);
     }
 
     function setSheetStatus(message, isError = false) {
@@ -3115,7 +3435,7 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       if (eventInput) state.eventName = eventInput.value.trim();
       const recordId = String(state.eventName || '').trim();
       if (!recordId) {
-        setSheetStatus(isLocalMemoryMode() ? 'Captura el nombre del evento para guardar o cargar en memoria local.' : 'Captura el nombre del evento para guardar o cargar en Web.', true);
+        setSheetStatus(isLocalMemoryMode() ? 'Captura el nombre del evento para guardar o cargar en IndexedDB local.' : 'Captura el nombre del evento para guardar o cargar en Web.', true);
         if (eventInput) eventInput.focus();
         return '';
       }
@@ -3532,7 +3852,7 @@ Selecciona Cancelar para agregarlas a las existentes.`);
 
       const sortedRecords = sortWebEventsRecords(state.webEventsRecords);
       if (!sortedRecords.length) {
-        tbody.innerHTML = '<tr><td colspan="7" class="web-events-empty">No se encontraron eventos con esos filtros.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" class="web-events-empty">No se encontraron eventos con esos filtros.</td></tr>';
         updateMergeWebButtonState();
         return;
       }
@@ -3541,14 +3861,13 @@ Selecciona Cancelar para agregarlas a las existentes.`);
         const recordId = escapeHtml(recordIdText);
         const isSelected = (state.webMergeSelectedRecordIds || []).includes(recordIdText);
         return `
-          <tr class="web-event-row${isSelected ? ' merge-selected' : ''}" data-web-record-index="${index}">
-            <td class="center web-col-merge"><input type="checkbox" class="web-event-merge-check" data-web-merge-index="${index}" ${isSelected ? 'checked' : ''} aria-label="Seleccionar ${recordId} para unir" /></td>
+          <tr class="web-event-row${isSelected ? ' merge-selected' : ''}" data-web-record-index="${index}" data-web-record-id="${recordId}">
+            <td class="center web-col-merge"><input type="checkbox" class="web-event-merge-check" data-web-merge-index="${index}" ${isSelected ? 'checked' : ''} aria-label="Seleccionar ${recordId}" /></td>
             <td class="web-cell-clip web-col-id" title="${recordId}"><strong>${recordId}</strong></td>
             <td class="web-cell-clip web-col-date" title="${escapeHtml(formatWebDate(record.updatedAt))}">${escapeHtml(formatWebDate(record.updatedAt))}</td>
             <td class="right web-col-persons">${formatWholeNumber(getWebRecordTotalPersons(record))}</td>
             <td class="right web-col-money">${formatMoney(record.grossIncome)}</td>
             <td class="right web-col-money">${formatMoney(record.totalCharges)}</td>
-            <td class="center web-col-load"><button type="button" class="small active" data-web-load-index="${index}">Cargar</button></td>
           </tr>
         `;
       }).join('');
@@ -3559,10 +3878,14 @@ Selecciona Cancelar para agregarlas a las existentes.`);
         };
         input.onclick = (e) => e.stopPropagation();
       });
-      tbody.querySelectorAll('[data-web-load-index]').forEach(btn => {
-        btn.onclick = () => {
-          const record = sortedRecords[n(btn.dataset.webLoadIndex)];
-          loadWebRecordById(record && (record.recordId || record.eventName));
+      tbody.querySelectorAll('.web-event-row').forEach(row => {
+        row.onclick = (e) => {
+          if (e.target.closest('input, textarea, select, button, label')) return;
+          const index = n(row.dataset.webRecordIndex);
+          const record = sortedRecords[index];
+          const recordId = getWebRecordId(record);
+          const selected = !(state.webMergeSelectedRecordIds || []).includes(recordId);
+          toggleWebMergeSelection(recordId, selected);
         };
       });
       updateMergeWebButtonState();
@@ -3651,15 +3974,126 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       });
     }
 
+
+    function getSelectedWebRecordIds() {
+      return (Array.isArray(state.webMergeSelectedRecordIds) ? state.webMergeSelectedRecordIds : [])
+        .map(value => String(value || '').trim())
+        .filter(Boolean);
+    }
+
+    function loadSelectedWebEvent() {
+      const selected = getSelectedWebRecordIds();
+      if (selected.length !== 1) {
+        showWebMessage('Selecciona exactamente un evento de la tabla para cargarlo.', { title: 'Cargar seleccionado', isError: true, autoClose: 3500 });
+        return;
+      }
+      loadWebRecordById(selected[0]);
+    }
+
+    async function deleteSelectedWebEvents() {
+      const selected = getSelectedWebRecordIds();
+      if (!selected.length) {
+        showWebMessage('Selecciona uno o más eventos de la tabla para eliminarlos.', { title: 'Eliminar seleccionados', isError: true, autoClose: 3500 });
+        return;
+      }
+      const sourceName = isLocalMemoryMode() ? getLocalEventsSourceName() : 'Web';
+      const confirmDelete = await showWebMessage(`¿Deseas eliminar ${selected.length} evento(s) seleccionado(s) de ${sourceName}?\n\n${selected.join('\n')}`, {
+        title: `Confirmar eliminación de ${sourceName}`,
+        confirm: true,
+        okText: 'Eliminar',
+        cancelText: 'Cancelar',
+        danger: true,
+        autoClose: 0
+      });
+      if (!confirmDelete) return;
+
+      if (isLocalMemoryMode()) {
+        const folderMode = hasSelectedEventsTxtFolder();
+        setWebEventsLoading(true, `Eliminando ${selected.length} evento(s) de ${sourceName}.`, `Eliminando ${sourceName}`, 'delete');
+        try {
+          for (const recordId of selected) {
+            if (folderMode) await deleteTxtFolderRecordById(recordId, { silent: true, skipRefresh: true });
+            else await deleteLocalMemoryRecordById(recordId, { silent: true, skipRefresh: true });
+          }
+          state.webMergeSelectedRecordIds = [];
+          setSheetStatus(`Se eliminaron ${selected.length} evento(s) de ${sourceName}.`);
+          await refreshWebEventsList();
+        } catch (error) {
+          const msg = error && error.message ? error.message : `No se pudieron eliminar los eventos de ${sourceName}.`;
+          setSheetStatus(msg, true);
+          showWebMessage(msg, { title: 'Error al eliminar', isError: true, autoClose: 6000 });
+        } finally {
+          setWebEventsLoading(false);
+        }
+        return;
+      }
+
+      await deleteWebRecordsSelectedFromServer(selected);
+    }
+
+    function deleteWebRecordNoConfirm(recordId) {
+      const url = normalizeSheetUrl();
+      recordId = String(recordId || '').trim();
+      if (!recordId) return Promise.resolve(false);
+      if (!url) return Promise.reject(new Error('Falta la URL del Web App.'));
+      return new Promise((resolve, reject) => {
+        const callbackName = `sheetBulkDeleteCallback_${Date.now()}_${Math.floor(Math.random() * 100000)}`;
+        const script = document.createElement('script');
+        const sep = url.includes('?') ? '&' : '?';
+        let done = false;
+        const cleanup = () => {
+          if (done) return;
+          done = true;
+          delete window[callbackName];
+          script.remove();
+        };
+        window[callbackName] = (response) => {
+          cleanup();
+          if (!response || !response.ok) {
+            reject(new Error((response && response.error) ? response.error : `No se pudo borrar: ${recordId}`));
+            return;
+          }
+          resolve(true);
+        };
+        script.onerror = () => { cleanup(); reject(new Error(`No se pudo borrar en Web: ${recordId}`)); };
+        setTimeout(() => { if (!done) { cleanup(); reject(new Error(`Tiempo agotado al borrar: ${recordId}`)); } }, 12000);
+        script.src = `${url}${sep}action=delete&recordId=${encodeURIComponent(recordId)}&callback=${encodeURIComponent(callbackName)}&_=${Date.now()}`;
+        document.body.appendChild(script);
+      });
+    }
+
+    async function deleteWebRecordsSelectedFromServer(recordIds) {
+      setWebEventsLoading(true, `Eliminando ${recordIds.length} evento(s) guardado(s) en Web.`, 'Eliminando datos Web', 'delete');
+      const errors = [];
+      try {
+        for (const recordId of recordIds) {
+          try { await deleteWebRecordNoConfirm(recordId); }
+          catch (error) { errors.push(`${recordId}: ${error && error.message ? error.message : 'error'}`); }
+        }
+        state.webMergeSelectedRecordIds = [];
+        await refreshWebEventsList();
+        if (errors.length) {
+          const msg = `Se intentó eliminar ${recordIds.length} evento(s).\nErrores:\n${errors.join('\n')}`;
+          setSheetStatus(msg, true);
+          showWebMessage(msg, { title: 'Eliminación parcial', isError: true, autoClose: 8000 });
+        } else {
+          setSheetStatus(`Se eliminaron ${recordIds.length} evento(s) de Web.`);
+          showWebMessage(`Se eliminaron ${recordIds.length} evento(s) de Web.`, { title: 'Eliminar Web', autoClose: 2500 });
+        }
+      } finally {
+        setWebEventsLoading(false);
+      }
+    }
+
     async function deleteWebRecordById(recordId) {
       if (isLocalMemoryMode()) {
         recordId = String(recordId || '').trim();
         if (!recordId) return;
         const folderMode = hasSelectedEventsTxtFolder();
-        const confirmDeleteLocal = await showWebMessage(`¿Deseas borrar el evento de ${folderMode ? 'la carpeta TXT' : 'memoria local'}?
+        const confirmDeleteLocal = await showWebMessage(`¿Deseas borrar el evento de ${folderMode ? 'la carpeta TXT' : 'IndexedDB local'}?
 
 ${recordId}`, {
-          title: folderMode ? 'Confirmar borrado TXT' : 'Confirmar borrado local',
+          title: folderMode ? 'Confirmar borrado TXT' : 'Confirmar borrado Local',
           confirm: true,
           okText: 'Borrar',
           cancelText: 'Cancelar',
@@ -3748,6 +4182,8 @@ ${recordId}`, {
         { id: 'saveSheetBtn', loadingText: action === 'save' ? 'Guardando...' : null },
         { id: 'loadSheetBtn', loadingText: action === 'load' ? 'Cargando...' : null },
         { id: 'mergeWebEventsBtn', loadingText: action === 'merge' ? 'Uniendo...' : null },
+        { id: 'loadSelectedWebEventBtn', loadingText: action === 'load' ? 'Cargando...' : null },
+        { id: 'deleteSelectedWebEventsBtn', loadingText: action === 'delete' ? 'Eliminando...' : null },
         { id: 'selectEventsFolderBtn', loadingText: null },
         { id: 'selectEventsFolderListBtn', loadingText: null }
       ];
@@ -3771,7 +4207,7 @@ ${recordId}`, {
 
       if (isLocalMemoryMode()) {
         if (hasSelectedEventsTxtFolder()) {
-          if (tbody) tbody.innerHTML = '<tr><td colspan="7" class="web-events-empty">Buscando eventos TXT en la carpeta seleccionada...</td></tr>';
+          if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="web-events-empty">Buscando eventos TXT en la carpeta seleccionada...</td></tr>';
           setWebEventsLoading(true, 'Leyendo archivos .txt de la carpeta seleccionada.', 'Buscando eventos TXT', 'search');
           try {
             const records = await getTxtFolderRecordsForList(idFilter, dateFrom, dateTo);
@@ -3786,10 +4222,18 @@ ${recordId}`, {
           }
           return;
         }
-        if (tbody) tbody.innerHTML = '<tr><td colspan="7" class="web-events-empty">Buscando eventos en memoria local...</td></tr>';
-        const records = getLocalMemoryRecordsForList(idFilter, dateFrom, dateTo);
-        renderWebEventsList(records);
-        setSheetStatus(`Eventos en memoria local encontrados: ${records.length}`);
+        if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="web-events-empty">Buscando eventos en IndexedDB local...</td></tr>';
+        setWebEventsLoading(true, 'Buscando eventos guardados en IndexedDB local.', 'Buscando Local', 'search');
+        try {
+          const records = await getLocalMemoryRecordsForList(idFilter, dateFrom, dateTo);
+          renderWebEventsList(records);
+          setSheetStatus(`Eventos locales encontrados: ${records.length}`);
+        } catch (error) {
+          renderWebEventsList([]);
+          setSheetStatus(error && error.message ? error.message : 'No se pudieron buscar eventos locales.', true);
+        } finally {
+          setWebEventsLoading(false);
+        }
         return;
       }
 
@@ -3797,7 +4241,7 @@ ${recordId}`, {
       if (!url) {
         return;
       }
-      if (tbody) tbody.innerHTML = '<tr><td colspan="7" class="web-events-empty">Buscando eventos guardados...</td></tr>';
+      if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="web-events-empty">Buscando eventos guardados...</td></tr>';
       setWebEventsLoading(true, 'Buscando eventos guardados en Web. Espera a que termine la consulta.', 'Buscando eventos guardados', 'search');
 
       const callbackName = `sheetListCallback_${Date.now()}_${Math.floor(Math.random() * 100000)}`;
@@ -3853,10 +4297,17 @@ ${recordId}`, {
       updateStorageModeLabels();
       if ($('saveSheetBtn')) $('saveSheetBtn').onclick = () => { collapsePanelById('web'); saveToGoogleSheet(); };
       if ($('loadSheetBtn')) $('loadSheetBtn').onclick = () => { collapsePanelById('web'); loadFromGoogleSheet(); };
+      if ($('saveLocalEventBtn')) $('saveLocalEventBtn').onclick = () => { setLocalMemoryMode(true); saveLocalEventFromCurrent(); };
+      if ($('searchLocalEventBtn')) $('searchLocalEventBtn').onclick = () => { setLocalMemoryMode(true); refreshWebEventsList(); };
+      if ($('exportLocalBackupBtn')) $('exportLocalBackupBtn').onclick = () => exportLocalBackup();
+      if ($('importLocalBackupBtn')) $('importLocalBackupBtn').onclick = () => $('importLocalBackupInput').click();
+      if ($('importLocalBackupInput')) $('importLocalBackupInput').onchange = (e) => { const file = e.target.files && e.target.files[0]; if (file) importLocalBackup(file); e.target.value = ''; };
       if ($('selectEventsFolderBtn')) $('selectEventsFolderBtn').onclick = (e) => { e.preventDefault(); collapsePanelById('archivos'); selectEventsTxtFolder(e); };
-      if ($('selectEventsFolderListBtn')) $('selectEventsFolderListBtn').onclick = (e) => { e.preventDefault(); collapsePanelById('web'); selectEventsTxtFolder(e); };
-      if ($('refreshWebEventsBtn')) $('refreshWebEventsBtn').onclick = () => { collapsePanelById('web'); refreshWebEventsList(); };
-      if ($('mergeWebEventsBtn')) $('mergeWebEventsBtn').onclick = () => { collapsePanelById('web'); handleMergeWebEvents(); };
+      if ($('selectEventsFolderListBtn')) $('selectEventsFolderListBtn').onclick = (e) => { e.preventDefault(); selectEventsTxtFolder(e); };
+      if ($('refreshWebEventsBtn')) $('refreshWebEventsBtn').onclick = () => { refreshWebEventsList(); };
+      if ($('mergeWebEventsBtn')) $('mergeWebEventsBtn').onclick = () => { handleMergeWebEvents(); };
+      if ($('loadSelectedWebEventBtn')) $('loadSelectedWebEventBtn').onclick = () => { loadSelectedWebEvent(); };
+      if ($('deleteSelectedWebEventsBtn')) $('deleteSelectedWebEventsBtn').onclick = () => { deleteSelectedWebEvents(); };
       document.querySelectorAll('[data-web-sort]').forEach(th => {
         th.onclick = () => setWebEventsSort(th.dataset.webSort);
         th.setAttribute('tabindex', '0');
@@ -4838,7 +5289,8 @@ ${recordId}`, {
       $('viewEventosWeb').style.display = state.activeTab === 'eventosWeb' ? '' : 'none';
       $('tabContador').classList.toggle('active', state.activeTab === 'contador');
       $('tabImpuestos').classList.toggle('active', state.activeTab === 'impuestos');
-      $('tabEventosWeb').classList.toggle('active', state.activeTab === 'eventosWeb');
+      $('tabEventosWeb').classList.toggle('active', state.activeTab === 'eventosWeb' && !isLocalMemoryMode());
+      if ($('tabEventosLocal')) $('tabEventosLocal').classList.toggle('active', state.activeTab === 'eventosWeb' && isLocalMemoryMode());
       if ($('impuestosSubtabsSticky')) {
         $('impuestosSubtabsSticky').classList.toggle('show', state.activeTab === 'impuestos');
       }
@@ -4881,7 +5333,8 @@ ${recordId}`, {
 
     $('tabContador').onclick = () => { state.activeTab = 'contador'; render(); };
     $('tabImpuestos').onclick = () => { state.activeTab = 'impuestos'; render(); };
-    $('tabEventosWeb').onclick = () => { state.activeTab = 'eventosWeb'; render(); };
+    $('tabEventosWeb').onclick = () => { setLocalMemoryMode(false); state.activeTab = 'eventosWeb'; render(); };
+    if ($('tabEventosLocal')) $('tabEventosLocal').onclick = () => { setLocalMemoryMode(true); state.activeTab = 'eventosWeb'; render(); requestPersistentLocalStorage(); };
     $('subLocalidades').onclick = () => { state.impuestosTab = 'localidades'; render(); };
     $('subTotales').onclick = () => { state.impuestosTab = 'totales'; render(); };
 
@@ -4895,6 +5348,7 @@ ${recordId}`, {
     syncInputsFromState();
     updateStickyOffsets();
     render();
+    requestPersistentLocalStorage();
     restoreSelectedEventsTxtFolder().then(() => {
       syncInputsFromState();
       render();
