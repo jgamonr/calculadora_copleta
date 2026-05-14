@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+  <!-- Versión publicada: 20260514_1315 -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Control de ingreso a evento - concentrados visibles solo en impuestos</title>
@@ -2335,6 +2336,7 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       const reportHtml = `<!DOCTYPE html>
       <html lang="es">
       <head>
+  <!-- Versión publicada: 20260514_1315 -->
         <meta charset="UTF-8">
         <title>Reporte del evento</title>
         <style>
@@ -5360,7 +5362,7 @@ ${recordId}`, {
   <script>
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", () => {
-        navigator.serviceWorker.register("./service-worker.js")
+        navigator.serviceWorker.register("./service-worker.js?v=20260514_1315")
           .then(() => console.log("Service Worker registrado correctamente"))
           .catch(error => console.error("Error registrando Service Worker", error));
       });

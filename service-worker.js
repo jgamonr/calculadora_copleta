@@ -1,39 +1,56 @@
-const CACHE_NAME = "control-eventos-v1";
+// Service Worker - Control Eventos
+// Versión: 20260514_1315
 
-const FILES_TO_CACHE = [
+const CACHE_NAME = "control-eventos-20260514_1315";
+const APP_SHELL = [
   "./",
-  "./index.html",
-  "./manifest.webmanifest",
-  "./icons/icon-192.png",
-  "./icons/icon-512.png"
+  "./index.html?v=20260514_1315",
+  "./manifest.webmanifest?v=20260514_1315"
 ];
 
 self.addEventListener("install", event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(FILES_TO_CACHE))
-  );
   self.skipWaiting();
+  event.waitUntil(
+    caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL).catch(() => null))
+  );
 });
 
 self.addEventListener("activate", event => {
   event.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(
-        keys.map(key => {
-          if (key !== CACHE_NAME) {
-            return caches.delete(key);
-          }
-        })
-      )
-    )
+    caches.keys().then(keys => Promise.all(
+      keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
+    )).then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
 self.addEventListener("fetch", event => {
+  const req = event.request;
+  if (req.method !== "GET") return;
+  const url = new URL(req.url);
+
+  // Para documentos HTML: primero red, luego caché. Evita que cargue versiones viejas.
+  if (req.mode === "navigate" || req.destination === "document") {
+    event.respondWith(
+      fetch(req)
+        .then(response => {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put("./index.html?v=20260514_1315", copy));
+          return response;
+        })
+        .catch(() => caches.match("./index.html?v=20260514_1315").then(r => r || caches.match("./index.html")))
+    );
+    return;
+  }
+
+  // Para el resto: caché con actualización en segundo plano.
   event.respondWith(
-    caches.match(event.request).then(cached => {
-      return cached || fetch(event.request);
+    caches.match(req).then(cached => {
+      const network = fetch(req).then(response => {
+        const copy = response.clone();
+        caches.open(CACHE_NAME).then(cache => cache.put(req, copy));
+        return response;
+      }).catch(() => cached);
+      return cached || network;
     })
   );
 });
