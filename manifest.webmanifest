@@ -1,8 +1,8 @@
 {
   "name": "Control de ingreso a evento",
   "short_name": "Control Eventos",
-  "description": "Control de ingreso a evento con guardado Web, TXT e IndexedDB local.",
-  "start_url": "./index.html?v=20260514_1315",
+  "description": "Control de ingreso a evento con guardado Web e IndexedDB local.",
+  "start_url": "./index.html?v=20260514_2015",
   "scope": "./",
   "display": "standalone",
   "background_color": "#f8fafc",
