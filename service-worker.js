@@ -1,11 +1,11 @@
 // Service Worker - Control Eventos
-// Versión: 20260514_2015
+// Versión: 20260514_1445
 
-const CACHE_NAME = "control-eventos-v20260514-dupnames";
+const CACHE_NAME = "control-eventos-20260514_1445";
 const APP_SHELL = [
   "./",
-  "./index.html?v=20260514_2015",
-  "./manifest.webmanifest?v=20260514_2015"
+  "./index.html?v=20260514_1445",
+  "./manifest.webmanifest?v=20260514_1445"
 ];
 
 self.addEventListener("install", event => {
@@ -26,20 +26,23 @@ self.addEventListener("activate", event => {
 self.addEventListener("fetch", event => {
   const req = event.request;
   if (req.method !== "GET") return;
+  const url = new URL(req.url);
 
+  // Para documentos HTML: primero red, luego caché. Evita que cargue versiones viejas.
   if (req.mode === "navigate" || req.destination === "document") {
     event.respondWith(
-      fetch(req, { cache: "no-store" })
+      fetch(req)
         .then(response => {
           const copy = response.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put("./index.html?v=20260514_2015", copy));
+          caches.open(CACHE_NAME).then(cache => cache.put("./index.html?v=20260514_1445", copy));
           return response;
         })
-        .catch(() => caches.match("./index.html?v=20260514_2015").then(r => r || caches.match("./index.html")))
+        .catch(() => caches.match("./index.html?v=20260514_1445").then(r => r || caches.match("./index.html")))
     );
     return;
   }
 
+  // Para el resto: caché con actualización en segundo plano.
   event.respondWith(
     caches.match(req).then(cached => {
       const network = fetch(req).then(response => {
