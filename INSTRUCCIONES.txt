@@ -6,11 +6,11 @@ INSTRUCCIONES DE PUBLICACION
    - service-worker.js
 
 2. Entra a la pagina agregando al final:
-   ?v=importe_seleccionado
+   ?v=botonera_sin_zoom
 
 3. Si usas la app instalada en iPhone/iPad/Android, elimina el icono de pantalla de inicio y vuelve a instalarla.
 
 CAMBIOS DE ESTA VERSION:
-- En el cuadro de + importe, el valor por defecto queda seleccionado automáticamente al abrirse.
-- Puedes escribir directamente un número positivo o negativo sin borrar manualmente el 1.
+- La botonera manual ya no debe hacer zoom por doble clic o doble toque.
+- Se mantiene el toque rápido en los botones +1 y -1.
 - Se actualizó el Service Worker para forzar nueva caché.

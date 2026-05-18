@@ -4,7 +4,7 @@
   <!-- Versión publicada: 20260518_importe_seleccionado -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Control de ingreso a evento - botonera manual</title>
+  <title>Control de ingreso a evento - botonera sin zoom</title>
   <style>
     :root {
       --bg: #f8fafc;
@@ -1327,6 +1327,21 @@
       min-height: 0;
     }
 
+    /* Evita el zoom por doble clic / doble toque dentro de la botonera manual.
+       Se conserva el toque rápido sobre los botones para sumar o restar sin acercar la pantalla. */
+    .manual-counter-modal,
+    .manual-counter-modal * {
+      touch-action: manipulation;
+    }
+    .manual-counter-modal button,
+    .manual-counter-card,
+    .manual-counter-current,
+    .manual-counter-locality {
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
     @media (max-width: 760px) {
       .manual-counter-modal-backdrop {
         padding: 0;
@@ -1380,7 +1395,7 @@
 
 
   <!-- Configuración PWA: permite instalar la página como app en teléfono -->
-  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="manifest" href="manifest.webmanifest?v=botonera_sin_zoom">
   <meta name="theme-color" content="#0f172a">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -6160,6 +6175,10 @@ ${recordId}`, {
         modal.addEventListener('click', (e) => {
           if (e.target === modal) closeManualCounterModal();
         });
+        modal.addEventListener('dblclick', (e) => {
+          // Bloquea el zoom accidental por doble clic/toque dentro de la botonera.
+          e.preventDefault();
+        }, { passive: false });
       }
     }
 
@@ -6261,7 +6280,7 @@ ${recordId}`, {
   <script>
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", () => {
-        navigator.serviceWorker.register("./service-worker.js?v=acciones_fila_detalle")
+        navigator.serviceWorker.register("./service-worker.js?v=botonera_sin_zoom")
           .then(() => console.log("Service Worker registrado correctamente"))
           .catch(error => console.error("Error registrando Service Worker", error));
       });
