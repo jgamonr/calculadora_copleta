@@ -4,7 +4,7 @@
   <!-- Versión publicada: 20260518_importe_seleccionado -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Control de ingreso a evento - botonera sin zoom</title>
+  <title>Control de ingreso a evento - botonera ajustada</title>
   <style>
     :root {
       --bg: #f8fafc;
@@ -1124,16 +1124,20 @@
     .manual-counter-modal-backdrop.show { display: flex; }
     .manual-counter-modal {
       width: min(1040px, 100%);
-      max-height: min(92vh, 920px);
+      height: min(94dvh, 920px);
+      max-height: 94dvh;
       overflow: hidden;
       background: #ffffff;
       border: 1px solid var(--border);
       border-radius: 22px;
       box-shadow: 0 28px 70px rgba(15, 23, 42, .34);
       display: grid;
-      grid-template-rows: auto auto 1fr auto;
+      grid-template-rows: auto 1fr auto;
     }
     .manual-counter-header {
+      position: sticky;
+      top: 0;
+      z-index: 3;
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
@@ -1157,35 +1161,24 @@
       font-size: 20px;
       padding: 0;
     }
-    .manual-counter-summary {
+    .manual-counter-summary { display: none; }
+    .manual-counter-locality-row {
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 8px;
-      padding: 12px 18px;
-      background: #f8fafc;
-      border-bottom: 1px solid var(--border);
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 10px;
+      min-height: 54px;
     }
-    .manual-counter-summary-card {
-      background: #ffffff;
-      border: 1px solid var(--border);
+    .manual-counter-current-inline {
+      min-width: 68px;
+      padding: 8px 10px;
       border-radius: 14px;
-      padding: 9px 10px;
-      display: grid;
-      gap: 2px;
-      min-width: 0;
-    }
-    .manual-counter-summary-card span {
-      font-size: 12px;
-      color: var(--muted);
-      font-weight: 700;
-      white-space: nowrap;
-    }
-    .manual-counter-summary-card strong {
-      font-size: 19px;
-      line-height: 1.1;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      background: var(--soft);
+      border: 1px solid var(--border);
+      font-size: 28px;
+      font-weight: 900;
+      line-height: 1;
+      text-align: center;
     }
     .manual-counter-body {
       overflow: auto;
@@ -1208,6 +1201,28 @@
       display: grid;
       gap: 10px;
       box-shadow: 0 1px 2px rgba(15, 23, 42, .04);
+      cursor: pointer;
+      transition: border-color .15s ease, box-shadow .15s ease, background .15s ease, transform .15s ease;
+    }
+    .manual-counter-card:hover {
+      background: #f8fafc;
+    }
+    .manual-counter-card.selected {
+      border-color: #0f172a;
+      background: #eef2ff;
+      box-shadow: 0 0 0 3px rgba(15, 23, 42, .12);
+    }
+    .manual-counter-card.selected::before {
+      content: "✓ Seleccionada";
+      display: inline-flex;
+      width: fit-content;
+      border-radius: 999px;
+      background: #0f172a;
+      color: #ffffff;
+      font-size: 11px;
+      font-weight: 900;
+      padding: 4px 8px;
+      letter-spacing: .02em;
     }
     .manual-counter-locality {
       display: grid;
@@ -1261,19 +1276,28 @@
       border-radius: 14px;
     }
     .manual-counter-footer {
-      display: flex;
+      position: sticky;
+      bottom: 0;
+      z-index: 3;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 8px;
-      justify-content: space-between;
       align-items: center;
-      flex-wrap: wrap;
       padding: 12px 18px 16px;
       border-top: 1px solid var(--border);
       background: #ffffff;
+      box-shadow: 0 -8px 18px rgba(15, 23, 42, .06);
     }
     .manual-counter-footer button {
       min-height: 46px;
       border-radius: 14px;
       font-size: 15px;
+    }
+    .manual-counter-footer button:disabled {
+      opacity: .55;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
     }
     .manual-counter-editor {
       display: none;
@@ -1349,8 +1373,9 @@
       }
       .manual-counter-modal {
         width: 100%;
-        max-height: none;
-        height: 100vh;
+        height: 100dvh;
+        max-height: 100dvh;
+        min-height: 100svh;
         border-radius: 0;
         border-left: 0;
         border-right: 0;
@@ -1361,10 +1386,7 @@
       .manual-counter-title strong {
         font-size: 20px;
       }
-      .manual-counter-summary {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        padding: 10px 12px;
-      }
+      .manual-counter-summary { display: none; }
       .manual-counter-body {
         padding: 12px;
       }
@@ -1376,10 +1398,18 @@
         font-size: 32px;
       }
       .manual-counter-footer {
-        padding: 10px 12px 13px;
+        grid-template-columns: 1fr;
+        padding: 10px 12px max(13px, env(safe-area-inset-bottom));
       }
       .manual-counter-footer button {
-        flex: 1 1 140px;
+        width: 100%;
+      }
+      .manual-counter-locality-row {
+        grid-template-columns: 1fr auto;
+      }
+      .manual-counter-current-inline {
+        min-width: 62px;
+        font-size: 25px;
       }
     }
 
@@ -1395,7 +1425,7 @@
 
 
   <!-- Configuración PWA: permite instalar la página como app en teléfono -->
-  <link rel="manifest" href="manifest.webmanifest?v=botonera_sin_zoom">
+  <link rel="manifest" href="manifest.webmanifest?v=botonera_ajustada">
   <meta name="theme-color" content="#0f172a">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1751,18 +1781,13 @@
         </div>
         <button id="closeManualCounterBtn" class="manual-counter-close" type="button" aria-label="Cerrar botonera">×</button>
       </div>
-      <div class="manual-counter-summary">
-        <div class="manual-counter-summary-card"><span>Total personas</span><strong id="manualCounterTotalPersons">0</strong></div>
-        <div class="manual-counter-summary-card"><span>Pagados</span><strong id="manualCounterPaying">0</strong></div>
-        <div class="manual-counter-summary-card"><span>Ingreso bruto</span><strong id="manualCounterGross">$0.00</strong></div>
-        <div class="manual-counter-summary-card"><span>Cargos</span><strong id="manualCounterCharges">$0.00</strong></div>
-      </div>
       <div class="manual-counter-body">
         <div id="manualCounterEditor" class="manual-counter-editor"></div>
         <div id="manualCounterList" class="manual-counter-list"></div>
       </div>
       <div class="manual-counter-footer">
         <button id="manualCounterAddLocalityBtn" type="button" class="active">Agregar localidad</button>
+        <button id="manualCounterEditSelectedBtn" type="button">Editar seleccionada</button>
         <button id="manualCounterCloseFooterBtn" type="button">Cerrar</button>
       </div>
     </div>
@@ -1831,6 +1856,7 @@
       sheetRecordId: localStorage.getItem('sheetRecordId') || '',
       useLocalMemorySave: localStorage.getItem(LOCAL_MEMORY_MODE_KEY) !== '0',
       selectedRowId: null,
+      manualCounterSelectedId: null,
       webEventsRecords: [],
       webEventsCurrentSource: 'web',
       webMergeSelectedRecordIds: [],
@@ -6006,6 +6032,7 @@ ${recordId}`, {
 
       const editing = id !== '' && id !== null && id !== undefined;
       const item = editing ? state.categories.find(row => String(row.id) === String(id)) : null;
+      if (editing && item) state.manualCounterSelectedId = item.id;
       const name = item ? item.name : '';
       const count = item ? Math.max(0, Math.floor(n(item.count))) : 0;
       const courtesy = item ? Boolean(item.courtesy) : false;
@@ -6081,6 +6108,7 @@ ${recordId}`, {
       );
       if (!confirmed) return;
       state.categories = state.categories.filter(row => String(row.id) !== String(id));
+      if (String(state.manualCounterSelectedId) === String(id)) state.manualCounterSelectedId = null;
       markDataChanged();
       hideManualCounterEditor();
       render();
@@ -6109,8 +6137,11 @@ ${recordId}`, {
         item.courtesy = courtesy;
         item.price = price;
         item.count = count;
+        state.manualCounterSelectedId = item.id;
       } else {
-        state.categories.push({ id: Date.now() + Math.random(), name, price, count, courtesy });
+        const newItem = { id: Date.now() + Math.random(), name, price, count, courtesy };
+        state.categories.push(newItem);
+        state.manualCounterSelectedId = newItem.id;
       }
 
       markDataChanged();
@@ -6118,16 +6149,37 @@ ${recordId}`, {
       render();
     }
 
+    function selectManualCounterLocality(id) {
+      const item = state.categories.find(row => String(row.id) === String(id));
+      state.manualCounterSelectedId = item ? item.id : null;
+      renderManualCounterModal();
+    }
+
+    function openManualCounterSelectedEditor() {
+      const id = state.manualCounterSelectedId;
+      const item = state.categories.find(row => String(row.id) === String(id));
+      if (!item) {
+        showWebMessage('Selecciona primero una localidad de la botonera para editarla.', { title: 'Selecciona localidad', autoClose: 2200 });
+        return;
+      }
+      openManualCounterEditor(item.id);
+    }
+
     function renderManualCounterModal() {
       const modal = $('manualCounterModal');
       const list = $('manualCounterList');
       if (!modal || !list) return;
 
-      const calc = compute();
-      if ($('manualCounterTotalPersons')) $('manualCounterTotalPersons').textContent = formatWholeNumber(calc.totalPersons);
-      if ($('manualCounterPaying')) $('manualCounterPaying').textContent = formatWholeNumber(calc.payingPersons);
-      if ($('manualCounterGross')) $('manualCounterGross').textContent = formatMoney(calc.grossIncome);
-      if ($('manualCounterCharges')) $('manualCounterCharges').textContent = formatMoney(calc.totalCharges);
+      if (state.manualCounterSelectedId !== null && !state.categories.some(row => String(row.id) === String(state.manualCounterSelectedId))) {
+        state.manualCounterSelectedId = null;
+      }
+
+      const editBtn = $('manualCounterEditSelectedBtn');
+      if (editBtn) {
+        const selectedItem = state.categories.find(row => String(row.id) === String(state.manualCounterSelectedId));
+        editBtn.disabled = !selectedItem;
+        editBtn.textContent = selectedItem ? 'Editar seleccionada' : 'Editar';
+      }
 
       list.innerHTML = '';
       const rows = getSortedCategories();
@@ -6138,29 +6190,47 @@ ${recordId}`, {
 
       rows.forEach(item => {
         const card = document.createElement('div');
-        card.className = 'manual-counter-card';
+        const selected = String(state.manualCounterSelectedId) === String(item.id);
+        card.className = 'manual-counter-card' + (selected ? ' selected' : '');
+        card.tabIndex = 0;
+        card.setAttribute('role', 'button');
+        card.setAttribute('aria-pressed', selected ? 'true' : 'false');
+        card.dataset.id = String(item.id);
         card.innerHTML = `
-          <div class="manual-counter-locality">
-            <strong>${escapeHtml(item.name || 'Sin nombre')}</strong>
-            <span>${item.courtesy ? 'Cortesía' : formatMoney(n(item.price))} · Subtotal ${formatMoney(round2(n(item.price) * n(item.count)))}</span>
+          <div class="manual-counter-locality-row">
+            <div class="manual-counter-locality">
+              <strong>${escapeHtml(item.name || 'Sin nombre')}</strong>
+              <span>${item.courtesy ? 'Cortesía' : formatMoney(n(item.price))} · Subtotal ${formatMoney(round2(n(item.price) * n(item.count)))}</span>
+            </div>
+            <div class="manual-counter-current-inline" aria-label="Entradas actuales">${formatWholeNumber(item.count)}</div>
           </div>
-          <div class="manual-counter-current" aria-label="Entradas actuales">${formatWholeNumber(item.count)}</div>
           <div class="manual-counter-actions">
             <button type="button" class="minus" data-manual-counter-action="minus" data-id="${item.id}">− 1</button>
             <button type="button" class="plus" data-manual-counter-action="plus" data-id="${item.id}">+ 1</button>
           </div>
-          <button type="button" class="manual-counter-edit-btn" data-manual-counter-action="edit" data-id="${item.id}">Editar localidad</button>
         `;
         list.appendChild(card);
       });
 
+      list.querySelectorAll('.manual-counter-card').forEach(card => {
+        card.addEventListener('click', () => selectManualCounterLocality(card.dataset.id));
+        card.addEventListener('keydown', (event) => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            selectManualCounterLocality(card.dataset.id);
+          }
+        });
+      });
+
       list.querySelectorAll('[data-manual-counter-action]').forEach(btn => {
-        btn.onclick = () => {
+        btn.onclick = (event) => {
+          event.preventDefault();
+          event.stopPropagation();
           const id = btn.dataset.id;
           const action = btn.dataset.manualCounterAction;
+          selectManualCounterLocality(id);
           if (action === 'plus') adjustManualCounterCount(n(id), 1);
           if (action === 'minus') adjustManualCounterCount(n(id), -1);
-          if (action === 'edit') openManualCounterEditor(id);
         };
       });
     }
@@ -6170,6 +6240,7 @@ ${recordId}`, {
       if ($('closeManualCounterBtn')) $('closeManualCounterBtn').onclick = closeManualCounterModal;
       if ($('manualCounterCloseFooterBtn')) $('manualCounterCloseFooterBtn').onclick = closeManualCounterModal;
       if ($('manualCounterAddLocalityBtn')) $('manualCounterAddLocalityBtn').onclick = () => openManualCounterEditor('');
+      if ($('manualCounterEditSelectedBtn')) $('manualCounterEditSelectedBtn').onclick = openManualCounterSelectedEditor;
       const modal = $('manualCounterModal');
       if (modal) {
         modal.addEventListener('click', (e) => {
@@ -6280,7 +6351,7 @@ ${recordId}`, {
   <script>
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", () => {
-        navigator.serviceWorker.register("./service-worker.js?v=botonera_sin_zoom")
+        navigator.serviceWorker.register("./service-worker.js?v=acciones_fila_detalle")
           .then(() => console.log("Service Worker registrado correctamente"))
           .catch(error => console.error("Error registrando Service Worker", error));
       });
