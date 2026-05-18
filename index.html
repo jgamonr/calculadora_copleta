@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <!-- Versión publicada: 20260514_fullscreen_autosave_1min -->
+  <!-- Versión publicada: 20260518_importe_seleccionado -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Control de ingreso a evento - concentrados visibles solo en impuestos</title>
+  <title>Control de ingreso a evento - botonera manual</title>
   <style>
     :root {
       --bg: #f8fafc;
@@ -279,6 +279,46 @@
       background: #000000;
       color: #ffffff;
       border-color: #000000;
+    }
+
+    .manual-category-row.selected {
+      background: #e0f2fe !important;
+      outline: 2px solid #0284c7;
+      outline-offset: -2px;
+    }
+    .manual-category-row.selected input {
+      border-color: #38bdf8;
+      box-shadow: 0 0 0 2px rgba(14, 165, 233, .12);
+    }
+    .manual-selected-actions {
+      display: grid;
+      gap: 10px;
+      background: #f8fafc;
+      border: 1px dashed var(--border);
+      border-radius: 14px;
+      padding: 10px;
+      margin-top: 10px;
+    }
+    .manual-selected-actions-title {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 800;
+      line-height: 1.25;
+    }
+    .manual-selected-actions-buttons {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .manual-selected-actions-buttons button {
+      min-width: 118px;
+    }
+    .manual-selected-actions-buttons button:disabled {
+      opacity: .45;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
     }
     #categoriesTable tr:nth-child(odd) { background: #ffffff; }
     #categoriesTable tr:nth-child(even) { background: #f3f4f6; }
@@ -755,8 +795,8 @@
       background: white;
     }
     .web-events-table {
-      width: 630px;
-      min-width: 630px;
+      width: 596px;
+      min-width: 596px;
       max-width: 100%;
       table-layout: fixed;
     }
@@ -764,8 +804,7 @@
     .web-events-table td {
       padding: 5px 6px;
     }
-    .web-events-table .web-col-merge { width: 34px; }
-    .web-events-table .web-col-id { width: 108px; }
+    .web-events-table .web-col-id { width: 124px; }
     .web-events-table .web-col-date { width: 122px; }
     .web-events-table .web-col-persons { width: 72px; }
     .web-events-table .web-col-money { width: 104px; }
@@ -796,13 +835,6 @@
       white-space: nowrap;
     }
 
-    .web-events-table .web-event-merge-check {
-      width: 16px;
-      height: 16px;
-      padding: 0;
-      margin: 0 auto;
-      display: block;
-    }
     .web-events-table tbody tr:nth-child(odd) { background: #ffffff; }
     .web-events-table tbody tr:nth-child(even) { background: #f8fafc; }
     .web-events-table button {
@@ -827,16 +859,14 @@
       font-size: 12px;
       font-weight: 700;
     }
-    .web-event-merge-check {
-      width: 18px;
-      height: 18px;
-      cursor: pointer;
-      accent-color: var(--primary);
-    }
     .web-event-row.merge-selected {
       background: #ecfeff !important;
       outline: 2px solid #06b6d4;
       outline-offset: -2px;
+      font-weight: 700;
+    }
+    .web-event-row.merge-selected td:first-child {
+      color: #0f766e;
     }
     .web-events-table th[data-web-sort] {
       cursor: pointer;
@@ -1038,7 +1068,7 @@
       .side-actions { gap: 6px; }
       .side-actions button { padding: 6px 5px; font-size: 10px; }
       .web-events-filters { grid-template-columns: 1fr; }
-      .web-events-table { width: 630px; min-width: 630px; }
+      .web-events-table { width: 596px; min-width: 596px; }
       .factors-grid { grid-template-columns: 1fr; }
     }
     @media (max-width: 520px) {
@@ -1059,6 +1089,284 @@
       }
     }
 
+
+
+
+    /* Botonera manual modal:
+       Vista simplificada para operar solo con botones grandes de +1 / -1 por localidad.
+       Usa el mismo state.categories que el detalle por localidad para mantener totales, impuestos y guardados actualizados. */
+    .manual-counter-open-card {
+      display: grid;
+      gap: 12px;
+      max-width: 720px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    .manual-counter-open-card .section-title {
+      font-size: 22px;
+      margin-bottom: 0;
+    }
+    .manual-counter-open-card button {
+      min-height: 54px;
+      font-size: 17px;
+      border-radius: 16px;
+    }
+    .manual-counter-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 12500;
+      background: rgba(15, 23, 42, .56);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+    }
+    .manual-counter-modal-backdrop.show { display: flex; }
+    .manual-counter-modal {
+      width: min(1040px, 100%);
+      max-height: min(92vh, 920px);
+      overflow: hidden;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      box-shadow: 0 28px 70px rgba(15, 23, 42, .34);
+      display: grid;
+      grid-template-rows: auto auto 1fr auto;
+    }
+    .manual-counter-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 16px 18px 12px;
+      border-bottom: 1px solid var(--border);
+      background: #ffffff;
+    }
+    .manual-counter-title {
+      display: grid;
+      gap: 3px;
+    }
+    .manual-counter-title strong {
+      font-size: 22px;
+      line-height: 1.1;
+    }
+    .manual-counter-close {
+      min-width: 48px;
+      min-height: 48px;
+      border-radius: 999px;
+      font-size: 20px;
+      padding: 0;
+    }
+    .manual-counter-summary {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      padding: 12px 18px;
+      background: #f8fafc;
+      border-bottom: 1px solid var(--border);
+    }
+    .manual-counter-summary-card {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 9px 10px;
+      display: grid;
+      gap: 2px;
+      min-width: 0;
+    }
+    .manual-counter-summary-card span {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .manual-counter-summary-card strong {
+      font-size: 19px;
+      line-height: 1.1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .manual-counter-body {
+      overflow: auto;
+      padding: 14px 18px 18px;
+      display: grid;
+      gap: 12px;
+      background: #ffffff;
+    }
+    .manual-counter-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 12px;
+      align-items: stretch;
+    }
+    .manual-counter-card {
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 12px;
+      background: #ffffff;
+      display: grid;
+      gap: 10px;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, .04);
+    }
+    .manual-counter-locality {
+      display: grid;
+      gap: 3px;
+      min-height: 54px;
+    }
+    .manual-counter-locality strong {
+      font-size: 17px;
+      line-height: 1.15;
+    }
+    .manual-counter-locality span {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+    .manual-counter-current {
+      display: grid;
+      place-items: center;
+      min-height: 64px;
+      border-radius: 16px;
+      background: var(--soft);
+      border: 1px solid var(--border);
+      font-size: 34px;
+      font-weight: 900;
+      line-height: 1;
+    }
+    .manual-counter-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .manual-counter-actions button {
+      min-height: 56px;
+      font-size: 22px;
+      border-radius: 16px;
+      padding: 10px;
+    }
+    .manual-counter-actions .minus {
+      color: var(--danger);
+      border-color: #fecaca;
+      background: #fff7f7;
+    }
+    .manual-counter-actions .plus {
+      background: #0f172a;
+      color: #ffffff;
+      border-color: #0f172a;
+    }
+    .manual-counter-edit-btn {
+      min-height: 42px;
+      font-size: 14px;
+      border-radius: 14px;
+    }
+    .manual-counter-footer {
+      display: flex;
+      gap: 8px;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      padding: 12px 18px 16px;
+      border-top: 1px solid var(--border);
+      background: #ffffff;
+    }
+    .manual-counter-footer button {
+      min-height: 46px;
+      border-radius: 14px;
+      font-size: 15px;
+    }
+    .manual-counter-editor {
+      display: none;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: #f8fafc;
+      padding: 14px;
+      gap: 12px;
+      margin-bottom: 4px;
+    }
+    .manual-counter-editor.show { display: grid; }
+    .manual-counter-editor-title {
+      font-weight: 800;
+      font-size: 18px;
+    }
+    .manual-counter-editor .field label {
+      font-size: 14px;
+    }
+    .manual-counter-editor input {
+      font-size: 16px;
+      min-height: 44px;
+    }
+    .manual-counter-editor-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+    .manual-counter-editor-actions button {
+      min-height: 44px;
+      border-radius: 14px;
+    }
+    .manual-counter-courtesy-line {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 10px 12px;
+      cursor: pointer;
+    }
+    .manual-counter-courtesy-line input {
+      width: 18px;
+      height: 18px;
+      padding: 0;
+      margin: 0;
+      min-height: 0;
+    }
+
+    @media (max-width: 760px) {
+      .manual-counter-modal-backdrop {
+        padding: 0;
+        align-items: stretch;
+      }
+      .manual-counter-modal {
+        width: 100%;
+        max-height: none;
+        height: 100vh;
+        border-radius: 0;
+        border-left: 0;
+        border-right: 0;
+      }
+      .manual-counter-header {
+        padding: 13px 12px 10px;
+      }
+      .manual-counter-title strong {
+        font-size: 20px;
+      }
+      .manual-counter-summary {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        padding: 10px 12px;
+      }
+      .manual-counter-body {
+        padding: 12px;
+      }
+      .manual-counter-list {
+        grid-template-columns: 1fr;
+      }
+      .manual-counter-current {
+        min-height: 58px;
+        font-size: 32px;
+      }
+      .manual-counter-footer {
+        padding: 10px 12px 13px;
+      }
+      .manual-counter-footer button {
+        flex: 1 1 140px;
+      }
+    }
 
     /* Botones de Concentrados: ocultos por defecto aunque también usen la clase .subtabs.
        Solo se muestran cuando render() agrega la clase .show en la pestaña Impuestos. */
@@ -1099,6 +1407,7 @@
           <button id="tabEventosWeb" class="active">Eventos guardados Web</button>
           <button id="tabEventosLocal">Eventos guardados Local</button>
           <button id="tabContador">Detalle por localidad</button>
+          <button id="tabBotonera">Botonera manual</button>
           <button id="tabImpuestos">Impuestos</button>
         </div>
 
@@ -1189,6 +1498,13 @@
               </thead>
               <tbody id="categoriesTable"></tbody>
             </table></div>
+            <div class="manual-selected-actions" id="manualSelectedActions" aria-live="polite">
+              <div class="manual-selected-actions-title" id="manualSelectedActionText">Selecciona una fila para aplicar acciones.</div>
+              <div class="manual-selected-actions-buttons">
+                <button id="manualSelectedAddAmountBtn" type="button" class="active" disabled>+ importe</button>
+                <button id="manualSelectedDeleteBtn" type="button" class="danger" disabled>Eliminar localidad</button>
+              </div>
+            </div>
             <div class="mobile-cards" id="categoriesMobile"></div>
           </div></div>
         </div>
@@ -1230,12 +1546,11 @@
               </div>
               <button id="refreshWebEventsBtn" type="button" class="active">Buscar eventos</button>
             </div>
-            <div class="note" id="webEventsSourceNote">Puedes elegir un evento guardado Web para cargar sus datos o marcar 2 o más eventos para unirlos en una sola tabla homologada.</div>
+            <div class="note" id="webEventsSourceNote">Toca una fila para seleccionarla. La fila completa quedará marcada y los botones inferiores aplicarán la acción a la selección.</div>
             <div class="web-events-table-wrap">
               <table class="web-events-table resizable-table" data-resizable-id="eventosTxtCarpeta">
                 <thead>
                   <tr>
-                    <th class="center web-col-merge">Sel.</th>
                     <th class="web-col-id" data-web-sort="recordId">ID / Evento</th>
                     <th class="web-col-date" data-web-sort="updatedAt">Fecha de captura</th>
                     <th class="right web-col-persons" data-web-sort="totalPersons">Personas</th>
@@ -1244,7 +1559,7 @@
                   </tr>
                 </thead>
                 <tbody id="webEventsTable">
-                  <tr><td colspan="6" class="web-events-empty">Presiona “Buscar eventos” para ver los registros guardados.</td></tr>
+                  <tr><td colspan="5" class="web-events-empty">Presiona “Buscar eventos” para ver los registros guardados.</td></tr>
                 </tbody>
               </table>
             </div>
@@ -1252,10 +1567,19 @@
               <button id="loadSelectedWebEventBtn" type="button">Cargar seleccionado</button>
               <button id="mergeWebEventsBtn" type="button" class="active">Unir seleccionados</button>
               <button id="deleteSelectedWebEventsBtn" type="button" class="danger">Eliminar seleccionados</button>
-              <span id="webMergeSelectedCount" class="web-merge-counter">Seleccionados: 0 · mínimo 2</span>
+              <span id="webMergeSelectedCount" class="web-merge-counter">Filas seleccionadas: 0 · mínimo 2</span>
             </div>
           </div></div>
       </div>
+    </div>
+
+
+    <div id="viewBotonera" style="display:none;">
+      <div class="card manual-counter-open-card"><div class="inner">
+        <div class="section-title">Botonera manual de acceso</div>
+        <p class="note" style="font-size:15px;margin:0 0 12px;">Usa esta pantalla para operar con botones grandes de sumar o quitar una persona por localidad. Toma los mismos números que ya existen en la página y actualiza todos los totales.</p>
+        <button id="openManualCounterBtn" type="button" class="active">Abrir botonera manual</button>
+      </div></div>
     </div>
 
     <div id="viewImpuestos" style="display:none;">
@@ -1400,6 +1724,34 @@
     </div>
   </div>
 
+
+
+
+  <div id="manualCounterModal" class="manual-counter-modal-backdrop" aria-live="polite" aria-modal="true" role="dialog" aria-hidden="true">
+    <div class="manual-counter-modal">
+      <div class="manual-counter-header">
+        <div class="manual-counter-title">
+          <strong>Botonera manual</strong>
+          <span class="note">Suma o quita personas por localidad. Los cambios actualizan la página completa.</span>
+        </div>
+        <button id="closeManualCounterBtn" class="manual-counter-close" type="button" aria-label="Cerrar botonera">×</button>
+      </div>
+      <div class="manual-counter-summary">
+        <div class="manual-counter-summary-card"><span>Total personas</span><strong id="manualCounterTotalPersons">0</strong></div>
+        <div class="manual-counter-summary-card"><span>Pagados</span><strong id="manualCounterPaying">0</strong></div>
+        <div class="manual-counter-summary-card"><span>Ingreso bruto</span><strong id="manualCounterGross">$0.00</strong></div>
+        <div class="manual-counter-summary-card"><span>Cargos</span><strong id="manualCounterCharges">$0.00</strong></div>
+      </div>
+      <div class="manual-counter-body">
+        <div id="manualCounterEditor" class="manual-counter-editor"></div>
+        <div id="manualCounterList" class="manual-counter-list"></div>
+      </div>
+      <div class="manual-counter-footer">
+        <button id="manualCounterAddLocalityBtn" type="button" class="active">Agregar localidad</button>
+        <button id="manualCounterCloseFooterBtn" type="button">Cerrar</button>
+      </div>
+    </div>
+  </div>
 
   <div id="webEventsLoading" class="web-loading-backdrop" aria-live="assertive" aria-modal="true" role="dialog">
     <div class="web-loading-box">
@@ -2080,7 +2432,7 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       const deleteBtn = $('deleteSelectedWebEventsBtn');
       const listIsLocal = isCurrentWebEventsListLocal();
       const sourceName = listIsLocal ? getLocalEventsSourceName() : 'Web';
-      if (countEl) countEl.textContent = `Seleccionados: ${selected.length} · cargar: 1 · unir: mínimo 2 · fuente: ${sourceName}`;
+      if (countEl) countEl.textContent = `Filas seleccionadas: ${selected.length} · cargar: 1 · unir: mínimo 2 · fuente: ${sourceName}`;
       if (mergeBtn) {
         mergeBtn.disabled = selected.length < 2;
         mergeBtn.title = selected.length >= 2
@@ -2291,6 +2643,7 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       const item = state.categories.find(i => i.id === id);
       if (!item) return;
       item.count = Math.max(0, n(value));
+      markDataChanged();
       render();
     }
 
@@ -2301,15 +2654,16 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       const backdrop = document.createElement('div');
       backdrop.className = 'numeric-dialog-backdrop';
       backdrop.innerHTML = `
-        <div class="numeric-dialog" role="dialog" aria-modal="true" aria-label="Sumar entradas">
-          <div class="numeric-dialog-title">Sumar entradas a "${escapeHtml(item.name)}"</div>
+        <div class="numeric-dialog" role="dialog" aria-modal="true" aria-label="Sumar o restar entradas">
+          <div class="numeric-dialog-title">+ importe en "${escapeHtml(item.name)}"</div>
           <div class="field">
-            <label>Cantidad a sumar</label>
-            <input id="numericPromptInput" type="number" inputmode="numeric" pattern="[0-9]*" min="0" step="1" value="1" autocomplete="off" />
+            <label>Cantidad a sumar o restar</label>
+            <input id="numericPromptInput" type="text" inputmode="decimal" pattern="-?[0-9]*" step="1" value="1" autocomplete="off" />
+            <div class="note">Puedes capturar números negativos. Ejemplo: -3 resta 3 entradas.</div>
           </div>
           <div class="numeric-dialog-actions">
             <button type="button" id="numericPromptCancel">Cancelar</button>
-            <button type="button" id="numericPromptAccept" class="active">Sumar</button>
+            <button type="button" id="numericPromptAccept" class="active">Aplicar</button>
           </div>
         </div>
       `;
@@ -2317,15 +2671,27 @@ Selecciona Cancelar para agregarlas a las existentes.`);
 
       const input = backdrop.querySelector('#numericPromptInput');
       const close = () => backdrop.remove();
+      const cleanSignedInteger = (value) => {
+        let txt = String(value || '').replace(/[^0-9-]/g, '');
+        const isNegative = txt.startsWith('-');
+        txt = txt.replace(/-/g, '');
+        return (isNegative ? '-' : '') + txt;
+      };
       const accept = () => {
-        const amount = Math.max(0, Math.floor(n(input.value)));
-        item.count += amount;
+        const amount = Math.trunc(n(input.value));
+        if (!Number.isFinite(amount) || amount === 0) {
+          close();
+          return;
+        }
+        item.count = Math.max(0, Math.floor(n(item.count) + amount));
+        markDataChanged();
         close();
         render();
       };
 
       input.addEventListener('input', () => {
-        input.value = input.value.replace(/[^0-9]/g, '');
+        const cleaned = cleanSignedInteger(input.value);
+        if (input.value !== cleaned) input.value = cleaned;
       });
       input.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') accept();
@@ -2336,7 +2702,10 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       backdrop.addEventListener('click', (e) => {
         if (e.target === backdrop) close();
       });
-      setTimeout(() => input.focus(), 50);
+      setTimeout(() => {
+        input.focus();
+        input.select();
+      }, 50);
     }
 
     function openReportPdf() {
@@ -2354,7 +2723,7 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       const reportHtml = `<!DOCTYPE html>
       <html lang="es">
       <head>
-  <!-- Versión publicada: 20260514_fullscreen_autosave_1min -->
+  <!-- Versión publicada: 20260518_importe_seleccionado -->
         <meta charset="UTF-8">
         <title>Reporte del evento</title>
         <style>
@@ -2669,8 +3038,8 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       if (localActions) localActions.classList.toggle('show', localMode);
       if (sourceNote) {
         sourceNote.textContent = localMode
-          ? 'La lista busca eventos guardados en IndexedDB dentro de este navegador/dispositivo. Selecciona filas y usa los botones debajo de la tabla para cargar, unir o eliminar. Hay borrador automático para conservar datos al cerrar.'
-          : 'La lista busca eventos guardados en Web. Selecciona filas y usa los botones debajo de la tabla para cargar, unir o eliminar.';
+          ? 'La lista busca eventos guardados en IndexedDB dentro de este navegador/dispositivo. Toca las filas para seleccionarlas y usa los botones debajo de la tabla para cargar, unir o eliminar. Hay borrador automático para conservar datos al cerrar.'
+          : 'La lista busca eventos guardados en Web. Toca las filas para seleccionarlas y usa los botones debajo de la tabla para cargar, unir o eliminar.';
       }
       if (modeLabel) modeLabel.textContent = localMode ? 'Usando IndexedDB local' : 'Cambiar búsqueda a IndexedDB local';
       if (sourceBadge) {
@@ -2691,7 +3060,7 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       updateStorageModeLabels();
       const tbody = $('webEventsTable');
       if (tbody) {
-        tbody.innerHTML = `<tr><td colspan="6" class="web-events-empty">${state.useLocalMemorySave ? 'Presiona “Buscar locales” para ver eventos guardados en este navegador.' : 'Presiona “Buscar Web” para ver los registros guardados en Web.'}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="5" class="web-events-empty">${state.useLocalMemorySave ? 'Presiona “Buscar locales” para ver eventos guardados en este navegador.' : 'Presiona “Buscar Web” para ver los registros guardados en Web.'}</td></tr>`;
       }
       state.webEventsRecords = [];
       state.webMergeSelectedRecordIds = [];
@@ -4049,7 +4418,7 @@ ${record.recordId}`, { title: 'Guardar Local', autoClose: 2600 });
 
       const sortedRecords = sortWebEventsRecords(state.webEventsRecords);
       if (!sortedRecords.length) {
-        tbody.innerHTML = '<tr><td colspan="6" class="web-events-empty">No se encontraron eventos con esos filtros.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" class="web-events-empty">No se encontraron eventos con esos filtros.</td></tr>';
         updateMergeWebButtonState();
         return;
       }
@@ -4058,9 +4427,8 @@ ${record.recordId}`, { title: 'Guardar Local', autoClose: 2600 });
         const recordId = escapeHtml(recordIdText);
         const isSelected = (state.webMergeSelectedRecordIds || []).includes(recordIdText);
         return `
-          <tr class="web-event-row${isSelected ? ' merge-selected' : ''}" data-web-record-index="${index}" data-web-record-id="${recordId}">
-            <td class="center web-col-merge"><input type="checkbox" class="web-event-merge-check" data-web-merge-index="${index}" ${isSelected ? 'checked' : ''} aria-label="Seleccionar ${recordId}" /></td>
-            <td class="web-cell-clip web-col-id" title="${recordId}"><strong>${recordId}</strong></td>
+          <tr class="web-event-row${isSelected ? ' merge-selected' : ''}" data-web-record-index="${index}" data-web-record-id="${recordId}" tabindex="0" aria-selected="${isSelected ? 'true' : 'false'}" title="Toca o presiona Enter para seleccionar/quitar selección">
+            <td class="web-cell-clip web-col-id" title="${recordId}"><strong>${isSelected ? '✓ ' : ''}${recordId}</strong></td>
             <td class="web-cell-clip web-col-date" title="${escapeHtml(formatWebDate(record.updatedAt))}">${escapeHtml(formatWebDate(record.updatedAt))}</td>
             <td class="right web-col-persons">${formatWholeNumber(getWebRecordTotalPersons(record))}</td>
             <td class="right web-col-money">${formatMoney(record.grossIncome)}</td>
@@ -4068,21 +4436,22 @@ ${record.recordId}`, { title: 'Guardar Local', autoClose: 2600 });
           </tr>
         `;
       }).join('');
-      tbody.querySelectorAll('[data-web-merge-index]').forEach(input => {
-        input.onchange = () => {
-          const record = sortedRecords[n(input.dataset.webMergeIndex)];
-          toggleWebMergeSelection(getWebRecordId(record), input.checked);
-        };
-        input.onclick = (e) => e.stopPropagation();
-      });
       tbody.querySelectorAll('.web-event-row').forEach(row => {
-        row.onclick = (e) => {
-          if (e.target.closest('input, textarea, select, button, label')) return;
+        const toggleRowSelection = () => {
           const index = n(row.dataset.webRecordIndex);
           const record = sortedRecords[index];
           const recordId = getWebRecordId(record);
           const selected = !(state.webMergeSelectedRecordIds || []).includes(recordId);
           toggleWebMergeSelection(recordId, selected);
+        };
+        row.onclick = (e) => {
+          if (e.target.closest('input, textarea, select, button, label')) return;
+          toggleRowSelection();
+        };
+        row.onkeydown = (e) => {
+          if (e.key !== 'Enter' && e.key !== ' ') return;
+          e.preventDefault();
+          toggleRowSelection();
         };
       });
       updateMergeWebButtonState();
@@ -4406,7 +4775,7 @@ ${recordId}`, {
 
       if (isLocalMemoryMode()) {
         if (hasSelectedEventsTxtFolder()) {
-          if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="web-events-empty">Buscando eventos TXT en la carpeta seleccionada...</td></tr>';
+          if (tbody) tbody.innerHTML = '<tr><td colspan="5" class="web-events-empty">Buscando eventos TXT en la carpeta seleccionada...</td></tr>';
           setWebEventsLoading(true, 'Leyendo archivos .txt de la carpeta seleccionada.', 'Buscando eventos TXT', 'search');
           try {
             const records = await getTxtFolderRecordsForList(idFilter, dateFrom, dateTo);
@@ -4421,7 +4790,7 @@ ${recordId}`, {
           }
           return;
         }
-        if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="web-events-empty">Buscando eventos en IndexedDB local...</td></tr>';
+        if (tbody) tbody.innerHTML = '<tr><td colspan="5" class="web-events-empty">Buscando eventos en IndexedDB local...</td></tr>';
         setWebEventsLoading(true, 'Buscando eventos guardados en IndexedDB local.', 'Buscando Local', 'search');
         try {
           const records = await getLocalMemoryRecordsForList(idFilter, dateFrom, dateTo);
@@ -4440,7 +4809,7 @@ ${recordId}`, {
       if (!url) {
         return;
       }
-      if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="web-events-empty">Buscando eventos guardados...</td></tr>';
+      if (tbody) tbody.innerHTML = '<tr><td colspan="5" class="web-events-empty">Buscando eventos guardados...</td></tr>';
       setWebEventsLoading(true, 'Buscando eventos guardados en Web. Espera a que termine la consulta.', 'Buscando eventos guardados', 'search');
 
       const callbackName = `sheetListCallback_${Date.now()}_${Math.floor(Math.random() * 100000)}`;
@@ -4913,6 +5282,104 @@ ${recordId}`, {
       });
     }
 
+    function getSelectedManualCategory() {
+      return state.categories.find(item => String(item.id) === String(state.selectedRowId));
+    }
+
+    function updateManualSelectionClasses() {
+      document.querySelectorAll('.manual-category-row[data-id]').forEach(row => {
+        const selected = String(row.dataset.id) === String(state.selectedRowId);
+        row.classList.toggle('selected', selected);
+        row.setAttribute('aria-selected', selected ? 'true' : 'false');
+      });
+    }
+
+    function updateManualSelectedActionBar() {
+      const item = getSelectedManualCategory();
+      const text = $('manualSelectedActionText');
+      const buttons = [
+        $('manualSelectedAddAmountBtn'),
+        $('manualSelectedDeleteBtn')
+      ].filter(Boolean);
+
+      buttons.forEach(btn => { btn.disabled = !item; });
+      if (!text) return;
+      if (!item) {
+        text.textContent = 'Selecciona una fila para aplicar acciones.';
+        return;
+      }
+      text.textContent = `Fila seleccionada: ${item.name || 'Sin nombre'} · Entradas: ${formatWholeNumber(item.count)} · ${item.courtesy ? 'Cortesía' : formatMoney(item.price)}`;
+    }
+
+    function selectManualCategoryRow(id) {
+      const item = state.categories.find(row => String(row.id) === String(id));
+      state.selectedRowId = item ? item.id : null;
+      updateManualSelectionClasses();
+      updateManualSelectedActionBar();
+    }
+
+    function bindManualRowSelection() {
+      document.querySelectorAll('.manual-category-row[data-id]').forEach(row => {
+        row.tabIndex = 0;
+        row.classList.add('clickable');
+
+        row.addEventListener('click', (e) => {
+          if (e.target.closest('input, textarea, select, button, label')) return;
+          selectManualCategoryRow(row.dataset.id);
+        });
+
+        row.addEventListener('focusin', () => {
+          selectManualCategoryRow(row.dataset.id);
+        });
+
+        row.addEventListener('keydown', (e) => {
+          if (e.key !== 'Enter' && e.key !== ' ') return;
+          if (e.target.closest('input, textarea, select, button, label')) return;
+          e.preventDefault();
+          selectManualCategoryRow(row.dataset.id);
+        });
+      });
+      updateManualSelectionClasses();
+      updateManualSelectedActionBar();
+    }
+
+    function bindManualSelectedActionButtons() {
+      const addAmountBtn = $('manualSelectedAddAmountBtn');
+      const deleteBtn = $('manualSelectedDeleteBtn');
+
+      if (addAmountBtn) addAmountBtn.onclick = promptAddToSelectedManualCategory;
+      if (deleteBtn) deleteBtn.onclick = deleteSelectedManualCategory;
+    }
+
+    function adjustSelectedManualCategory(delta) {
+      const item = getSelectedManualCategory();
+      if (!item) {
+        showWebMessage('Selecciona primero una fila de Detalle por localidad.', { title: 'Sin fila seleccionada', isError: true, autoClose: 2000 });
+        return;
+      }
+      item.count = Math.max(0, Math.floor(n(item.count) + Number(delta || 0)));
+      markDataChanged();
+      render();
+    }
+
+    function promptAddToSelectedManualCategory() {
+      const item = getSelectedManualCategory();
+      if (!item) {
+        showWebMessage('Selecciona primero una fila de Detalle por localidad.', { title: 'Sin fila seleccionada', isError: true, autoClose: 2000 });
+        return;
+      }
+      promptAddToCount(item.id);
+    }
+
+    async function deleteSelectedManualCategory() {
+      const item = getSelectedManualCategory();
+      if (!item) {
+        showWebMessage('Selecciona primero una fila de Detalle por localidad.', { title: 'Sin fila seleccionada', isError: true, autoClose: 2000 });
+        return;
+      }
+      await deleteCategoryById(item.id);
+    }
+
     function renderCategories() {
       const calc = compute();
       const tbody = $('categoriesTable');
@@ -4925,7 +5392,7 @@ ${recordId}`, {
 
       calc.sortedCategories.forEach(item => {
         const tr = document.createElement('tr');
-        tr.className = 'manual-category-row';
+        tr.className = 'manual-category-row clickable' + (String(state.selectedRowId) === String(item.id) ? ' selected' : '');
         tr.dataset.id = item.id;
         tr.innerHTML = `
           <td class="center">${calc.sortedCategories.findIndex(row => row.id === item.id) + 1}</td>
@@ -4938,7 +5405,7 @@ ${recordId}`, {
         tbody.appendChild(tr);
 
         const card = document.createElement('div');
-        card.className = 'cat-mobile manual-category-row';
+        card.className = 'cat-mobile manual-category-row clickable' + (String(state.selectedRowId) === String(item.id) ? ' selected' : '');
         card.dataset.id = item.id;
         card.innerHTML = `
           <div class="row-between">
@@ -5081,7 +5548,8 @@ ${recordId}`, {
         };
       });
 
-      bindManualRowContextMenus();
+      bindManualRowSelection();
+      bindManualSelectedActionButtons();
 
     }
 
@@ -5467,6 +5935,235 @@ ${recordId}`, {
       document.querySelectorAll('table.resizable-table').forEach(setupResizableTable);
     }
 
+
+    function isManualCounterModalOpen() {
+      const modal = $('manualCounterModal');
+      return Boolean(modal && modal.classList.contains('show'));
+    }
+
+    function openManualCounterModal() {
+      renderManualCounterModal();
+      const modal = $('manualCounterModal');
+      if (!modal) return;
+      modal.classList.add('show');
+      modal.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+      setTimeout(() => {
+        const firstPlus = modal.querySelector('[data-manual-counter-action="plus"]');
+        if (firstPlus) firstPlus.focus();
+      }, 40);
+    }
+
+    function closeManualCounterModal() {
+      const modal = $('manualCounterModal');
+      if (!modal) return;
+      modal.classList.remove('show');
+      modal.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+      hideManualCounterEditor();
+
+      // Al cerrar la botonera, regresar automáticamente a Detalle por localidad.
+      if (state.activeTab === 'botonera') {
+        state.activeTab = 'contador';
+        render();
+      }
+    }
+
+    function adjustManualCounterCount(id, delta) {
+      const item = state.categories.find(row => row.id === id);
+      if (!item) return;
+      item.count = Math.max(0, Math.floor(n(item.count) + Number(delta || 0)));
+      markDataChanged();
+      render();
+    }
+
+    function hideManualCounterEditor() {
+      const editor = $('manualCounterEditor');
+      if (!editor) return;
+      editor.classList.remove('show');
+      editor.dataset.editId = '';
+      editor.innerHTML = '';
+    }
+
+    function openManualCounterEditor(id = '') {
+      const editor = $('manualCounterEditor');
+      if (!editor) return;
+
+      const editing = id !== '' && id !== null && id !== undefined;
+      const item = editing ? state.categories.find(row => String(row.id) === String(id)) : null;
+      const name = item ? item.name : '';
+      const count = item ? Math.max(0, Math.floor(n(item.count))) : 0;
+      const courtesy = item ? Boolean(item.courtesy) : false;
+      const price = item ? n(item.price) : 0;
+
+      editor.dataset.editId = editing && item ? String(item.id) : '';
+      editor.classList.add('show');
+      editor.innerHTML = `
+        <div class="manual-counter-editor-title">${editing ? 'Editar localidad' : 'Agregar localidad'}</div>
+        <div class="grid-2">
+          <div class="field">
+            <label>Localidad / tipo de acceso</label>
+            <input id="manualCounterEditName" type="text" value="${escapeHtml(name)}" placeholder="Ej. General, VIP, Cortesía Staff" autocomplete="off" />
+          </div>
+          <div class="field">
+            <label>Entradas actuales</label>
+            <input id="manualCounterEditCount" type="text" inputmode="numeric" pattern="[0-9]*" value="${count}" />
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="field">
+            <label>Precio</label>
+            <input id="manualCounterEditPrice" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" value="${price}" ${courtesy ? 'disabled' : ''} />
+          </div>
+          <label class="manual-counter-courtesy-line">
+            <input id="manualCounterEditCourtesy" type="checkbox" ${courtesy ? 'checked' : ''} />
+            <span>Marcar como cortesía</span>
+          </label>
+        </div>
+        <div class="manual-counter-editor-actions">
+          ${editing ? '<button id="manualCounterDeleteLocalityBtn" type="button" class="danger">Eliminar localidad</button>' : ''}
+          <button id="manualCounterCancelEditBtn" type="button">Cancelar</button>
+          <button id="manualCounterSaveEditBtn" type="button" class="active">Guardar</button>
+        </div>
+      `;
+
+      configureAllNumericInputs(editor);
+
+      const priceInput = $('manualCounterEditPrice');
+      const courtesyInput = $('manualCounterEditCourtesy');
+      if (courtesyInput && priceInput) {
+        courtesyInput.onchange = () => {
+          priceInput.disabled = courtesyInput.checked;
+          if (courtesyInput.checked) priceInput.value = '0';
+        };
+      }
+      if ($('manualCounterCancelEditBtn')) $('manualCounterCancelEditBtn').onclick = hideManualCounterEditor;
+      if ($('manualCounterSaveEditBtn')) $('manualCounterSaveEditBtn').onclick = saveManualCounterEditor;
+      if ($('manualCounterDeleteLocalityBtn')) $('manualCounterDeleteLocalityBtn').onclick = () => deleteManualCounterLocality(editor.dataset.editId);
+
+      setTimeout(() => {
+        const nameInput = $('manualCounterEditName');
+        if (nameInput) {
+          nameInput.focus();
+          nameInput.select();
+        }
+      }, 40);
+    }
+
+    async function deleteManualCounterLocality(id) {
+      const item = state.categories.find(row => String(row.id) === String(id));
+      if (!item) return;
+      const confirmed = await showWebMessage(
+        `¿Deseas eliminar la localidad${item.name ? ` "${item.name}"` : ''}?`,
+        {
+          title: 'Confirmar eliminación',
+          confirm: true,
+          okText: 'Eliminar',
+          cancelText: 'Cancelar',
+          danger: true,
+          autoClose: 0
+        }
+      );
+      if (!confirmed) return;
+      state.categories = state.categories.filter(row => String(row.id) !== String(id));
+      markDataChanged();
+      hideManualCounterEditor();
+      render();
+    }
+
+    function saveManualCounterEditor() {
+      const editor = $('manualCounterEditor');
+      if (!editor) return;
+
+      const id = editor.dataset.editId || '';
+      const name = String(($('manualCounterEditName') && $('manualCounterEditName').value) || '').trim();
+      const courtesy = Boolean($('manualCounterEditCourtesy') && $('manualCounterEditCourtesy').checked);
+      const price = courtesy ? 0 : Math.max(0, n($('manualCounterEditPrice') ? $('manualCounterEditPrice').value : 0));
+      const count = Math.max(0, Math.floor(n($('manualCounterEditCount') ? $('manualCounterEditCount').value : 0)));
+
+      if (!name) {
+        showWebMessage('Captura el nombre de la localidad antes de guardar.', { title: 'Falta localidad', isError: true, autoClose: 2200 });
+        const nameInput = $('manualCounterEditName');
+        if (nameInput) nameInput.focus();
+        return;
+      }
+
+      const item = state.categories.find(row => String(row.id) === String(id));
+      if (item) {
+        item.name = name;
+        item.courtesy = courtesy;
+        item.price = price;
+        item.count = count;
+      } else {
+        state.categories.push({ id: Date.now() + Math.random(), name, price, count, courtesy });
+      }
+
+      markDataChanged();
+      hideManualCounterEditor();
+      render();
+    }
+
+    function renderManualCounterModal() {
+      const modal = $('manualCounterModal');
+      const list = $('manualCounterList');
+      if (!modal || !list) return;
+
+      const calc = compute();
+      if ($('manualCounterTotalPersons')) $('manualCounterTotalPersons').textContent = formatWholeNumber(calc.totalPersons);
+      if ($('manualCounterPaying')) $('manualCounterPaying').textContent = formatWholeNumber(calc.payingPersons);
+      if ($('manualCounterGross')) $('manualCounterGross').textContent = formatMoney(calc.grossIncome);
+      if ($('manualCounterCharges')) $('manualCounterCharges').textContent = formatMoney(calc.totalCharges);
+
+      list.innerHTML = '';
+      const rows = getSortedCategories();
+      if (!rows.length) {
+        list.innerHTML = '<div class="note" style="font-size:15px;">No hay localidades capturadas. Usa “Agregar localidad”.</div>';
+        return;
+      }
+
+      rows.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'manual-counter-card';
+        card.innerHTML = `
+          <div class="manual-counter-locality">
+            <strong>${escapeHtml(item.name || 'Sin nombre')}</strong>
+            <span>${item.courtesy ? 'Cortesía' : formatMoney(n(item.price))} · Subtotal ${formatMoney(round2(n(item.price) * n(item.count)))}</span>
+          </div>
+          <div class="manual-counter-current" aria-label="Entradas actuales">${formatWholeNumber(item.count)}</div>
+          <div class="manual-counter-actions">
+            <button type="button" class="minus" data-manual-counter-action="minus" data-id="${item.id}">− 1</button>
+            <button type="button" class="plus" data-manual-counter-action="plus" data-id="${item.id}">+ 1</button>
+          </div>
+          <button type="button" class="manual-counter-edit-btn" data-manual-counter-action="edit" data-id="${item.id}">Editar localidad</button>
+        `;
+        list.appendChild(card);
+      });
+
+      list.querySelectorAll('[data-manual-counter-action]').forEach(btn => {
+        btn.onclick = () => {
+          const id = btn.dataset.id;
+          const action = btn.dataset.manualCounterAction;
+          if (action === 'plus') adjustManualCounterCount(n(id), 1);
+          if (action === 'minus') adjustManualCounterCount(n(id), -1);
+          if (action === 'edit') openManualCounterEditor(id);
+        };
+      });
+    }
+
+    function bindManualCounterModal() {
+      if ($('openManualCounterBtn')) $('openManualCounterBtn').onclick = openManualCounterModal;
+      if ($('closeManualCounterBtn')) $('closeManualCounterBtn').onclick = closeManualCounterModal;
+      if ($('manualCounterCloseFooterBtn')) $('manualCounterCloseFooterBtn').onclick = closeManualCounterModal;
+      if ($('manualCounterAddLocalityBtn')) $('manualCounterAddLocalityBtn').onclick = () => openManualCounterEditor('');
+      const modal = $('manualCounterModal');
+      if (modal) {
+        modal.addEventListener('click', (e) => {
+          if (e.target === modal) closeManualCounterModal();
+        });
+      }
+    }
+
+
     function render() {
       updateStickyOffsets();
       const calc = compute();
@@ -5485,9 +6182,11 @@ ${recordId}`, {
       $('grossIncomeCard').textContent = formatMoney(calc.grossIncome);
       $('courtesyStateCard').textContent = formatMoney(calc.courtesyEstimatedValueForState);
       $('viewContador').style.display = state.activeTab === 'contador' ? '' : 'none';
+      $('viewBotonera').style.display = state.activeTab === 'botonera' ? '' : 'none';
       $('viewImpuestos').style.display = state.activeTab === 'impuestos' ? '' : 'none';
       $('viewEventosWeb').style.display = state.activeTab === 'eventosWeb' ? '' : 'none';
       $('tabContador').classList.toggle('active', state.activeTab === 'contador');
+      $('tabBotonera').classList.toggle('active', state.activeTab === 'botonera');
       $('tabImpuestos').classList.toggle('active', state.activeTab === 'impuestos');
       $('tabEventosWeb').classList.toggle('active', state.activeTab === 'eventosWeb' && !isLocalMemoryMode());
       if ($('tabEventosLocal')) $('tabEventosLocal').classList.toggle('active', state.activeTab === 'eventosWeb' && isLocalMemoryMode());
@@ -5499,6 +6198,7 @@ ${recordId}`, {
       $('subLocalidades').classList.toggle('active', state.impuestosTab === 'localidades');
       $('subTotales').classList.toggle('active', state.impuestosTab === 'totales');
       renderCategories();
+      renderManualCounterModal();
       renderConcentrados(calc);
       updateStickyOffsets();
       setTimeout(refreshResizableTables, 0);
@@ -5523,6 +6223,7 @@ ${recordId}`, {
       if (e.key === 'Escape') {
         hideManualContextMenu();
         hideWebEventsContextMenu();
+        if (isManualCounterModalOpen()) closeManualCounterModal();
       }
     });
     window.addEventListener('scroll', () => {
@@ -5532,6 +6233,7 @@ ${recordId}`, {
     window.addEventListener('resize', () => { updateStickyOffsets(); refreshResizableTables(); });
 
     $('tabContador').onclick = () => { state.activeTab = 'contador'; render(); };
+    $('tabBotonera').onclick = () => { state.activeTab = 'botonera'; render(); openManualCounterModal(); };
     $('tabImpuestos').onclick = () => { state.activeTab = 'impuestos'; render(); };
     $('tabEventosWeb').onclick = () => { setLocalMemoryMode(false); state.activeTab = 'eventosWeb'; render(); };
     if ($('tabEventosLocal')) $('tabEventosLocal').onclick = () => { setLocalMemoryMode(true); state.activeTab = 'eventosWeb'; render(); requestPersistentLocalStorage(); };
@@ -5545,6 +6247,7 @@ ${recordId}`, {
     bindLocalDraftAutoSave();
     bindCollapsiblePanels();
     bindStickyHeaderCollapse();
+    bindManualCounterModal();
     updateMergeWebButtonState();
     syncInputsFromState();
     updateStickyOffsets();
@@ -5558,7 +6261,7 @@ ${recordId}`, {
   <script>
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", () => {
-        navigator.serviceWorker.register("./service-worker.js?v=webfix_02")
+        navigator.serviceWorker.register("./service-worker.js?v=acciones_fila_detalle")
           .then(() => console.log("Service Worker registrado correctamente"))
           .catch(error => console.error("Error registrando Service Worker", error));
       });

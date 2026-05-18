@@ -1,0 +1,16 @@
+INSTRUCCIONES DE PUBLICACION
+
+1. Sube estos archivos reemplazando los anteriores:
+   - index.html
+   - manifest.webmanifest
+   - service-worker.js
+
+2. Entra a la pagina agregando al final:
+   ?v=importe_seleccionado
+
+3. Si usas la app instalada en iPhone/iPad/Android, elimina el icono de pantalla de inicio y vuelve a instalarla.
+
+CAMBIOS DE ESTA VERSION:
+- En el cuadro de + importe, el valor por defecto queda seleccionado automáticamente al abrirse.
+- Puedes escribir directamente un número positivo o negativo sin borrar manualmente el 1.
+- Se actualizó el Service Worker para forzar nueva caché.

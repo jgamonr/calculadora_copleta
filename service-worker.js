@@ -1,11 +1,11 @@
 // Service Worker - Control Eventos
-// Versión: 20260514_fullscreen_autosave_1min
+// Versión: 20260518_importe_seleccionado
 
-const CACHE_NAME = 'control-eventos-fullscreen-autosave-1min';
+const CACHE_NAME = 'control-eventos-importe-seleccionado';
 const APP_SHELL = [
   "./",
-  "./index.html?v=fullscreen_autosave_1min",
-  "./manifest.webmanifest?v=fullscreen_autosave_1min"
+  "./index.html?v=importe_seleccionado",
+  "./manifest.webmanifest?v=importe_seleccionado"
 ];
 
 self.addEventListener("install", event => {
@@ -32,10 +32,10 @@ self.addEventListener("fetch", event => {
       fetch(req, { cache: "no-store" })
         .then(response => {
           const copy = response.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put("./index.html?v=fullscreen_autosave_1min", copy));
+          caches.open(CACHE_NAME).then(cache => cache.put("./index.html?v=importe_seleccionado", copy));
           return response;
         })
-        .catch(() => caches.match("./index.html?v=fullscreen_autosave_1min").then(r => r || caches.match("./index.html")))
+        .catch(() => caches.match("./index.html?v=importe_seleccionado").then(r => r || caches.match("./index.html")))
     );
     return;
   }
