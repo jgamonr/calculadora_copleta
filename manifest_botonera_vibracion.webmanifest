@@ -1,0 +1,12 @@
+{
+  "name": "Control de ingreso a evento",
+  "short_name": "Control Eventos",
+  "description": "Control de ingreso a evento con guardado Web e IndexedDB local.",
+  "start_url": "./index.html?v=botonera_vibracion",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#0f172a",
+  "lang": "es-MX",
+  "orientation": "any"
+}
