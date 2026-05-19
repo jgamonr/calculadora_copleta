@@ -1,11 +1,11 @@
 // Service Worker - Control Eventos
-// Versión: botonera_sin_texto_seleccionado
+// Versión: contador_manual_nombre
 
-const CACHE_NAME = 'control-eventos-botonera-sin-texto-seleccionado';
+const CACHE_NAME = 'control-eventos-contador-manual-nombre';
 const APP_SHELL = [
   "./",
-  "./index.html?v=botonera_sin_texto_seleccionado",
-  "./manifest.webmanifest?v=botonera_sin_texto_seleccionado"
+  "./index.html?v=contador_manual_nombre",
+  "./manifest.webmanifest?v=contador_manual_nombre"
 ];
 
 self.addEventListener("install", event => {
@@ -32,10 +32,10 @@ self.addEventListener("fetch", event => {
       fetch(req, { cache: "no-store" })
         .then(response => {
           const copy = response.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put("./index.html?v=botonera_sin_texto_seleccionado", copy));
+          caches.open(CACHE_NAME).then(cache => cache.put("./index.html?v=contador_manual_nombre", copy));
           return response;
         })
-        .catch(() => caches.match("./index.html?v=botonera_sin_texto_seleccionado").then(r => r || caches.match("./index.html")))
+        .catch(() => caches.match("./index.html?v=contador_manual_nombre").then(r => r || caches.match("./index.html")))
     );
     return;
   }

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
   <!-- Versión publicada: 20260518_contador_manual_nombre -->
@@ -1903,8 +1903,7 @@
         </div>
 
         <div class="tabs">
-          <button id="tabEventosWeb" class="active">Eventos guardados Web</button>
-          <button id="tabEventosLocal">Eventos guardados Local</button>
+          <button id="tabEventosWeb" class="active">Eventos guardados</button>
           <button id="tabContador">Detalle por localidad</button>
           <button id="tabBotonera">Contador Manual</button>
           <button id="tabImpuestos">Impuestos</button>
@@ -1944,11 +1943,6 @@
               <span class="collapsible-chevron" aria-hidden="true">▾</span>
             </summary>
             <div class="inner stack">
-              <label class="memory-mode-line" title="Controla si los eventos guardados trabajan en Web o en la IndexedDB local del navegador.">
-                <input id="localMemorySaveMode" type="checkbox" data-local-memory-toggle />
-                <span>Eventos guardados Local</span>
-              </label>
-              <div class="memory-mode-note">Activado = guardar, cargar, buscar y unir eventos en IndexedDB. Desactivado = eventos Web.</div>
               <div class="side-actions">
                 <button id="saveSheetBtn" type="button" class="active">Guardar Web</button>
                 <button id="loadSheetBtn" type="button">Cargar Web</button>
@@ -1966,7 +1960,7 @@
             <div class="inner stack">
               <div class="side-actions">
                 <button id="generatePdfBtn" type="button">Generar reporte PDF</button>
-                <div class="memory-mode-note">Las opciones TXT fueron retiradas. El guardado local principal se realiza automáticamente en IndexedDB y puedes usar los respaldos JSON desde “Eventos guardados Local”.</div>
+                <div class="memory-mode-note">El evento se guarda automáticamente en memoria local y se mantiene un respaldo JSON interno.</div>
               </div>
               <input id="importTableInput" type="file" accept=".txt,text/plain" style="display:none;" />
               <input id="mergeEventsInput" type="file" accept=".txt,.json,application/json,text/plain" multiple style="display:none;" />
@@ -2015,19 +2009,16 @@
           <div class="card web-events-panel"><div class="inner stack">
             <div><div class="section-title" id="webEventsSectionTitle">Eventos guardados en Web</div><div class="column-resize-hint">Arrastra el borde derecho de cada encabezado para modificar el ancho de columnas.</div></div>
             <div class="event-storage-mode-bar">
-              <label class="memory-mode-line" title="Controla si esta lista busca eventos guardados en Web o en la IndexedDB local del navegador.">
+              <label class="memory-mode-line" title="Controla si esta lista busca eventos guardados en Web o en memoria local.">
                 <input id="localMemoryEventsMode" type="checkbox" data-local-memory-toggle />
-                <span id="eventSourceModeLabel">Buscar eventos en IndexedDB local</span>
+                <span id="eventSourceModeLabel">Usar memoria local</span>
               </label>
               <span id="eventSourceBadge" class="event-source-badge">WEB</span>
               <div class="local-indexeddb-actions" id="localIndexedDbActions">
-                <button id="saveLocalEventBtn" type="button" class="active">Guardar Local</button>
-                <button id="searchLocalEventBtn" type="button">Buscar Local</button>
+                <button id="searchLocalEventBtn" type="button" class="active">Buscar guardados</button>
                 <button id="recoverLocalDraftBtn" type="button">Recuperar último borrador</button>
-                <button id="exportLocalBackupBtn" type="button">Exportar respaldo local</button>
-                <button id="importLocalBackupBtn" type="button">Importar respaldo local</button>
                 <input id="importLocalBackupInput" type="file" accept=".json,application/json" style="display:none;" />
-                <div id="localStoragePersistentNote" class="local-storage-note">Los eventos locales se guardan en IndexedDB. Además hay borrador automático cada 10 segundos para evitar pérdida al cerrar la página.</div>
+                <div id="localStoragePersistentNote" class="local-storage-note">Los eventos se guardan automáticamente en memoria local y se mantiene un respaldo JSON interno.</div>
               </div>
             </div>
             <div class="web-events-filters">
@@ -2277,11 +2268,14 @@
     const LOCAL_MEMORY_EVENTS_KEY = 'contadorEventosMemoriaLocal_v1';
     const LOCAL_MEMORY_MODE_KEY = 'guardarEnMemoriaLocal';
     const LOCAL_INDEXEDDB_NAME = 'ControlEventosDB';
-    const LOCAL_INDEXEDDB_VERSION = 1;
+    const LOCAL_INDEXEDDB_VERSION = 2;
     const LOCAL_INDEXEDDB_STORE = 'eventos';
+    const LOCAL_INDEXEDDB_BACKUP_STORE = 'respaldosJson';
     const LOCAL_INDEXEDDB_BACKUP_VERSION = 1;
     const LOCAL_AUTODRAFT_RECORD_ID = 'BORRADOR_AUTOMATICO';
     const LOCAL_AUTODRAFT_INTERVAL_MS = 60 * 1000;
+    const LOCAL_AUTO_EVENT_SAVE_DELAY_MS = 1200;
+    const LOCAL_AUTO_JSON_BACKUP_ID = 'respaldo_json_automatico';
     const LOCAL_AUTODRAFT_NOTICE_KEY = 'contadorEventosBorradorAvisado_v1';
     const LOCAL_TXT_FOLDER_HANDLE_DB = 'contadorEventosTxtFolderDb_v1';
     const LOCAL_TXT_FOLDER_HANDLE_STORE = 'handles';
@@ -2371,6 +2365,7 @@
       // Marca que sí hubo cambio local para que la pantalla y el autoguardado no se queden con datos viejos.
       exitAutoSaveAlreadySent = false;
       if (typeof scheduleLocalDraftAutoSave === 'function') scheduleLocalDraftAutoSave('dataChanged');
+      if (typeof scheduleAutomaticLocalEventSave === 'function') scheduleAutomaticLocalEventSave('dataChanged');
     }
 
     function hasUnsavedWebChanges() {
@@ -2627,7 +2622,6 @@
       $('municipalFineAmount').value = state.municipalFineAmount;
       if ($('sheetWebAppUrl')) $('sheetWebAppUrl').value = state.sheetWebAppUrl || '';
       if ($('sheetRecordId')) $('sheetRecordId').value = state.sheetRecordId || '';
-      if ($('localMemorySaveMode')) $('localMemorySaveMode').checked = Boolean(state.useLocalMemorySave);
       updateStorageModeLabels();
     }
 
@@ -2999,7 +2993,7 @@ Selecciona Cancelar para agregarlas a las existentes.`);
         // iPad/iOS no permite usar FileSystemDirectoryHandle como Windows/Chrome.
         // En ese caso la carpeta se carga con el selector alterno y los TXT quedan
         // como File objects en selectedEventsTxtFolderFiles. La unión debe buscar
-        // también ahí; antes solo buscaba en IndexedDB local y por eso decía que
+        // también ahí; antes solo buscaba en memoria local y por eso decía que
         // no encontraba los TXT seleccionados.
         if (hasSelectedEventsTxtFolder()) {
           return getTxtFolderRecord(recordId).then(record => {
@@ -3009,7 +3003,7 @@ Selecciona Cancelar para agregarlas a las existentes.`);
         }
 
         return getLocalEvent(recordId).then(record => {
-          if (!record) throw new Error(`No se encontró en IndexedDB local el evento: ${recordId}`);
+          if (!record) throw new Error(`No se encontró en memoria local el evento: ${recordId}`);
           return normalizeWebEventForMerge(recordId, record.data || record);
         });
       }
@@ -3559,7 +3553,7 @@ Selecciona Cancelar para agregarlas a las existentes.`);
     }
 
     function getLocalEventsSourceName() {
-      return 'IndexedDB local';
+      return 'memoria local';
     }
 
     function getSelectedEventsFolderName() {
@@ -3577,7 +3571,7 @@ Selecciona Cancelar para agregarlas a las existentes.`);
         ? `Carpeta TXT seleccionada: ${folderName}${readOnly ? ' (modo lectura)' : ''}`
         : (folderName
           ? `Última carpeta usada: ${folderName}. Vuelve a seleccionarla para autorizar la búsqueda.`
-          : (supported ? 'Sin carpeta TXT seleccionada. Se usará IndexedDB local del navegador.' : 'Sin carpeta TXT seleccionada. Usa el selector alterno de carpeta para leer archivos TXT.'));
+          : (supported ? 'Sin carpeta TXT seleccionada. Se usará memoria local del navegador.' : 'Sin carpeta TXT seleccionada. Usa el selector alterno de carpeta para leer archivos TXT.'));
 
       ['eventsFolderStatus', 'eventsFolderStatusList'].forEach(id => {
         const el = $(id);
@@ -3604,7 +3598,6 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       const modeLabel = $('eventSourceModeLabel');
       const sourceBadge = $('eventSourceBadge');
       const tabEventos = $('tabEventosWeb');
-      const tabEventosLocal = $('tabEventosLocal');
       const localActions = $('localIndexedDbActions');
 
       getLocalMemoryModeToggles().forEach(input => { input.checked = localMode; });
@@ -3623,15 +3616,14 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       setButtonText(deleteSelectedBtn, localMode ? 'Eliminar locales' : 'Eliminar Web');
 
       if (sectionTitle) sectionTitle.textContent = localMode ? `Eventos guardados en ${localSourceName}` : 'Eventos guardados en Web';
-      if (tabEventos) tabEventos.textContent = 'Eventos guardados Web';
-      if (tabEventosLocal) tabEventosLocal.textContent = 'Eventos guardados Local';
+      if (tabEventos) tabEventos.textContent = 'Eventos guardados';
       if (localActions) localActions.classList.toggle('show', localMode);
       if (sourceNote) {
         sourceNote.textContent = localMode
-          ? 'La lista busca eventos guardados en IndexedDB dentro de este navegador/dispositivo. Toca las filas para seleccionarlas y usa los botones debajo de la tabla para cargar, unir o eliminar. Hay borrador automático para conservar datos al cerrar.'
+          ? 'La lista busca eventos guardados en memoria local de este navegador/dispositivo. Toca las filas para seleccionarlas y usa los botones debajo de la tabla para cargar, unir o eliminar. Hay borrador automático para conservar datos al cerrar.'
           : 'La lista busca eventos guardados en Web. Toca las filas para seleccionarlas y usa los botones debajo de la tabla para cargar, unir o eliminar.';
       }
-      if (modeLabel) modeLabel.textContent = localMode ? 'Usando IndexedDB local' : 'Cambiar búsqueda a IndexedDB local';
+      if (modeLabel) modeLabel.textContent = localMode ? 'Usando memoria local' : 'Cambiar a memoria local';
       if (sourceBadge) {
         sourceBadge.textContent = localMode ? 'LOCAL' : 'WEB';
         sourceBadge.classList.toggle('local', localMode);
@@ -3665,7 +3657,7 @@ Selecciona Cancelar para agregarlas a las existentes.`);
         const parsed = JSON.parse(localStorage.getItem(LOCAL_MEMORY_EVENTS_KEY) || '[]');
         return Array.isArray(parsed) ? parsed : [];
       } catch (error) {
-        console.warn('No se pudo leer la IndexedDB local de eventos.', error);
+        console.warn('No se pudo leer la memoria local de eventos.', error);
         return [];
       }
     }
@@ -3690,6 +3682,9 @@ Selecciona Cancelar para agregarlas a las existentes.`);
           } else {
             store = request.transaction.objectStore(LOCAL_INDEXEDDB_STORE);
           }
+          if (!db.objectStoreNames.contains(LOCAL_INDEXEDDB_BACKUP_STORE)) {
+            db.createObjectStore(LOCAL_INDEXEDDB_BACKUP_STORE, { keyPath: 'id' });
+          }
           const indexes = [
             ['eventName', 'eventName'],
             ['updatedAt', 'updatedAt'],
@@ -3706,10 +3701,10 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       });
     }
 
-    function withLocalStore(mode, callback) {
+    function withLocalStore(mode, callback, storeName = LOCAL_INDEXEDDB_STORE) {
       return openLocalDB().then(db => new Promise((resolve, reject) => {
-        const tx = db.transaction(LOCAL_INDEXEDDB_STORE, mode);
-        const store = tx.objectStore(LOCAL_INDEXEDDB_STORE);
+        const tx = db.transaction(storeName, mode);
+        const store = tx.objectStore(storeName);
         let result;
         tx.oncomplete = () => { db.close(); resolve(result); };
         tx.onerror = () => { const err = tx.error || new Error('Error en IndexedDB.'); db.close(); reject(err); };
@@ -3728,18 +3723,18 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       const note = $('localStoragePersistentNote');
       try {
         if (!navigator.storage || !navigator.storage.persist) {
-          if (note) note.textContent = 'Los eventos locales se guardan en IndexedDB dentro de este navegador/dispositivo.';
+          if (note) note.textContent = 'Los eventos locales se guardan en memoria local de este navegador/dispositivo.';
           return false;
         }
         const persisted = await navigator.storage.persist();
         if (note) {
           note.textContent = persisted
-            ? 'Almacenamiento local persistente activo. Los eventos quedan guardados en IndexedDB de este dispositivo.'
-            : 'Los eventos se guardan en IndexedDB. Haz respaldos periódicos por si el navegador libera espacio.';
+            ? 'Guardado automático local activo. Respaldo JSON interno actualizado.'
+            : 'Los eventos se guardan automáticamente en memoria local y se mantiene un respaldo JSON interno.';
         }
         return persisted;
       } catch (error) {
-        if (note) note.textContent = 'Los eventos se guardan en IndexedDB. Haz respaldos periódicos.';
+        if (note) note.textContent = 'Los eventos se guardan automáticamente en memoria local y se mantiene un respaldo JSON interno.';
         return false;
       }
     }
@@ -3794,9 +3789,77 @@ Selecciona Cancelar para agregarlas a las existentes.`);
         localMemory: true
       };
       await withLocalStore('readwrite', store => store.put(record));
+      saveAutomaticJsonBackup(payload.action || 'saveLocal').catch(error => console.warn('No se pudo actualizar el respaldo JSON automático.', error));
       return record;
     }
 
+
+    async function saveAutomaticJsonBackup(reason = 'auto') {
+      if (!('indexedDB' in window)) return null;
+      const events = await getAllLocalEvents();
+      const backup = {
+        app: 'Control de ingreso a evento',
+        storage: 'local',
+        version: LOCAL_INDEXEDDB_BACKUP_VERSION,
+        reason,
+        exportedAt: new Date().toISOString(),
+        events
+      };
+      const record = {
+        id: LOCAL_AUTO_JSON_BACKUP_ID,
+        fileName: 'respaldo_eventos_locales_automatico.json',
+        updatedAt: backup.exportedAt,
+        json: JSON.stringify(backup, null, 2),
+        eventCount: events.length
+      };
+      await withLocalStore('readwrite', store => store.put(record), LOCAL_INDEXEDDB_BACKUP_STORE);
+      return record;
+    }
+
+    let automaticLocalEventTimer = null;
+    let automaticLocalEventLastFingerprint = '';
+    let automaticLocalEventSaveInProgress = false;
+
+    function getAutomaticLocalEventRecordId() {
+      const eventInput = $('eventName');
+      if (eventInput) state.eventName = eventInput.value.trim();
+      const name = String(state.eventName || '').trim();
+      if (!name) return '';
+      return slugLocalRecordId(name);
+    }
+
+    function scheduleAutomaticLocalEventSave(reason = 'change') {
+      if (automaticLocalEventTimer) clearTimeout(automaticLocalEventTimer);
+      automaticLocalEventTimer = setTimeout(() => {
+        saveAutomaticLocalEvent({ reason }).catch(error => console.warn('No se pudo autoguardar el evento local.', error));
+      }, LOCAL_AUTO_EVENT_SAVE_DELAY_MS);
+    }
+
+    async function saveAutomaticLocalEvent(options = {}) {
+      if (automaticLocalEventSaveInProgress || !('indexedDB' in window)) return null;
+      const recordId = getAutomaticLocalEventRecordId();
+      if (!recordId) {
+        await saveAutomaticJsonBackup('autoDraftOnly');
+        return null;
+      }
+      const fingerprint = getLocalDraftFingerprint();
+      if (!options.force && fingerprint === automaticLocalEventLastFingerprint) return null;
+      automaticLocalEventSaveInProgress = true;
+      try {
+        const payload = buildLocalEventPayloadFromCurrent(recordId);
+        payload.action = 'autoSaveLocal';
+        const record = await saveLocalEvent(payload, { overwrite: true });
+        state.sheetRecordId = record.recordId;
+        localStorage.setItem('sheetRecordId', record.recordId);
+        automaticLocalEventLastFingerprint = fingerprint;
+        localDraftLastFingerprint = fingerprint;
+        const note = $('localStoragePersistentNote');
+        if (note) note.textContent = `Guardado automático: ${new Date().toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}. Respaldo JSON interno actualizado.`;
+        return record;
+      } finally {
+        automaticLocalEventSaveInProgress = false;
+      }
+    }
     async function deleteLocalEvent(recordId) {
       const cleanId = String(recordId || '').trim();
       if (!cleanId) return false;
@@ -3854,7 +3917,7 @@ Selecciona Cancelar para agregarlas a las existentes.`);
         const requestedRecordId = await getCurrentLocalRecordIdForSave();
         if (!requestedRecordId) return;
         isWebSaveInProgress = true;
-        setWebEventsLoading(true, 'Validando el nombre del evento y guardando en IndexedDB local.', 'Guardando Local', 'save');
+        setWebEventsLoading(true, 'Validando el nombre del evento y guardando en memoria local.', 'Guardando Local', 'save');
         setSheetStatus('Validando nombre del evento local...');
         const available = await getAvailableLocalRecordId(requestedRecordId);
         const recordId = available.recordId;
@@ -3871,7 +3934,7 @@ Se guardó como:
 ${record.recordId}`, { title: 'Guardar Local', autoClose: 3200 });
         } else {
           setSheetStatus(`Evento local guardado: ${record.recordId}`);
-          showWebMessage(`Evento guardado localmente en IndexedDB:
+          showWebMessage(`Evento guardado localmente:
 ${record.recordId}`, { title: 'Guardar Local', autoClose: 2600 });
         }
         if ((state.activeTab === 'eventosWeb' && isLocalMemoryMode()) || state.activeTab === 'eventosLocal') await refreshWebEventsList();
@@ -3940,7 +4003,7 @@ ${record.recordId}`, { title: 'Guardar Local', autoClose: 2600 });
         }, { overwrite: true });
         localDraftLastFingerprint = fingerprint;
         const note = $('localStoragePersistentNote');
-        if (note) note.textContent = `Borrador automático guardado: ${new Date().toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}. Los eventos locales quedan en IndexedDB.`;
+        if (note) note.textContent = `Borrador automático guardado: ${new Date().toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}. Los eventos quedan en memoria local.`;
         return record;
       } finally {
         localDraftSaveInProgress = false;
@@ -4001,7 +4064,7 @@ ${record.recordId}`, { title: 'Guardar Local', autoClose: 2600 });
         syncInputsFromState();
         activateDetallePorLocalidad();
         markWebSaveBaseline();
-        setSheetStatus(`Evento cargado desde IndexedDB local: ${recordId}`);
+        setSheetStatus(`Evento cargado desde memoria local: ${recordId}`);
         showWebMessage(`Evento local cargado:\n${recordId}`, { title: 'Cargar Local', autoClose: 2200 });
       } catch (error) {
         const msg = error && error.message ? error.message : 'No se pudo cargar el evento local.';
@@ -4526,7 +4589,7 @@ ${record.recordId}`, { title: 'Guardar Local', autoClose: 2600 });
       if (eventInput) state.eventName = eventInput.value.trim();
       const recordId = String(state.eventName || '').trim();
       if (!recordId) {
-        setSheetStatus(isLocalMemoryMode() ? 'Captura el nombre del evento para guardar o cargar en IndexedDB local.' : 'Captura el nombre del evento para guardar o cargar en Web.', true);
+        setSheetStatus(isLocalMemoryMode() ? 'Captura el nombre del evento para guardar o cargar en memoria local.' : 'Captura el nombre del evento para guardar o cargar en Web.', true);
         if (eventInput) eventInput.focus();
         return '';
       }
@@ -5248,7 +5311,7 @@ ${record.recordId}`, { title: 'Guardar Local', autoClose: 2600 });
         recordId = String(recordId || '').trim();
         if (!recordId) return;
         const folderMode = hasSelectedEventsTxtFolder();
-        const confirmDeleteLocal = await showWebMessage(`¿Deseas borrar el evento de ${folderMode ? 'la carpeta TXT' : 'IndexedDB local'}?
+        const confirmDeleteLocal = await showWebMessage(`¿Deseas borrar el evento de ${folderMode ? 'la carpeta TXT' : 'memoria local'}?
 
 ${recordId}`, {
           title: folderMode ? 'Confirmar borrado TXT' : 'Confirmar borrado Local',
@@ -5380,8 +5443,8 @@ ${recordId}`, {
           }
           return;
         }
-        if (tbody) tbody.innerHTML = '<tr><td colspan="5" class="web-events-empty">Buscando eventos en IndexedDB local...</td></tr>';
-        setWebEventsLoading(true, 'Buscando eventos guardados en IndexedDB local.', 'Buscando Local', 'search');
+        if (tbody) tbody.innerHTML = '<tr><td colspan="5" class="web-events-empty">Buscando eventos en memoria local...</td></tr>';
+        setWebEventsLoading(true, 'Buscando eventos guardados en memoria local.', 'Buscando Local', 'search');
         try {
           const records = await getLocalMemoryRecordsForList(idFilter, dateFrom, dateTo);
           renderWebEventsList(records);
@@ -5446,7 +5509,7 @@ ${recordId}`, {
     }
 
     function bindTopInputs() {
-      $('eventName').oninput = e => { state.eventName = e.target.value; };
+      eventName.oninput = e => { state.eventName = e.target.value; markDataChanged(); };
       if ($('sheetWebAppUrl')) $('sheetWebAppUrl').value = FIXED_SHEET_WEB_APP_URL;
       getLocalMemoryModeToggles().forEach(input => {
         input.checked = Boolean(state.useLocalMemorySave);
@@ -5454,12 +5517,9 @@ ${recordId}`, {
       });
       updateStorageModeLabels();
       if ($('saveSheetBtn')) $('saveSheetBtn').onclick = () => { collapsePanelById('web'); saveToGoogleSheet(); };
-      if ($('loadSheetBtn')) $('loadSheetBtn').onclick = () => { collapsePanelById('web'); loadFromGoogleSheet(); };
-      if ($('saveLocalEventBtn')) $('saveLocalEventBtn').onclick = () => { setLocalMemoryMode(true); saveLocalEventFromCurrent(); };
-      if ($('searchLocalEventBtn')) $('searchLocalEventBtn').onclick = () => { setLocalMemoryMode(true); refreshWebEventsList(); };
-      if ($('exportLocalBackupBtn')) $('exportLocalBackupBtn').onclick = () => exportLocalBackup();
-      if ($('importLocalBackupBtn')) $('importLocalBackupBtn').onclick = () => $('importLocalBackupInput').click();
-      if ($('recoverLocalDraftBtn')) $('recoverLocalDraftBtn').onclick = () => recoverLocalDraft();
+      if (loadSheetBtn) loadSheetBtn.onclick = () => { collapsePanelById('web'); loadFromGoogleSheet(); };
+      if (searchLocalEventBtn) searchLocalEventBtn.onclick = () => { setLocalMemoryMode(true); refreshWebEventsList(); };
+      if (recoverLocalDraftBtn) recoverLocalDraftBtn.onclick = () => recoverLocalDraft();
       if ($('importLocalBackupInput')) $('importLocalBackupInput').onchange = (e) => { const file = e.target.files && e.target.files[0]; if (file) importLocalBackup(file); e.target.value = ''; };
       if ($('selectEventsFolderBtn')) $('selectEventsFolderBtn').onclick = (e) => { e.preventDefault(); collapsePanelById('archivos'); selectEventsTxtFolder(e); };
       if ($('selectEventsFolderListBtn')) $('selectEventsFolderListBtn').onclick = (e) => { e.preventDefault(); selectEventsTxtFolder(e); };
@@ -5537,6 +5597,7 @@ ${recordId}`, {
         $(id).oninput = e => {
           const value = String(e.target.value || '');
           state[id] = n(value);
+          markDataChanged();
           if (!value.endsWith('.')) render();
         };
       });
@@ -5667,6 +5728,7 @@ ${recordId}`, {
 
       state.categories.push({ id: Date.now() + Math.random(), name, price, count, courtesy });
       state.newCategoryDraft = { count: '', name: '', price: '', courtesy: false };
+      markDataChanged();
       render();
       setTimeout(() => {
         const nextCount = document.querySelector('[data-kind="new-count"]');
@@ -6862,8 +6924,7 @@ ${recordId}`, {
       $('tabContador').classList.toggle('active', state.activeTab === 'contador');
       $('tabBotonera').classList.toggle('active', state.activeTab === 'botonera');
       $('tabImpuestos').classList.toggle('active', state.activeTab === 'impuestos');
-      $('tabEventosWeb').classList.toggle('active', state.activeTab === 'eventosWeb' && !isLocalMemoryMode());
-      if ($('tabEventosLocal')) $('tabEventosLocal').classList.toggle('active', state.activeTab === 'eventosWeb' && isLocalMemoryMode());
+      $('tabEventosWeb').classList.toggle('active', state.activeTab === 'eventosWeb');
       if ($('impuestosSubtabsSticky')) {
         $('impuestosSubtabsSticky').classList.toggle('show', state.activeTab === 'impuestos');
       }
@@ -6909,8 +6970,7 @@ ${recordId}`, {
     $('tabContador').onclick = () => { state.activeTab = 'contador'; render(); };
     $('tabBotonera').onclick = () => { state.activeTab = 'botonera'; render(); openManualCounterModal(); };
     $('tabImpuestos').onclick = () => { state.activeTab = 'impuestos'; render(); };
-    $('tabEventosWeb').onclick = () => { setLocalMemoryMode(false); state.activeTab = 'eventosWeb'; render(); };
-    if ($('tabEventosLocal')) $('tabEventosLocal').onclick = () => { setLocalMemoryMode(true); state.activeTab = 'eventosWeb'; render(); requestPersistentLocalStorage(); };
+    $('tabEventosWeb').onclick = () => { state.activeTab = 'eventosWeb'; render(); };
     $('subLocalidades').onclick = () => { state.impuestosTab = 'localidades'; render(); };
     $('subTotales').onclick = () => { state.impuestosTab = 'totales'; render(); };
 
