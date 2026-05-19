@@ -1,11 +1,11 @@
 // Service Worker - Control Eventos
-// Versión: 20260518_botonera_sin_zoom
+// Versión: botonera_sin_texto_seleccionado
 
-const CACHE_NAME = 'control-eventos-botonera-sin-zoom';
+const CACHE_NAME = 'control-eventos-botonera-sin-texto-seleccionado';
 const APP_SHELL = [
   "./",
-  "./index.html?v=botonera_sin_zoom",
-  "./manifest.webmanifest?v=botonera_sin_zoom"
+  "./index.html?v=botonera_sin_texto_seleccionado",
+  "./manifest.webmanifest?v=botonera_sin_texto_seleccionado"
 ];
 
 self.addEventListener("install", event => {
@@ -32,10 +32,10 @@ self.addEventListener("fetch", event => {
       fetch(req, { cache: "no-store" })
         .then(response => {
           const copy = response.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put("./index.html?v=botonera_sin_zoom", copy));
+          caches.open(CACHE_NAME).then(cache => cache.put("./index.html?v=botonera_sin_texto_seleccionado", copy));
           return response;
         })
-        .catch(() => caches.match("./index.html?v=botonera_sin_zoom").then(r => r || caches.match("./index.html")))
+        .catch(() => caches.match("./index.html?v=botonera_sin_texto_seleccionado").then(r => r || caches.match("./index.html")))
     );
     return;
   }

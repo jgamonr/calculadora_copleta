@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <!-- Versión publicada: 20260518_importe_seleccionado -->
+  <!-- Versión publicada: 20260518_botonera_sin_texto_seleccionado -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Control de ingreso a evento - botonera vibracion</title>
@@ -1240,18 +1240,8 @@
       border-color: #0f172a;
       background: #eef2ff;
       box-shadow: 0 0 0 3px rgba(15, 23, 42, .12);
-    }
-    .manual-counter-card.selected::before {
-      content: "✓ Seleccionada";
-      display: inline-flex;
-      width: fit-content;
-      border-radius: 999px;
-      background: #0f172a;
-      color: #ffffff;
-      font-size: 11px;
-      font-weight: 900;
-      padding: 4px 8px;
-      letter-spacing: .02em;
+      outline: 3px solid rgba(15, 23, 42, .22);
+      outline-offset: -3px;
     }
     .manual-counter-locality {
       display: grid;
@@ -1860,7 +1850,7 @@
       </div>
       <div class="manual-counter-footer">
         <button id="manualCounterAddLocalityBtn" type="button" class="active">Agregar localidad</button>
-        <button id="manualCounterEditSelectedBtn" type="button">Editar seleccionada</button>
+        <button id="manualCounterEditSelectedBtn" type="button">Editar</button>
       </div>
     </div>
   </div>
@@ -2836,7 +2826,7 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       const reportHtml = `<!DOCTYPE html>
       <html lang="es">
       <head>
-  <!-- Versión publicada: 20260518_importe_seleccionado -->
+  <!-- Versión publicada: 20260518_botonera_sin_texto_seleccionado -->
         <meta charset="UTF-8">
         <title>Reporte del evento</title>
         <style>
@@ -6270,7 +6260,7 @@ ${recordId}`, {
       if (editBtn) {
         const selectedItem = state.categories.find(row => String(row.id) === String(state.manualCounterSelectedId));
         editBtn.disabled = !selectedItem;
-        editBtn.textContent = selectedItem ? 'Editar seleccionada' : 'Editar';
+        editBtn.textContent = 'Editar';
       }
 
       list.innerHTML = '';
