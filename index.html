@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <!-- Versión publicada: 20260518_botonera_formato_horizontal -->
+  <!-- Versión publicada: 20260518_botonera_renglon_compacto -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Control de ingreso a evento - botonera vibracion</title>
@@ -1195,16 +1195,16 @@
       display: grid;
       grid-template-columns: 1fr auto;
       align-items: center;
-      gap: 10px;
-      min-height: 54px;
+      gap: 8px;
+      min-height: 36px;
     }
     .manual-counter-current-inline {
-      min-width: 68px;
-      padding: 8px 10px;
-      border-radius: 14px;
+      min-width: 58px;
+      padding: 5px 8px;
+      border-radius: 12px;
       background: var(--soft);
       border: 1px solid var(--border);
-      font-size: 28px;
+      font-size: 22px;
       font-weight: 900;
       line-height: 1;
       text-align: center;
@@ -1224,11 +1224,11 @@
     }
     .manual-counter-card {
       border: 1px solid var(--border);
-      border-radius: 18px;
-      padding: 12px;
+      border-radius: 16px;
+      padding: 8px 9px;
       background: #ffffff;
       display: grid;
-      gap: 10px;
+      gap: 6px;
       box-shadow: 0 1px 2px rgba(15, 23, 42, .04);
       cursor: pointer;
       transition: border-color .15s ease, box-shadow .15s ease, background .15s ease, transform .15s ease;
@@ -1245,15 +1245,15 @@
     }
     .manual-counter-locality {
       display: grid;
-      gap: 3px;
-      min-height: 54px;
+      gap: 1px;
+      min-height: 36px;
     }
     .manual-counter-locality strong {
-      font-size: 17px;
-      line-height: 1.15;
+      font-size: 15px;
+      line-height: 1.05;
     }
     .manual-counter-locality span {
-      font-size: 13px;
+      font-size: 12px;
       color: var(--muted);
       font-weight: 700;
     }
@@ -1270,14 +1270,14 @@
     }
     .manual-counter-actions {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: .85fr 1.15fr;
       gap: 6px;
     }
     .manual-counter-actions button {
-      min-height: 32px;
-      font-size: 16px;
-      border-radius: 10px;
-      padding: 4px 8px;
+      min-height: 24px;
+      font-size: 14px;
+      border-radius: 9px;
+      padding: 3px 7px;
       line-height: 1;
     }
     .manual-counter-actions .minus {
@@ -1445,8 +1445,25 @@
         grid-template-columns: 1fr;
       }
       .manual-counter-current {
-        min-height: 58px;
-        font-size: 32px;
+        min-height: 40px;
+        font-size: 24px;
+      }
+      .manual-counter-card {
+        padding: 7px 8px;
+        gap: 5px;
+      }
+      .manual-counter-locality-row {
+        min-height: 34px;
+      }
+      .manual-counter-current-inline {
+        min-width: 52px;
+        padding: 5px 7px;
+        font-size: 20px;
+      }
+      .manual-counter-actions button {
+        min-height: 23px;
+        font-size: 13px;
+        padding: 3px 6px;
       }
       .manual-counter-footer {
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1631,7 +1648,7 @@
 
 
   <!-- Configuración PWA: permite instalar la página como app en teléfono -->
-  <link rel="manifest" href="manifest.webmanifest?v=botonera_formato_horizontal">
+  <link rel="manifest" href="manifest.webmanifest?v=botonera_renglon_compacto">
   <meta name="theme-color" content="#0f172a">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -2975,7 +2992,7 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       const reportHtml = `<!DOCTYPE html>
       <html lang="es">
       <head>
-  <!-- Versión publicada: 20260518_botonera_formato_horizontal -->
+  <!-- Versión publicada: 20260518_botonera_renglon_compacto -->
         <meta charset="UTF-8">
         <title>Reporte del evento</title>
         <style>
