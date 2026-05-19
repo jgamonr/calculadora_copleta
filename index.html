@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <!-- Versión publicada: 20260518_botonera_renglon_compacto -->
+  <!-- Versión publicada: 20260518_botonera_cambiar_lado -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Control de ingreso a evento - botonera vibracion</title>
@@ -1108,7 +1108,7 @@
     }
     .manual-counter-open-card button {
       min-height: 54px;
-      font-size: 17px;
+      font-size: 15px;
       border-radius: 16px;
     }
     .manual-counter-modal-backdrop {
@@ -1185,7 +1185,7 @@
       white-space: nowrap;
     }
     .manual-counter-summary-card strong {
-      font-size: 17px;
+      font-size: 15px;
       line-height: 1.05;
       white-space: nowrap;
       overflow: hidden;
@@ -1300,7 +1300,7 @@
       bottom: 0;
       z-index: 3;
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 8px;
       align-items: center;
       padding: 12px 18px 16px;
@@ -1432,7 +1432,7 @@
       white-space: nowrap;
     }
     .manual-counter-summary-card strong {
-      font-size: 17px;
+      font-size: 15px;
       line-height: 1.05;
       white-space: nowrap;
       overflow: hidden;
@@ -1450,7 +1450,7 @@
       }
       .manual-counter-card {
         padding: 7px 8px;
-        gap: 5px;
+        gap: 3px;
       }
       .manual-counter-locality-row {
         min-height: 34px;
@@ -1507,15 +1507,15 @@
       display: grid;
       grid-template-columns: minmax(150px, 1.25fr) minmax(92px, .55fr) minmax(82px, .45fr) minmax(110px, .6fr);
       align-items: center;
-      gap: 10px;
-      padding: 8px 10px;
+      gap: 6px;
+      padding: 4px 6px;
       border-radius: 10px;
       border-color: #e5e7eb;
       background-color: #f6f7fb;
       background-image: radial-gradient(#d1d5db 1.1px, transparent 1.1px);
       background-size: 18px 18px;
       box-shadow: none;
-      min-height: 104px;
+      min-height: 52px;
     }
     .manual-counter-card:hover {
       background-color: #f1f5f9;
@@ -1536,8 +1536,8 @@
       display: flex;
       flex-direction: column;
       justify-content: center;
-      gap: 8px;
-      padding: 8px 10px;
+      gap: 3px;
+      padding: 4px 6px;
       background: rgba(238, 242, 255, .86);
       border: 1px solid rgba(226, 232, 240, .95);
       border-radius: 2px;
@@ -1554,7 +1554,7 @@
     .manual-counter-locality span {
       width: fit-content;
       max-width: 100%;
-      padding: 6px 8px;
+      padding: 3px 5px;
       background: rgba(226, 232, 240, .72);
       color: #475569;
       font-size: clamp(15px, 2vw, 24px);
@@ -1566,15 +1566,15 @@
     .manual-counter-current-inline {
       min-width: 0;
       width: 100%;
-      min-height: 78px;
+      min-height: 39px;
       display: grid;
       place-items: center;
-      padding: 8px 10px;
-      border-radius: 18px;
+      padding: 4px 6px;
+      border-radius: 12px;
       background: rgba(248, 250, 252, .92);
       border: 1px solid #e2e8f0;
       box-shadow: 0 1px 4px rgba(15, 23, 42, .05) inset;
-      font-size: clamp(34px, 5vw, 56px);
+      font-size: clamp(24px, 4vw, 38px);
       font-weight: 900;
       color: #0f172a;
     }
@@ -1587,68 +1587,100 @@
       box-shadow: none;
     }
     .manual-counter-actions .minus {
-      min-height: 68px;
-      font-size: clamp(24px, 3.4vw, 42px);
+      min-height: 34px;
+      font-size: clamp(19px, 2.8vw, 30px);
       color: #991b1b;
       background: rgba(255, 247, 247, .95);
       border-color: #fecaca;
     }
     .manual-counter-actions .plus {
-      min-height: 88px;
-      font-size: clamp(26px, 3.8vw, 44px);
+      min-height: 44px;
+      font-size: clamp(21px, 3vw, 32px);
       background: #0f172a;
       color: #ffffff;
       border-color: #0f172a;
     }
+
+    .manual-counter-card.buttons-reversed {
+      grid-template-columns: minmax(110px, .6fr) minmax(82px, .45fr) minmax(92px, .55fr) minmax(150px, 1.25fr);
+    }
+    .manual-counter-card.buttons-reversed .manual-counter-locality { grid-column: 4; }
+    .manual-counter-card.buttons-reversed .manual-counter-current-inline { grid-column: 3; }
+    .manual-counter-card.buttons-reversed .minus { grid-column: 2; }
+    .manual-counter-card.buttons-reversed .plus { grid-column: 1; }
+    .manual-counter-swap-btn.active {
+      background: #0f172a;
+      color: #ffffff;
+      border-color: #0f172a;
+    }
+    @media (max-width: 520px) {
+      .manual-counter-footer {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 5px;
+        padding: 9px 10px 11px;
+      }
+      .manual-counter-footer button {
+        min-height: 36px;
+        font-size: 11px;
+        padding: 5px 4px;
+        border-radius: 10px;
+      }
+    }
     @media (max-width: 760px) {
       .manual-counter-card {
         grid-template-columns: minmax(102px, 1fr) minmax(68px, .55fr) minmax(56px, .42fr) minmax(70px, .52fr);
-        gap: 6px;
-        padding: 7px;
-        min-height: 84px;
+        gap: 4px;
+        padding: 4px;
+        min-height: 42px;
+      }
+      .manual-counter-card.buttons-reversed {
+        grid-template-columns: minmax(70px, .52fr) minmax(56px, .42fr) minmax(68px, .55fr) minmax(102px, 1fr);
       }
       .manual-counter-locality {
-        padding: 6px 7px;
-        gap: 6px;
+        padding: 4px 5px;
+        gap: 3px;
       }
       .manual-counter-locality strong {
-        font-size: 17px;
+        font-size: 15px;
       }
       .manual-counter-locality span {
-        font-size: 14px;
-        padding: 5px 6px;
+        font-size: 12px;
+        padding: 3px 4px;
       }
       .manual-counter-current-inline {
-        min-height: 62px;
-        border-radius: 14px;
-        font-size: 32px;
-      }
-      .manual-counter-actions .minus {
-        min-height: 56px;
+        min-height: 31px;
+        border-radius: 10px;
         font-size: 24px;
       }
+      .manual-counter-actions .minus {
+        min-height: 28px;
+        font-size: 19px;
+      }
       .manual-counter-actions .plus {
-        min-height: 72px;
-        font-size: 26px;
+        min-height: 36px;
+        font-size: 21px;
       }
     }
     @media (max-width: 380px) {
       .manual-counter-card {
         grid-template-columns: minmax(92px, 1fr) 58px 48px 60px;
-        gap: 5px;
+        gap: 3px;
+      }
+      .manual-counter-card.buttons-reversed {
+        grid-template-columns: 60px 48px 58px minmax(92px, 1fr);
       }
       .manual-counter-locality strong { font-size: 15px; }
       .manual-counter-locality span { font-size: 12px; }
-      .manual-counter-current-inline { min-height: 56px; font-size: 28px; padding: 5px; }
-      .manual-counter-actions .minus { min-height: 50px; font-size: 21px; }
-      .manual-counter-actions .plus { min-height: 64px; font-size: 23px; }
+      .manual-counter-current-inline { min-height: 28px; font-size: 21px; padding: 3px; }
+      .manual-counter-actions .minus { min-height: 25px; font-size: 17px; }
+      .manual-counter-actions .plus { min-height: 32px; font-size: 19px; }
     }
 
   </style>
 
 
   <!-- Configuración PWA: permite instalar la página como app en teléfono -->
-  <link rel="manifest" href="manifest.webmanifest?v=botonera_renglon_compacto">
+  <link rel="manifest" href="manifest.webmanifest?v=botonera_cambiar_lado">
   <meta name="theme-color" content="#0f172a">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -2017,6 +2049,7 @@
       <div class="manual-counter-footer">
         <button id="manualCounterAddLocalityBtn" type="button" class="active">Agregar localidad</button>
         <button id="manualCounterEditSelectedBtn" type="button">Editar</button>
+        <button id="manualCounterSwapButtonsBtn" type="button" class="manual-counter-swap-btn">Cambiar lado</button>
       </div>
     </div>
   </div>
@@ -2083,6 +2116,7 @@
       sheetWebAppUrl: FIXED_SHEET_WEB_APP_URL,
       sheetRecordId: localStorage.getItem('sheetRecordId') || '',
       useLocalMemorySave: localStorage.getItem(LOCAL_MEMORY_MODE_KEY) !== '0',
+      manualCounterReverseButtons: localStorage.getItem('manualCounterReverseButtons_v1') === '1',
       selectedRowId: null,
       manualCounterSelectedId: null,
       webEventsRecords: [],
@@ -2992,7 +3026,7 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       const reportHtml = `<!DOCTYPE html>
       <html lang="es">
       <head>
-  <!-- Versión publicada: 20260518_botonera_renglon_compacto -->
+  <!-- Versión publicada: 20260518_botonera_cambiar_lado -->
         <meta charset="UTF-8">
         <title>Reporte del evento</title>
         <style>
@@ -6429,6 +6463,15 @@ ${recordId}`, {
         editBtn.textContent = 'Editar';
       }
 
+      const swapBtn = $('manualCounterSwapButtonsBtn');
+      if (swapBtn) {
+        swapBtn.classList.toggle('active', !!state.manualCounterReverseButtons);
+        swapBtn.textContent = state.manualCounterReverseButtons ? 'Botones derecha' : 'Botones izquierda';
+        swapBtn.title = state.manualCounterReverseButtons
+          ? 'Regresa los botones -1 y +1 al lado derecho.'
+          : 'Mueve los botones -1 y +1 al lado izquierdo para accesibilidad.';
+      }
+
       list.innerHTML = '';
       const rows = getSortedCategories();
       if (!rows.length) {
@@ -6439,7 +6482,7 @@ ${recordId}`, {
       rows.forEach(item => {
         const card = document.createElement('div');
         const selected = String(state.manualCounterSelectedId) === String(item.id);
-        card.className = 'manual-counter-card' + (selected ? ' selected' : '');
+        card.className = 'manual-counter-card' + (state.manualCounterReverseButtons ? ' buttons-reversed' : '') + (selected ? ' selected' : '');
         card.tabIndex = 0;
         card.setAttribute('role', 'button');
         card.setAttribute('aria-pressed', selected ? 'true' : 'false');
@@ -6483,11 +6526,18 @@ ${recordId}`, {
       });
     }
 
+    function toggleManualCounterButtonSide() {
+      state.manualCounterReverseButtons = !state.manualCounterReverseButtons;
+      localStorage.setItem('manualCounterReverseButtons_v1', state.manualCounterReverseButtons ? '1' : '0');
+      renderManualCounterModal();
+    }
+
     function bindManualCounterModal() {
       if ($('openManualCounterBtn')) $('openManualCounterBtn').onclick = openManualCounterModal;
       if ($('closeManualCounterBtn')) $('closeManualCounterBtn').onclick = closeManualCounterModal;
       if ($('manualCounterAddLocalityBtn')) $('manualCounterAddLocalityBtn').onclick = () => openManualCounterEditor('');
       if ($('manualCounterEditSelectedBtn')) $('manualCounterEditSelectedBtn').onclick = openManualCounterSelectedEditor;
+      if ($('manualCounterSwapButtonsBtn')) $('manualCounterSwapButtonsBtn').onclick = toggleManualCounterButtonSide;
       const modal = $('manualCounterModal');
       if (modal) {
         modal.addEventListener('click', (e) => {
