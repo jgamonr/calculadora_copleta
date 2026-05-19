@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <!-- Versión publicada: 20260518_botonera_cambiar_lado -->
+  <!-- Versión publicada: 20260518_botonera_fila_un_renglon -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Control de ingreso a evento - botonera vibracion</title>
@@ -1676,11 +1676,99 @@
       .manual-counter-actions .plus { min-height: 32px; font-size: 19px; }
     }
 
+
+    /* Corrección de acomodo de Botonera manual:
+       En modo botones izquierda o derecha, todos los elementos permanecen en un solo renglón.
+       La tarjeta completa queda un poco más alta que la casilla del conteo para que no se desacomode. */
+    .manual-counter-card {
+      grid-auto-flow: column;
+      grid-auto-rows: 1fr;
+      grid-template-rows: 1fr !important;
+      min-height: 58px;
+      align-items: center;
+    }
+    .manual-counter-locality,
+    .manual-counter-current-inline,
+    .manual-counter-actions .minus,
+    .manual-counter-actions .plus {
+      grid-row: 1 !important;
+      align-self: center;
+    }
+    .manual-counter-locality {
+      min-height: 44px;
+      height: 44px;
+    }
+    .manual-counter-current-inline {
+      min-height: 38px;
+      height: 38px;
+    }
+    .manual-counter-actions .minus {
+      min-height: 32px;
+      height: 32px;
+    }
+    .manual-counter-actions .plus {
+      min-height: 42px;
+      height: 42px;
+    }
+    .manual-counter-card:not(.buttons-reversed) .manual-counter-locality { grid-column: 1 !important; }
+    .manual-counter-card:not(.buttons-reversed) .manual-counter-current-inline { grid-column: 2 !important; }
+    .manual-counter-card:not(.buttons-reversed) .minus { grid-column: 3 !important; }
+    .manual-counter-card:not(.buttons-reversed) .plus { grid-column: 4 !important; }
+    .manual-counter-card.buttons-reversed .plus { grid-column: 1 !important; }
+    .manual-counter-card.buttons-reversed .minus { grid-column: 2 !important; }
+    .manual-counter-card.buttons-reversed .manual-counter-current-inline { grid-column: 3 !important; }
+    .manual-counter-card.buttons-reversed .manual-counter-locality { grid-column: 4 !important; }
+
+    @media (max-width: 760px) {
+      .manual-counter-card {
+        min-height: 50px;
+        grid-template-rows: 1fr !important;
+      }
+      .manual-counter-locality {
+        min-height: 39px;
+        height: 39px;
+      }
+      .manual-counter-current-inline {
+        min-height: 34px;
+        height: 34px;
+      }
+      .manual-counter-actions .minus {
+        min-height: 28px;
+        height: 28px;
+      }
+      .manual-counter-actions .plus {
+        min-height: 37px;
+        height: 37px;
+      }
+    }
+
+    @media (max-width: 380px) {
+      .manual-counter-card {
+        min-height: 46px;
+      }
+      .manual-counter-locality {
+        min-height: 36px;
+        height: 36px;
+      }
+      .manual-counter-current-inline {
+        min-height: 31px;
+        height: 31px;
+      }
+      .manual-counter-actions .minus {
+        min-height: 26px;
+        height: 26px;
+      }
+      .manual-counter-actions .plus {
+        min-height: 34px;
+        height: 34px;
+      }
+    }
+
   </style>
 
 
   <!-- Configuración PWA: permite instalar la página como app en teléfono -->
-  <link rel="manifest" href="manifest.webmanifest?v=botonera_cambiar_lado">
+  <link rel="manifest" href="manifest.webmanifest?v=botonera_fila_un_renglon">
   <meta name="theme-color" content="#0f172a">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -3026,7 +3114,7 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       const reportHtml = `<!DOCTYPE html>
       <html lang="es">
       <head>
-  <!-- Versión publicada: 20260518_botonera_cambiar_lado -->
+  <!-- Versión publicada: 20260518_botonera_fila_un_renglon -->
         <meta charset="UTF-8">
         <title>Reporte del evento</title>
         <style>
@@ -3052,6 +3140,94 @@ Selecciona Cancelar para agregarlas a las existentes.`);
     .sticky-top-panel .impuestos-subtabs-sticky.show {
       display: inline-flex !important;
     }
+
+    /* Corrección de acomodo de Botonera manual:
+       En modo botones izquierda o derecha, todos los elementos permanecen en un solo renglón.
+       La tarjeta completa queda un poco más alta que la casilla del conteo para que no se desacomode. */
+    .manual-counter-card {
+      grid-auto-flow: column;
+      grid-auto-rows: 1fr;
+      grid-template-rows: 1fr !important;
+      min-height: 58px;
+      align-items: center;
+    }
+    .manual-counter-locality,
+    .manual-counter-current-inline,
+    .manual-counter-actions .minus,
+    .manual-counter-actions .plus {
+      grid-row: 1 !important;
+      align-self: center;
+    }
+    .manual-counter-locality {
+      min-height: 44px;
+      height: 44px;
+    }
+    .manual-counter-current-inline {
+      min-height: 38px;
+      height: 38px;
+    }
+    .manual-counter-actions .minus {
+      min-height: 32px;
+      height: 32px;
+    }
+    .manual-counter-actions .plus {
+      min-height: 42px;
+      height: 42px;
+    }
+    .manual-counter-card:not(.buttons-reversed) .manual-counter-locality { grid-column: 1 !important; }
+    .manual-counter-card:not(.buttons-reversed) .manual-counter-current-inline { grid-column: 2 !important; }
+    .manual-counter-card:not(.buttons-reversed) .minus { grid-column: 3 !important; }
+    .manual-counter-card:not(.buttons-reversed) .plus { grid-column: 4 !important; }
+    .manual-counter-card.buttons-reversed .plus { grid-column: 1 !important; }
+    .manual-counter-card.buttons-reversed .minus { grid-column: 2 !important; }
+    .manual-counter-card.buttons-reversed .manual-counter-current-inline { grid-column: 3 !important; }
+    .manual-counter-card.buttons-reversed .manual-counter-locality { grid-column: 4 !important; }
+
+    @media (max-width: 760px) {
+      .manual-counter-card {
+        min-height: 50px;
+        grid-template-rows: 1fr !important;
+      }
+      .manual-counter-locality {
+        min-height: 39px;
+        height: 39px;
+      }
+      .manual-counter-current-inline {
+        min-height: 34px;
+        height: 34px;
+      }
+      .manual-counter-actions .minus {
+        min-height: 28px;
+        height: 28px;
+      }
+      .manual-counter-actions .plus {
+        min-height: 37px;
+        height: 37px;
+      }
+    }
+
+    @media (max-width: 380px) {
+      .manual-counter-card {
+        min-height: 46px;
+      }
+      .manual-counter-locality {
+        min-height: 36px;
+        height: 36px;
+      }
+      .manual-counter-current-inline {
+        min-height: 31px;
+        height: 31px;
+      }
+      .manual-counter-actions .minus {
+        min-height: 26px;
+        height: 26px;
+      }
+      .manual-counter-actions .plus {
+        min-height: 34px;
+        height: 34px;
+      }
+    }
+
   </style>
       </head>
       <body>
