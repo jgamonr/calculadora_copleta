@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <!-- Versión publicada: 20260518_botonera_fila_un_renglon -->
+  <!-- Versión publicada: 20260518_botonera_espacio_reducido -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Control de ingreso a evento - botonera vibracion</title>
@@ -1764,11 +1764,122 @@
       }
     }
 
-  </style>
+  
+
+    /* Ajuste 20260518_botonera_espacio_reducido:
+       Reduce el espacio superior/inferior de cada renglón de la botonera.
+       Evita que las filas se estiren para llenar el alto disponible del modal. */
+    .manual-counter-body {
+      padding: 8px 14px 10px !important;
+      gap: 6px !important;
+      align-content: start !important;
+    }
+    .manual-counter-list {
+      display: grid !important;
+      grid-template-columns: 1fr !important;
+      gap: 6px !important;
+      align-items: start !important;
+      align-content: start !important;
+      grid-auto-rows: auto !important;
+    }
+    .manual-counter-card {
+      min-height: 50px !important;
+      height: auto !important;
+      padding: 4px 6px !important;
+      gap: 5px !important;
+      align-items: center !important;
+      align-content: center !important;
+    }
+    .manual-counter-locality {
+      min-height: 38px !important;
+      height: 38px !important;
+      padding: 3px 6px !important;
+      justify-content: center !important;
+    }
+    .manual-counter-current-inline {
+      min-height: 34px !important;
+      height: 34px !important;
+      padding: 3px 6px !important;
+    }
+    .manual-counter-actions .minus {
+      min-height: 30px !important;
+      height: 30px !important;
+    }
+    .manual-counter-actions .plus {
+      min-height: 38px !important;
+      height: 38px !important;
+    }
+
+    @media (max-width: 760px) {
+      .manual-counter-body {
+        padding: 6px 8px 8px !important;
+        gap: 5px !important;
+      }
+      .manual-counter-list {
+        gap: 5px !important;
+      }
+      .manual-counter-card {
+        min-height: 44px !important;
+        padding: 3px 4px !important;
+        gap: 4px !important;
+      }
+      .manual-counter-locality {
+        min-height: 34px !important;
+        height: 34px !important;
+        padding: 2px 5px !important;
+      }
+      .manual-counter-locality strong {
+        font-size: 14px !important;
+        line-height: 1 !important;
+      }
+      .manual-counter-locality span {
+        font-size: 11px !important;
+        padding: 2px 4px !important;
+      }
+      .manual-counter-current-inline {
+        min-height: 31px !important;
+        height: 31px !important;
+        font-size: 22px !important;
+      }
+      .manual-counter-actions .minus {
+        min-height: 27px !important;
+        height: 27px !important;
+        font-size: 18px !important;
+      }
+      .manual-counter-actions .plus {
+        min-height: 34px !important;
+        height: 34px !important;
+        font-size: 20px !important;
+      }
+    }
+
+    @media (max-width: 380px) {
+      .manual-counter-card {
+        min-height: 41px !important;
+      }
+      .manual-counter-locality {
+        min-height: 31px !important;
+        height: 31px !important;
+      }
+      .manual-counter-current-inline {
+        min-height: 28px !important;
+        height: 28px !important;
+        font-size: 20px !important;
+      }
+      .manual-counter-actions .minus {
+        min-height: 24px !important;
+        height: 24px !important;
+      }
+      .manual-counter-actions .plus {
+        min-height: 31px !important;
+        height: 31px !important;
+      }
+    }
+</style>
 
 
   <!-- Configuración PWA: permite instalar la página como app en teléfono -->
-  <link rel="manifest" href="manifest.webmanifest?v=botonera_fila_un_renglon">
+  <link rel="manifest" href="manifest.webmanifest?v=botonera_espacio_reducido">
   <meta name="theme-color" content="#0f172a">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -3114,7 +3225,7 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       const reportHtml = `<!DOCTYPE html>
       <html lang="es">
       <head>
-  <!-- Versión publicada: 20260518_botonera_fila_un_renglon -->
+  <!-- Versión publicada: 20260518_botonera_espacio_reducido -->
         <meta charset="UTF-8">
         <title>Reporte del evento</title>
         <style>
