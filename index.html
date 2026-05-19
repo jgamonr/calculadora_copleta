@@ -6717,16 +6717,47 @@ ${recordId}`, {
       }
     }
 
-    function vibrateManualCounter(delta) {
-      // Vibración breve para confirmar suma/resta en la contador manual.
-      // En algunos equipos, especialmente iPhone/iPad, el navegador puede no permitir vibración web.
-      if (!navigator || typeof navigator.vibrate !== 'function') return;
+    let lastManualCounterHapticAt = 0;
+
+    function vibrateManualCounter(delta, options = {}) {
+      // Debe llamarse dentro del gesto de toque/click para que el móvil lo permita.
+      const now = Date.now();
+      if (!options.force && now - lastManualCounterHapticAt < 80) return;
+      lastManualCounterHapticAt = now;
+
+      const amount = Number(delta || 0);
+      const pattern = amount < 0 ? [18, 25, 18] : 25;
+      let sent = false;
+
       try {
-        const amount = Number(delta || 0);
-        navigator.vibrate(amount < 0 ? [18, 25, 18] : 25);
+        if (navigator && typeof navigator.vibrate === 'function') {
+          sent = Boolean(navigator.vibrate(pattern));
+        }
       } catch (error) {
-        console.warn('No se pudo activar la vibración de la botonera.', error);
+        console.warn('No se pudo activar navigator.vibrate.', error);
       }
+
+      try {
+        const haptic = window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.HapticFeedback;
+        if (haptic && typeof haptic.impactOccurred === 'function') {
+          haptic.impactOccurred(amount < 0 ? 'medium' : 'light');
+          sent = true;
+        }
+      } catch (error) {
+        console.warn('No se pudo activar haptic feedback externo.', error);
+      }
+
+      try {
+        const handler = window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.hapticFeedback;
+        if (handler && typeof handler.postMessage === 'function') {
+          handler.postMessage({ type: amount < 0 ? 'warning' : 'selection' });
+          sent = true;
+        }
+      } catch (error) {
+        console.warn('No se pudo activar haptic feedback iOS externo.', error);
+      }
+
+      return sent;
     }
 
     function adjustManualCounterCount(id, delta) {
@@ -6959,6 +6990,13 @@ ${recordId}`, {
       });
 
       list.querySelectorAll('[data-manual-counter-action]').forEach(btn => {
+        const primeHaptic = (event) => {
+          const action = btn.dataset.manualCounterAction;
+          const delta = action === 'minus' ? -1 : 1;
+          vibrateManualCounter(delta, { force: true });
+        };
+        btn.addEventListener('pointerdown', primeHaptic, { passive: true });
+        btn.addEventListener('touchstart', primeHaptic, { passive: true });
         btn.onclick = (event) => {
           event.preventDefault();
           event.stopPropagation();
