@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <!-- Versión publicada: 20260518_botonera_espacio_reducido -->
+  <!-- Versión publicada: 20260518_contador_manual_nombre -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Control de ingreso a evento - botonera vibracion</title>
@@ -1092,7 +1092,7 @@
 
 
 
-    /* Botonera manual modal:
+    /* Contador Manual modal:
        Vista simplificada para operar solo con botones grandes de +1 / -1 por localidad.
        Usa el mismo state.categories que el detalle por localidad para mantener totales, impuestos y guardados actualizados. */
     .manual-counter-open-card {
@@ -1373,7 +1373,7 @@
       min-height: 0;
     }
 
-    /* Evita el zoom por doble clic / doble toque dentro de la botonera manual.
+    /* Evita el zoom por doble clic / doble toque dentro de la contador manual.
        Se conserva el toque rápido sobre los botones para sumar o restar sin acercar la pantalla. */
     .manual-counter-modal,
     .manual-counter-modal * {
@@ -1497,7 +1497,7 @@
     }
 
 
-    /* Ajuste visual de Botonera manual tipo renglón horizontal:
+    /* Ajuste visual de Contador Manual tipo renglón horizontal:
        Localidad/precio | Total entradas | -1 | +1. */
     .manual-counter-list {
       grid-template-columns: 1fr;
@@ -1677,7 +1677,7 @@
     }
 
 
-    /* Corrección de acomodo de Botonera manual:
+    /* Corrección de acomodo de Contador Manual:
        En modo botones izquierda o derecha, todos los elementos permanecen en un solo renglón.
        La tarjeta completa queda un poco más alta que la casilla del conteo para que no se desacomode. */
     .manual-counter-card {
@@ -1766,7 +1766,7 @@
 
   
 
-    /* Ajuste 20260518_botonera_espacio_reducido:
+    /* Ajuste 20260518_contador_manual_nombre:
        Reduce el espacio superior/inferior de cada renglón de la botonera.
        Evita que las filas se estiren para llenar el alto disponible del modal. */
     .manual-counter-body {
@@ -1879,7 +1879,7 @@
 
 
   <!-- Configuración PWA: permite instalar la página como app en teléfono -->
-  <link rel="manifest" href="manifest.webmanifest?v=botonera_espacio_reducido">
+  <link rel="manifest" href="manifest.webmanifest?v=contador_manual_nombre">
   <meta name="theme-color" content="#0f172a">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1906,7 +1906,7 @@
           <button id="tabEventosWeb" class="active">Eventos guardados Web</button>
           <button id="tabEventosLocal">Eventos guardados Local</button>
           <button id="tabContador">Detalle por localidad</button>
-          <button id="tabBotonera">Botonera manual</button>
+          <button id="tabBotonera">Contador Manual</button>
           <button id="tabImpuestos">Impuestos</button>
         </div>
 
@@ -2075,9 +2075,9 @@
 
     <div id="viewBotonera" style="display:none;">
       <div class="card manual-counter-open-card"><div class="inner">
-        <div class="section-title">Botonera manual de acceso</div>
+        <div class="section-title">Contador Manual de acceso</div>
         <p class="note" style="font-size:15px;margin:0 0 12px;">Usa esta pantalla para operar con botones grandes de sumar o quitar una persona por localidad. Toma los mismos números que ya existen en la página y actualiza todos los totales.</p>
-        <button id="openManualCounterBtn" type="button" class="active">Abrir botonera manual</button>
+        <button id="openManualCounterBtn" type="button" class="active">Abrir contador manual</button>
       </div></div>
     </div>
 
@@ -2230,7 +2230,7 @@
     <div class="manual-counter-modal">
       <div class="manual-counter-header">
         <div class="manual-counter-title">
-          <strong>Botonera manual</strong>
+          <strong>Contador Manual</strong>
           <span class="note">Suma o quita personas por localidad. Los cambios actualizan la página completa.</span>
         </div>
         <button id="closeManualCounterBtn" class="manual-counter-close" type="button" aria-label="Cerrar botonera">×</button>
@@ -3225,7 +3225,7 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       const reportHtml = `<!DOCTYPE html>
       <html lang="es">
       <head>
-  <!-- Versión publicada: 20260518_botonera_espacio_reducido -->
+  <!-- Versión publicada: 20260518_contador_manual_nombre -->
         <meta charset="UTF-8">
         <title>Reporte del evento</title>
         <style>
@@ -3252,7 +3252,7 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       display: inline-flex !important;
     }
 
-    /* Corrección de acomodo de Botonera manual:
+    /* Corrección de acomodo de Contador Manual:
        En modo botones izquierda o derecha, todos los elementos permanecen en un solo renglón.
        La tarjeta completa queda un poco más alta que la casilla del conteo para que no se desacomode. */
     .manual-counter-card {
@@ -6560,7 +6560,7 @@ ${recordId}`, {
     }
 
     function vibrateManualCounter(delta) {
-      // Vibración breve para confirmar suma/resta en la botonera manual.
+      // Vibración breve para confirmar suma/resta en la contador manual.
       // En algunos equipos, especialmente iPhone/iPad, el navegador puede no permitir vibración web.
       if (!navigator || typeof navigator.vibrate !== 'function') return;
       try {
