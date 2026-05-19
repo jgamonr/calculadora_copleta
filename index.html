@@ -384,10 +384,10 @@
     }
     .left-panel {
       align-self: start;
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 10px;
-      align-content: start;
+      display: block;
+      width: 100%;
+    }
+    .left-panel .config-card {
       width: 100%;
     }
     .counter-panel {
@@ -427,7 +427,26 @@
 
 
 
-    details.collapsible-card {
+        .event-config-grid {
+      display: grid;
+      grid-template-columns: minmax(180px, 1fr) minmax(130px, .45fr) minmax(130px, .45fr);
+      gap: 10px;
+      align-items: end;
+    }
+    .event-config-grid .field {
+      min-width: 0;
+    }
+    .event-config-grid button {
+      width: 100%;
+      min-height: 34px;
+    }
+    @media (max-width: 480px) {
+      .event-config-grid {
+        grid-template-columns: 1fr;
+        align-items: stretch;
+      }
+    }
+details.collapsible-card {
       overflow: hidden;
     }
     .collapsible-summary {
@@ -1054,10 +1073,7 @@
       h1 { font-size: 24px; }
       .toolbar { align-items: stretch; }
       th, td { padding: 8px 10px; }
-      .left-panel {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 6px;
-      }
+      .left-panel { width: 100%; }
       .collapsible-summary {
         padding: 7px 6px;
       }
@@ -1072,9 +1088,7 @@
       .factors-grid { grid-template-columns: 1fr; }
     }
     @media (max-width: 520px) {
-      .left-panel {
-        grid-template-columns: 1fr;
-      }
+      .left-panel { width: 100%; }
       .left-panel details.collapsible-card:not([open]) .collapsible-summary {
         justify-content: space-between;
       }
@@ -1875,7 +1889,58 @@
         height: 31px !important;
       }
     }
-</style>
+
+    /* Evita que la localidad se salga o tape el precio en la botonera. */
+    .manual-counter-card .manual-counter-locality {
+      min-height: 58px !important;
+      height: 58px !important;
+      max-height: 58px !important;
+      padding: 6px 10px !important;
+      justify-content: center !important;
+      overflow: hidden !important;
+      min-width: 0 !important;
+    }
+    .manual-counter-card .manual-counter-locality strong {
+      display: block !important;
+      max-width: 100% !important;
+      font-size: 22px !important;
+      line-height: 1.05 !important;
+      letter-spacing: 0 !important;
+      white-space: nowrap !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+    }
+    .manual-counter-card .manual-counter-locality span {
+      display: block !important;
+      width: max-content !important;
+      max-width: 100% !important;
+      font-size: 14px !important;
+      line-height: 1.05 !important;
+      white-space: nowrap !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+    }
+    .manual-counter-card {
+      min-height: 68px !important;
+    }
+    @media (max-width: 760px) {
+      .manual-counter-card .manual-counter-locality {
+        min-height: 48px !important;
+        height: 48px !important;
+        max-height: 48px !important;
+        padding: 5px 7px !important;
+      }
+      .manual-counter-card .manual-counter-locality strong {
+        font-size: 17px !important;
+      }
+      .manual-counter-card .manual-counter-locality span {
+        font-size: 12px !important;
+      }
+      .manual-counter-card {
+        min-height: 56px !important;
+      }
+    }
+  </style>
 
 
   <!-- Configuración PWA: permite instalar la página como app en teléfono -->
@@ -1925,47 +1990,20 @@
               <span class="collapsible-chevron" aria-hidden="true">▾</span>
             </summary>
             <div class="inner stack">
-              <div class="field">
-                <label>Nombre del evento</label>
-                <input id="eventName" type="text" placeholder="Nombre del evento" />
-              </div>
-              <div class="softbox">
-                <div class="row-between"><span>Cortesías / localidades</span><strong id="courtesyPersonsBox">0</strong></div>
-                <div class="row-between"><span>Ingreso bruto</span><strong id="grossBox">$0.00</strong></div>
-              </div>
-              <button id="resetCountsBtn">Reiniciar contadores</button>
-            </div>
-          </details>
-
-          <details class="card collapsible-card side-actions-card" data-collapse-id="web" open>
-            <summary class="collapsible-summary">
-              <span class="collapsible-title">Web</span>
-              <span class="collapsible-chevron" aria-hidden="true">▾</span>
-            </summary>
-            <div class="inner stack">
-              <div class="side-actions">
-                <button id="saveSheetBtn" type="button" class="active">Guardar Web</button>
-                <button id="loadSheetBtn" type="button">Cargar Web</button>
+              <div class="event-config-grid">
+                <div class="field">
+                  <label>Nombre del evento</label>
+                  <input id="eventName" type="text" placeholder="Nombre del evento" />
+                </div>
+                <button id="generatePdfBtn" type="button">Generar reporte PDF</button>
+                <button id="resetCountsBtn" type="button">Reiniciar contadores</button>
               </div>
               <input id="sheetWebAppUrl" type="hidden" value="https://script.google.com/macros/s/AKfycbwn_NRpcDVdBhdxTgxn8njGAAKoFwMaN2x7nUV3JiArSy8zbGAr69HD90uwHlWqwW57/exec" />
-              <div id="sheetStatus" class="sheet-status" style="display:none;"></div>
-            </div>
-          </details>
-
-          <details class="card collapsible-card side-actions-card" data-collapse-id="archivos" open>
-            <summary class="collapsible-summary">
-              <span class="collapsible-title">OFF LINE</span>
-              <span class="collapsible-chevron" aria-hidden="true">▾</span>
-            </summary>
-            <div class="inner stack">
-              <div class="side-actions">
-                <button id="generatePdfBtn" type="button">Generar reporte PDF</button>
-                <div class="memory-mode-note">El evento se guarda automáticamente en memoria local y se mantiene un respaldo JSON interno.</div>
-              </div>
               <input id="importTableInput" type="file" accept=".txt,text/plain" style="display:none;" />
               <input id="mergeEventsInput" type="file" accept=".txt,.json,application/json,text/plain" multiple style="display:none;" />
               <input id="loadTxtInput" type="file" accept=".txt,application/json,text/plain" style="display:none;" />
               <input id="eventsFolderFallbackInput" type="file" accept=".txt,application/json,text/plain" webkitdirectory directory multiple style="display:none;" />
+              <div id="sheetStatus" class="sheet-status" style="display:none;"></div>
             </div>
           </details>
         </div>
@@ -3333,6 +3371,57 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       }
     }
 
+  
+    /* Evita que la localidad se salga o tape el precio en la botonera. */
+    .manual-counter-card .manual-counter-locality {
+      min-height: 58px !important;
+      height: 58px !important;
+      max-height: 58px !important;
+      padding: 6px 10px !important;
+      justify-content: center !important;
+      overflow: hidden !important;
+      min-width: 0 !important;
+    }
+    .manual-counter-card .manual-counter-locality strong {
+      display: block !important;
+      max-width: 100% !important;
+      font-size: 22px !important;
+      line-height: 1.05 !important;
+      letter-spacing: 0 !important;
+      white-space: nowrap !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+    }
+    .manual-counter-card .manual-counter-locality span {
+      display: block !important;
+      width: max-content !important;
+      max-width: 100% !important;
+      font-size: 14px !important;
+      line-height: 1.05 !important;
+      white-space: nowrap !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+    }
+    .manual-counter-card {
+      min-height: 68px !important;
+    }
+    @media (max-width: 760px) {
+      .manual-counter-card .manual-counter-locality {
+        min-height: 48px !important;
+        height: 48px !important;
+        max-height: 48px !important;
+        padding: 5px 7px !important;
+      }
+      .manual-counter-card .manual-counter-locality strong {
+        font-size: 17px !important;
+      }
+      .manual-counter-card .manual-counter-locality span {
+        font-size: 12px !important;
+      }
+      .manual-counter-card {
+        min-height: 56px !important;
+      }
+    }
   </style>
       </head>
       <body>
@@ -3870,7 +3959,7 @@ Selecciona Cancelar para agregarlas a las existentes.`);
     }
 
     async function searchLocalEvents(filters = {}) {
-      const records = await getAllLocalEvents();
+      const records = (await getAllLocalEvents()).filter(record => record && record.recordId !== LOCAL_AUTODRAFT_RECORD_ID);
       return filterEventRecordsForList(records, filters.idFilter || '', filters.dateFrom || '', filters.dateTo || '');
     }
 
@@ -5509,7 +5598,7 @@ ${recordId}`, {
     }
 
     function bindTopInputs() {
-      eventName.oninput = e => { state.eventName = e.target.value; markDataChanged(); };
+      $('eventName').oninput = e => { state.eventName = e.target.value; markDataChanged(); };
       if ($('sheetWebAppUrl')) $('sheetWebAppUrl').value = FIXED_SHEET_WEB_APP_URL;
       getLocalMemoryModeToggles().forEach(input => {
         input.checked = Boolean(state.useLocalMemorySave);
@@ -5517,9 +5606,9 @@ ${recordId}`, {
       });
       updateStorageModeLabels();
       if ($('saveSheetBtn')) $('saveSheetBtn').onclick = () => { collapsePanelById('web'); saveToGoogleSheet(); };
-      if (loadSheetBtn) loadSheetBtn.onclick = () => { collapsePanelById('web'); loadFromGoogleSheet(); };
-      if (searchLocalEventBtn) searchLocalEventBtn.onclick = () => { setLocalMemoryMode(true); refreshWebEventsList(); };
-      if (recoverLocalDraftBtn) recoverLocalDraftBtn.onclick = () => recoverLocalDraft();
+      if ($('loadSheetBtn')) $('loadSheetBtn').onclick = () => { collapsePanelById('web'); loadFromGoogleSheet(); };
+      if ($('searchLocalEventBtn')) $('searchLocalEventBtn').onclick = () => { setLocalMemoryMode(true); refreshWebEventsList(); };
+      if ($('recoverLocalDraftBtn')) $('recoverLocalDraftBtn').onclick = () => recoverLocalDraft();
       if ($('importLocalBackupInput')) $('importLocalBackupInput').onchange = (e) => { const file = e.target.files && e.target.files[0]; if (file) importLocalBackup(file); e.target.value = ''; };
       if ($('selectEventsFolderBtn')) $('selectEventsFolderBtn').onclick = (e) => { e.preventDefault(); collapsePanelById('archivos'); selectEventsTxtFolder(e); };
       if ($('selectEventsFolderListBtn')) $('selectEventsFolderListBtn').onclick = (e) => { e.preventDefault(); selectEventsTxtFolder(e); };
@@ -5560,6 +5649,7 @@ ${recordId}`, {
         if (!confirm('¿Deseas reiniciar todos los contadores?')) return;
         state.categories = state.categories.map(item => ({ ...item, count: 0 }));
         state.selectedRowId = null;
+        markDataChanged();
         render();
       };
       if ($('importTableBtn')) $('importTableBtn').onclick = () => { collapsePanelById('archivos'); $('importTableInput').click(); };
@@ -5579,7 +5669,7 @@ ${recordId}`, {
         if (files && files.length) useFallbackFolderFiles(files);
         e.target.value = '';
       };
-      if ($('generatePdfBtn')) $('generatePdfBtn').onclick = () => { collapsePanelById('archivos'); openReportPdf(); };
+      if ($('generatePdfBtn')) $('generatePdfBtn').onclick = () => { collapsePanelById('evento'); openReportPdf(); };
       if ($('saveTxtBtn')) $('saveTxtBtn').onclick = async () => { collapsePanelById('archivos'); await saveTxtFile(); };
       if ($('loadTxtBtn')) $('loadTxtBtn').onclick = () => { collapsePanelById('archivos'); $('loadTxtInput').click(); };
       if ($('loadTxtInput')) $('loadTxtInput').onchange = (e) => {
@@ -5751,10 +5841,13 @@ ${recordId}`, {
       if (item) {
         if (kind === 'count') {
           item.count = Math.max(0, Math.floor(n(input.value)));
+          markDataChanged();
         } else if (kind === 'name') {
           item.name = String(input.value || '').trim() || item.name;
+          markDataChanged();
         } else if (kind === 'price') {
           item.price = Math.max(0, n(input.value));
+          markDataChanged();
         }
       }
     }
@@ -6117,6 +6210,7 @@ ${recordId}`, {
           const item = state.categories.find(i => i.id === id);
           if (!item) return;
           item.name = String(e.target.value || '').trim() || item.name;
+          markDataChanged();
           render();
         };
       });
@@ -6127,6 +6221,7 @@ ${recordId}`, {
           const item = state.categories.find(i => i.id === id);
           if (!item) return;
           item.price = n(target.value);
+          markDataChanged();
           render();
         };
         el.onchange = (e) => applyPriceChange(e.target);
@@ -6196,6 +6291,7 @@ ${recordId}`, {
           if (!confirm(`¿Deseas cambiar el tipo de acceso de "${item.name}" a ${item.courtesy ? 'de pago' : 'cortesía'}?`)) return;
           item.courtesy = !item.courtesy;
           if (item.courtesy) item.price = 0;
+          markDataChanged();
           render();
         };
       });
@@ -6290,7 +6386,7 @@ ${recordId}`, {
 
 
 
-    const ACTION_PANEL_IDS = ['evento', 'web', 'archivos'];
+    const ACTION_PANEL_IDS = ['evento'];
     const SYNCED_COLLAPSE_GROUPS = [
       {
         key: 'factoresEstadoMunicipio',
@@ -6839,7 +6935,7 @@ ${recordId}`, {
         card.innerHTML = `
           <div class="manual-counter-locality-row">
             <div class="manual-counter-locality">
-              <strong>${escapeHtml(item.name || 'Sin nombre')}</strong>
+              <strong title="${escapeHtml(item.name || 'Sin nombre')}">${escapeHtml(item.name || 'Sin nombre')}</strong>
               <span>${item.courtesy ? 'Cortesía' : formatMoney(n(item.price))}</span>
             </div>
             <div class="manual-counter-current-inline" aria-label="Entradas actuales">${formatWholeNumber(item.count)}</div>
@@ -6907,8 +7003,8 @@ ${recordId}`, {
       $('sumPaying').textContent = formatWholeNumber(calc.payingPersons);
       $('sumGross').textContent = formatMoney(calc.grossIncome);
       $('sumCharges').textContent = formatMoney(calc.totalCharges);
-      $('courtesyPersonsBox').textContent = calc.courtesyPersons;
-      $('grossBox').textContent = formatMoney(calc.grossIncome);
+      if ($('courtesyPersonsBox')) $('courtesyPersonsBox').textContent = calc.courtesyPersons;
+      if ($('grossBox')) $('grossBox').textContent = formatMoney(calc.grossIncome);
       $('avgPaidLocality').textContent = formatMoney(calc.averagePaidLocalityPrice);
       $('courtesyValueState').textContent = formatMoney(calc.courtesyEstimatedValueForState);
       $('stateBaseBefore').textContent = formatMoney(calc.stateBaseBeforeFactor);
