@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <!-- Versión publicada: 20260518_botonera_sin_texto_seleccionado -->
+  <!-- Versión publicada: 20260518_botonera_formato_horizontal -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Control de ingreso a evento - botonera vibracion</title>
@@ -1478,11 +1478,160 @@
     .sticky-top-panel .impuestos-subtabs-sticky.show {
       display: inline-flex !important;
     }
+
+
+    /* Ajuste visual de Botonera manual tipo renglón horizontal:
+       Localidad/precio | Total entradas | -1 | +1. */
+    .manual-counter-list {
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+    .manual-counter-card {
+      display: grid;
+      grid-template-columns: minmax(150px, 1.25fr) minmax(92px, .55fr) minmax(82px, .45fr) minmax(110px, .6fr);
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: 10px;
+      border-color: #e5e7eb;
+      background-color: #f6f7fb;
+      background-image: radial-gradient(#d1d5db 1.1px, transparent 1.1px);
+      background-size: 18px 18px;
+      box-shadow: none;
+      min-height: 104px;
+    }
+    .manual-counter-card:hover {
+      background-color: #f1f5f9;
+    }
+    .manual-counter-card.selected {
+      background-color: #eef2ff;
+      border-color: #0f172a;
+      box-shadow: 0 0 0 3px rgba(15, 23, 42, .18);
+      outline: 0;
+    }
+    .manual-counter-locality-row,
+    .manual-counter-actions {
+      display: contents;
+    }
+    .manual-counter-locality {
+      min-height: 0;
+      align-self: stretch;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 8px;
+      padding: 8px 10px;
+      background: rgba(238, 242, 255, .86);
+      border: 1px solid rgba(226, 232, 240, .95);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .manual-counter-locality strong {
+      font-size: clamp(18px, 2.4vw, 30px);
+      line-height: 1.05;
+      letter-spacing: .02em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .manual-counter-locality span {
+      width: fit-content;
+      max-width: 100%;
+      padding: 6px 8px;
+      background: rgba(226, 232, 240, .72);
+      color: #475569;
+      font-size: clamp(15px, 2vw, 24px);
+      line-height: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .manual-counter-current-inline {
+      min-width: 0;
+      width: 100%;
+      min-height: 78px;
+      display: grid;
+      place-items: center;
+      padding: 8px 10px;
+      border-radius: 18px;
+      background: rgba(248, 250, 252, .92);
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 1px 4px rgba(15, 23, 42, .05) inset;
+      font-size: clamp(34px, 5vw, 56px);
+      font-weight: 900;
+      color: #0f172a;
+    }
+    .manual-counter-actions button {
+      width: 100%;
+      border-radius: 0;
+      padding: 0 8px;
+      font-weight: 900;
+      line-height: 1;
+      box-shadow: none;
+    }
+    .manual-counter-actions .minus {
+      min-height: 68px;
+      font-size: clamp(24px, 3.4vw, 42px);
+      color: #991b1b;
+      background: rgba(255, 247, 247, .95);
+      border-color: #fecaca;
+    }
+    .manual-counter-actions .plus {
+      min-height: 88px;
+      font-size: clamp(26px, 3.8vw, 44px);
+      background: #0f172a;
+      color: #ffffff;
+      border-color: #0f172a;
+    }
+    @media (max-width: 760px) {
+      .manual-counter-card {
+        grid-template-columns: minmax(102px, 1fr) minmax(68px, .55fr) minmax(56px, .42fr) minmax(70px, .52fr);
+        gap: 6px;
+        padding: 7px;
+        min-height: 84px;
+      }
+      .manual-counter-locality {
+        padding: 6px 7px;
+        gap: 6px;
+      }
+      .manual-counter-locality strong {
+        font-size: 17px;
+      }
+      .manual-counter-locality span {
+        font-size: 14px;
+        padding: 5px 6px;
+      }
+      .manual-counter-current-inline {
+        min-height: 62px;
+        border-radius: 14px;
+        font-size: 32px;
+      }
+      .manual-counter-actions .minus {
+        min-height: 56px;
+        font-size: 24px;
+      }
+      .manual-counter-actions .plus {
+        min-height: 72px;
+        font-size: 26px;
+      }
+    }
+    @media (max-width: 380px) {
+      .manual-counter-card {
+        grid-template-columns: minmax(92px, 1fr) 58px 48px 60px;
+        gap: 5px;
+      }
+      .manual-counter-locality strong { font-size: 15px; }
+      .manual-counter-locality span { font-size: 12px; }
+      .manual-counter-current-inline { min-height: 56px; font-size: 28px; padding: 5px; }
+      .manual-counter-actions .minus { min-height: 50px; font-size: 21px; }
+      .manual-counter-actions .plus { min-height: 64px; font-size: 23px; }
+    }
+
   </style>
 
 
   <!-- Configuración PWA: permite instalar la página como app en teléfono -->
-  <link rel="manifest" href="manifest.webmanifest?v=botonera_vibracion">
+  <link rel="manifest" href="manifest.webmanifest?v=botonera_formato_horizontal">
   <meta name="theme-color" content="#0f172a">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -2826,7 +2975,7 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       const reportHtml = `<!DOCTYPE html>
       <html lang="es">
       <head>
-  <!-- Versión publicada: 20260518_botonera_sin_texto_seleccionado -->
+  <!-- Versión publicada: 20260518_botonera_formato_horizontal -->
         <meta charset="UTF-8">
         <title>Reporte del evento</title>
         <style>
