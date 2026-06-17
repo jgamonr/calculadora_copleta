@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <!-- Versión publicada: 20260518_contador_manual_nombre -->
@@ -908,6 +908,92 @@ details.collapsible-card {
       color: var(--muted);
       text-align: center;
       padding: 14px;
+    }
+    .migration-panel {
+      display: grid;
+      gap: 10px;
+      background: #ffffff;
+      border: 1px solid #dbeafe;
+      border-radius: 14px;
+      padding: 12px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, .06);
+    }
+    .migration-panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .migration-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--text);
+    }
+    .migration-copy {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+    .migration-actions {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+    .migration-actions button {
+      width: 100%;
+      min-height: 42px;
+      border-radius: 12px;
+    }
+    .migration-actions button:disabled {
+      opacity: .45;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+    .migration-status {
+      min-height: 16px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .wrap {
+      padding: clamp(10px, 2vw, 18px);
+    }
+    body {
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, Helvetica, sans-serif;
+      line-height: 1.45;
+    }
+    .card {
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, .06);
+    }
+    .tabs,
+    .subtabs {
+      border-radius: 12px;
+      box-shadow: 0 6px 18px rgba(15, 23, 42, .05);
+    }
+    button {
+      border-radius: 10px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    input,
+    select {
+      border-radius: 10px;
+    }
+    input:focus,
+    select:focus {
+      border-color: #2563eb;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, .16);
+    }
+    @media (max-width: 620px) {
+      .migration-actions {
+        grid-template-columns: 1fr;
+      }
     }
 
 
@@ -2059,6 +2145,20 @@ details.collapsible-card {
                 <div id="localStoragePersistentNote" class="local-storage-note">Los eventos se guardan automáticamente en memoria local y se mantiene un respaldo JSON interno.</div>
               </div>
             </div>
+            <div class="migration-panel" aria-live="polite">
+              <div class="migration-panel-header">
+                <div>
+                  <div class="migration-title">Migrar datos</div>
+                  <div class="migration-copy">Selecciona un evento de la tabla y copia sus datos sin borrar el original.</div>
+                </div>
+                <span id="migrationSelectedBadge" class="event-source-badge">Sin seleccion</span>
+              </div>
+              <div class="migration-actions">
+                <button id="migrateLocalToWebBtn" type="button" class="active" disabled>Local a Web</button>
+                <button id="migrateWebToLocalBtn" type="button" disabled>Web a Local</button>
+              </div>
+              <div id="migrationStatus" class="migration-status"></div>
+            </div>
             <div class="web-events-filters">
               <div class="field">
                 <label>Filtrar por ID / evento</label>
@@ -2985,6 +3085,36 @@ Selecciona Cancelar para agregarlas a las existentes.`);
           ? `Eliminar ${selected.length} evento(s) seleccionado(s) desde ${sourceName}.`
           : 'Selecciona uno o más eventos para eliminarlos.';
       }
+      updateMigrationControls(selected, listIsLocal, sourceName);
+    }
+
+    function updateMigrationControls(selected = null, listIsLocal = isCurrentWebEventsListLocal(), sourceName = '') {
+      const selectedIds = Array.isArray(selected) ? selected : getSelectedWebRecordIds();
+      const hasOneSelected = selectedIds.length === 1;
+      const localToWebBtn = $('migrateLocalToWebBtn');
+      const webToLocalBtn = $('migrateWebToLocalBtn');
+      const badge = $('migrationSelectedBadge');
+      const status = $('migrationStatus');
+
+      if (badge) {
+        badge.textContent = hasOneSelected ? selectedIds[0] : 'Sin seleccion';
+        badge.className = `event-source-badge ${listIsLocal ? 'local' : ''}`;
+      }
+      if (localToWebBtn) {
+        localToWebBtn.disabled = !(hasOneSelected && listIsLocal);
+        localToWebBtn.title = listIsLocal
+          ? 'Copia el evento local seleccionado hacia Web.'
+          : 'Activa la memoria local y selecciona un evento local para copiarlo a Web.';
+      }
+      if (webToLocalBtn) {
+        webToLocalBtn.disabled = !(hasOneSelected && !listIsLocal);
+        webToLocalBtn.title = !listIsLocal
+          ? 'Copia el evento Web seleccionado hacia memoria local.'
+          : 'Cambia a la lista Web y selecciona un evento para copiarlo a memoria local.';
+      }
+      if (status && !hasOneSelected) {
+        status.textContent = `Fuente actual: ${sourceName || (listIsLocal ? getLocalEventsSourceName() : 'Web')}. Selecciona un solo evento para migrar.`;
+      }
     }
 
     function toggleWebMergeSelection(recordId, checked) {
@@ -3145,6 +3275,132 @@ Selecciona Cancelar para agregarlas a las existentes.`);
       }
     }
 
+
+    function buildMigrationSummary(data, categories) {
+      const sourceSummary = data && data.summary ? data.summary : {};
+      const rows = Array.isArray(categories) ? categories : [];
+      const totalPersons = rows.reduce((acc, item) => acc + Math.max(0, Math.floor(n(item.count))), 0);
+      const courtesyPersons = rows.reduce((acc, item) => acc + (item.courtesy ? Math.max(0, Math.floor(n(item.count))) : 0), 0);
+      const grossIncome = rows.reduce((acc, item) => acc + (item.courtesy ? 0 : Math.max(0, Math.floor(n(item.count))) * n(item.price)), 0);
+      return {
+        totalPersons: Number(sourceSummary.totalPersons || totalPersons || 0),
+        payingPersons: Number(sourceSummary.payingPersons || Math.max(0, totalPersons - courtesyPersons) || 0),
+        courtesyPersons: Number(sourceSummary.courtesyPersons || courtesyPersons || 0),
+        grossIncome: Number(sourceSummary.grossIncome || grossIncome || 0),
+        totalCharges: Number(sourceSummary.totalCharges || 0)
+      };
+    }
+
+    function buildMigratedPayload(recordId, eventFile, action) {
+      const cleanRecordId = String(recordId || '').trim();
+      const data = { ...((eventFile && eventFile.data) || {}) };
+      const categories = Array.isArray(data.categories) ? data.categories : ((eventFile && eventFile.categories) || []);
+      data.recordId = cleanRecordId;
+      data.sheetRecordId = cleanRecordId;
+      data.eventName = data.eventName || (eventFile && eventFile.eventName) || cleanRecordId;
+      data.categories = categories.map(item => ({ ...item }));
+      data.updatedAt = new Date().toISOString();
+      return {
+        action,
+        recordId: cleanRecordId,
+        updatedAt: data.updatedAt,
+        eventName: data.eventName,
+        summary: buildMigrationSummary(data, data.categories),
+        data
+      };
+    }
+
+    function getSingleSelectedRecordForMigration(targetName) {
+      const selected = getSelectedWebRecordIds();
+      if (selected.length !== 1) {
+        showWebMessage(`Selecciona exactamente un evento para migrarlo a ${targetName}.`, {
+          title: 'Migrar datos',
+          isError: true,
+          autoClose: 3500
+        });
+        return '';
+      }
+      return selected[0];
+    }
+
+    async function migrateSelectedLocalToWeb() {
+      const recordId = getSingleSelectedRecordForMigration('Web');
+      if (!recordId || !isCurrentWebEventsListLocal() || isWebSaveInProgress) return;
+      const confirmed = await showWebMessage(`Se copiarÃ¡ el evento local "${recordId}" a Web. El registro local se conservarÃ¡.`, {
+        title: 'Migrar Local a Web',
+        confirm: true,
+        okText: 'Copiar a Web',
+        cancelText: 'Cancelar',
+        autoClose: 0
+      });
+      if (!confirmed) return;
+
+      try {
+        isWebSaveInProgress = true;
+        const status = $('migrationStatus');
+        if (status) status.textContent = 'Copiando evento local a Web...';
+        setWebEventsLoading(true, 'Copiando el evento local seleccionado hacia Web.', 'Migrando Local a Web', 'save');
+        const eventFile = await fetchWebRecordDataForMerge(recordId, 'local');
+        const url = normalizeSheetUrl();
+        if (!url) throw new Error('Falta la URL del Web App.');
+        const available = await getAvailableWebRecordId(url, recordId);
+        const payload = buildMigratedPayload(available.recordId || recordId, eventFile, 'save');
+        await sendPayloadToWeb(url, payload);
+        const message = available.wasSequenced
+          ? `Evento copiado a Web como: ${payload.recordId}`
+          : `Evento copiado a Web: ${payload.recordId}`;
+        if (status) status.textContent = message;
+        setSheetStatus(message);
+        showWebMessage(message, { title: 'Migracion lista', autoClose: 3200 });
+      } catch (error) {
+        console.error(error);
+        const message = error && error.message ? error.message : 'No se pudo migrar de local a Web.';
+        if ($('migrationStatus')) $('migrationStatus').textContent = message;
+        setSheetStatus(message, true);
+      } finally {
+        isWebSaveInProgress = false;
+        setWebEventsLoading(false);
+      }
+    }
+
+    async function migrateSelectedWebToLocal() {
+      const recordId = getSingleSelectedRecordForMigration('memoria local');
+      if (!recordId || isCurrentWebEventsListLocal() || isWebSaveInProgress) return;
+      const confirmed = await showWebMessage(`Se copiarÃ¡ el evento Web "${recordId}" a memoria local. El registro Web se conservarÃ¡.`, {
+        title: 'Migrar Web a Local',
+        confirm: true,
+        okText: 'Copiar a Local',
+        cancelText: 'Cancelar',
+        autoClose: 0
+      });
+      if (!confirmed) return;
+
+      try {
+        isWebSaveInProgress = true;
+        const status = $('migrationStatus');
+        if (status) status.textContent = 'Copiando evento Web a memoria local...';
+        setWebEventsLoading(true, 'Copiando el evento Web seleccionado hacia memoria local.', 'Migrando Web a Local', 'save');
+        const eventFile = await fetchWebRecordDataForMerge(recordId, 'web');
+        const available = await getAvailableLocalRecordId(recordId);
+        const payload = buildMigratedPayload(available.recordId || recordId, eventFile, 'saveLocal');
+        await saveLocalEvent(payload, { overwrite: false });
+        await requestPersistentLocalStorage();
+        const message = available.wasSequenced
+          ? `Evento copiado a memoria local como: ${payload.recordId}`
+          : `Evento copiado a memoria local: ${payload.recordId}`;
+        if (status) status.textContent = message;
+        setSheetStatus(message);
+        showWebMessage(message, { title: 'Migracion lista', autoClose: 3200 });
+      } catch (error) {
+        console.error(error);
+        const message = error && error.message ? error.message : 'No se pudo migrar de Web a memoria local.';
+        if ($('migrationStatus')) $('migrationStatus').textContent = message;
+        setSheetStatus(message, true);
+      } finally {
+        isWebSaveInProgress = false;
+        setWebEventsLoading(false);
+      }
+    }
 
     function focusDetallePorLocalidad() {
       setTimeout(() => {
@@ -5616,6 +5872,8 @@ ${recordId}`, {
       if ($('mergeWebEventsBtn')) $('mergeWebEventsBtn').onclick = () => { handleMergeWebEvents(); };
       if ($('loadSelectedWebEventBtn')) $('loadSelectedWebEventBtn').onclick = () => { loadSelectedWebEvent(); };
       if ($('deleteSelectedWebEventsBtn')) $('deleteSelectedWebEventsBtn').onclick = () => { deleteSelectedWebEvents(); };
+      if ($('migrateLocalToWebBtn')) $('migrateLocalToWebBtn').onclick = () => { migrateSelectedLocalToWeb(); };
+      if ($('migrateWebToLocalBtn')) $('migrateWebToLocalBtn').onclick = () => { migrateSelectedWebToLocal(); };
       document.querySelectorAll('[data-web-sort]').forEach(th => {
         th.onclick = () => setWebEventsSort(th.dataset.webSort);
         th.setAttribute('tabindex', '0');
