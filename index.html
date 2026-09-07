@@ -1,10 +1,10 @@
-<!doctype html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#0b2434" />
-  <meta name="description" content="Calculadora de impuestos municipales para espectáculos y eventos." />
+<!DOCTYPE html>
+<!-- saved from url=(0014)about:internet -->
+<html lang="es"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0b2434">
+  <meta name="description" content="Calculadora de impuestos municipales para espectáculos y eventos.">
   <title>Cálculo de impuestos municipales</title>
   <style>
 :root{--navy:#0b2434;--navy-2:#123a50;--cyan:#26c6b4;--cyan-soft:#e5f8f5;--ink:#15242d;--muted:#667781;--line:#dbe3e7;--paper:#fff;--bg:#eef3f5;--danger:#b42318;--shadow:0 18px 50px rgba(11,36,52,.09);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink);font-synthesis:none}
@@ -18,6 +18,34 @@
   <style>
     .section-actions{display:flex;gap:8px}.import-button{background:#edf2f4;color:#314d5c}.import-button:hover{background:#e2eaed}.import-sources{display:grid;grid-template-columns:.75fr 1.25fr;gap:12px}.import-source-card{min-height:145px;border:1.5px dashed #6bc9be;background:#eef9f7;color:var(--ink);border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;font:inherit}.import-source-card:before{content:"＋";display:grid;place-items:center;width:38px;height:38px;border-radius:50%;background:#d2f1ed;color:#08796e;font-size:1.25rem;margin-bottom:8px}.import-source-card small,.paste-source small{color:var(--muted);margin-top:4px}.paste-source{display:flex;flex-direction:column}.paste-source label{margin-bottom:6px}.paste-source textarea{min-height:92px!important;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.82rem}.paste-source .button{align-self:flex-end;margin-top:7px}.import-progress{display:flex;align-items:center;gap:12px;padding:16px;margin-top:14px;border-radius:12px;background:#eef7f6}.import-progress>span{width:24px;height:24px;border:3px solid #b6ddd8;border-top-color:#08796e;border-radius:50%;animation:import-spin .8s linear infinite}.import-progress div{display:flex;flex-direction:column}.import-progress small{color:var(--muted);margin-top:2px}@keyframes import-spin{to{transform:rotate(360deg)}}.import-preview{margin-top:15px;border-top:1px solid var(--line);padding-top:15px}.preview-heading{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}.preview-heading>div{display:flex;flex-direction:column}.preview-heading small{color:var(--muted);font-size:.72rem;margin-top:2px}.preview-table-wrap{overflow:auto;max-height:260px}.preview-table{width:100%;border-collapse:collapse}.preview-table th{font-size:.66rem;text-transform:uppercase;letter-spacing:.06em;color:#718088;text-align:left;padding:6px}.preview-table td{padding:5px}.preview-table input{width:100%;min-width:85px;border:1px solid var(--line);border-radius:8px;padding:9px;font:inherit}.preview-table th:nth-child(2),.preview-table td:nth-child(2){width:100px}.preview-table th:nth-child(3),.preview-table td:nth-child(3){width:130px}.remove-preview{border:0;background:transparent;color:var(--danger);font-size:1.2rem;cursor:pointer}.add-preview-row{margin-top:8px}.import-mode{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}.import-mode .option-check{margin:0!important}.data-dialog button:disabled{opacity:.45;cursor:not-allowed}
     @media(max-width:620px){.section-actions{width:100%;display:grid;grid-template-columns:1fr}.import-sources{grid-template-columns:1fr}.import-source-card{min-height:100px}.import-mode{grid-template-columns:1fr}}
+  </style>
+  <style>
+    /* Orden uniforme: Boletos, Localidad, Valor unitario y Suma. */
+    .ticket-head,.ticket-row{grid-template-columns:minmax(85px,.65fr) minmax(140px,1.4fr) minmax(130px,.85fr) minmax(120px,.85fr) 32px}
+    .sort-button{display:flex;align-items:center;gap:5px;width:max-content;max-width:100%;border:0;background:transparent;color:inherit;text-transform:inherit;letter-spacing:inherit;font:inherit;padding:4px 0;cursor:pointer;text-align:left}
+    .sort-button:hover,.sort-button:focus-visible{color:#087f72;outline:none}.sort-button:focus-visible{box-shadow:0 2px 0 #12a899}
+    .sort-button::after{content:"↕";font-size:.72rem;opacity:.55}.sort-button[data-dir="asc"]::after{content:"↑";opacity:1}.sort-button[data-dir="desc"]::after{content:"↓";opacity:1}
+    .preview-table th:nth-child(1),.preview-table td:nth-child(1){width:100px}
+    .preview-table th:nth-child(2),.preview-table td:nth-child(2){width:auto}
+    .preview-table th:nth-child(3),.preview-table td:nth-child(3),.preview-table th:nth-child(4),.preview-table td:nth-child(4){width:130px}
+    .preview-total{display:block;min-width:110px;text-align:right;font-weight:800;font-variant-numeric:tabular-nums}
+    .event-name-panel{display:flex;align-items:center;gap:14px;margin:0 0 18px;padding:13px 15px;border:1px solid #b9e5df;background:linear-gradient(90deg,#eef9f7,#f8fcfc);border-radius:13px}
+    .event-name-panel span{flex:none;color:#087f72;font-size:.72rem;font-weight:850;text-transform:uppercase;letter-spacing:.08em}
+    .event-name-panel strong{min-width:0;font-size:1rem;color:var(--navy);overflow-wrap:anywhere}
+    .print-summary-event{display:none}
+    .print-report-heading small{display:block;margin-top:3px;color:#667781;font-size:.75rem;font-weight:500}
+    @media(max-width:980px){.ticket-head,.ticket-row{grid-template-columns:minmax(72px,.6fr) minmax(125px,1.35fr) minmax(115px,.8fr) minmax(105px,.75fr) 28px}}
+    @media(max-width:620px){.event-name-panel{align-items:flex-start;flex-direction:column;gap:4px}}
+    @media print{
+      .print-report th:nth-child(1),.print-report td:nth-child(1),
+      .print-report th:nth-child(3),.print-report td:nth-child(3),
+      .print-report th:nth-child(4),.print-report td:nth-child(4){text-align:right}
+      .print-report th:nth-child(2),.print-report td:nth-child(2){text-align:left}
+      .print-summary-event{display:block;margin:12px 0 18px;padding:12px 14px;border:1px solid var(--line);background:#eef8f6;border-radius:10px}
+      .print-summary-event span{display:block;margin-bottom:3px;color:#087f72;font-size:.68rem;font-weight:850;text-transform:uppercase;letter-spacing:.1em}
+      .print-summary-event strong{display:block;color:var(--ink);font-size:1.2rem;line-height:1.35;overflow-wrap:anywhere}
+      .print-report{break-before:page;page-break-before:always}
+    }
   </style>
 </head>
 <body>
@@ -56,15 +84,230 @@
         </div>
       </div>
 
+      <div class="event-name-panel" aria-live="polite">
+        <span>Nombre del evento</span>
+        <strong id="eventNameDisplay">Evento sin nombre</strong>
+      </div>
+
       <div class="ticket-table" role="table" aria-label="Localidades y boletaje">
         <div class="ticket-head" role="row">
-          <span>Localidad</span><span>Boletos</span><span>Precio unitario</span><span>Ingreso</span><span></span>
+          <span role="columnheader"><button class="sort-button" type="button" data-sort="quantity">Boletos</button></span><span role="columnheader"><button class="sort-button" type="button" data-sort="location">Localidad</button></span><span role="columnheader"><button class="sort-button" type="button" data-sort="price">Valor unitario</button></span><span role="columnheader"><button class="sort-button" type="button" data-sort="total">Suma</button></span><span></span>
         </div>
-        <div id="ticketRows"></div>
+        <div id="ticketRows"><div class="ticket-row" role="row" tabindex="0" aria-selected="false">
+      <input class="quantity" type="number" min="0" step="1" placeholder="0" inputmode="numeric" aria-label="Cantidad de boletos">
+      <input class="location" type="text" placeholder="Ej. Preferente" aria-label="Localidad">
+      <div class="money-input"><span>$</span><input class="price" type="number" min="0" step="0.01" placeholder="0.00" inputmode="decimal" aria-label="Valor unitario"></div>
+      <output class="row-total" title="Doble clic para sumar varias cantidades">$89,250.00</output>
+      <button class="remove-row" type="button" aria-label="Eliminar localidad" title="Eliminar">×</button>
+    </div><div class="ticket-row" role="row" tabindex="0" aria-selected="false">
+      <input class="quantity" type="number" min="0" step="1" placeholder="0" inputmode="numeric" aria-label="Cantidad de boletos">
+      <input class="location" type="text" placeholder="Ej. Preferente" aria-label="Localidad">
+      <div class="money-input"><span>$</span><input class="price" type="number" min="0" step="0.01" placeholder="0.00" inputmode="decimal" aria-label="Valor unitario"></div>
+      <output class="row-total" title="Doble clic para sumar varias cantidades">$68,200.00</output>
+      <button class="remove-row" type="button" aria-label="Eliminar localidad" title="Eliminar">×</button>
+    </div><div class="ticket-row" role="row" tabindex="0" aria-selected="false">
+      <input class="quantity" type="number" min="0" step="1" placeholder="0" inputmode="numeric" aria-label="Cantidad de boletos">
+      <input class="location" type="text" placeholder="Ej. Preferente" aria-label="Localidad">
+      <div class="money-input"><span>$</span><input class="price" type="number" min="0" step="0.01" placeholder="0.00" inputmode="decimal" aria-label="Valor unitario"></div>
+      <output class="row-total" title="Doble clic para sumar varias cantidades">$42,000.00</output>
+      <button class="remove-row" type="button" aria-label="Eliminar localidad" title="Eliminar">×</button>
+    </div><div class="ticket-row" role="row" tabindex="0" aria-selected="false">
+      <input class="quantity" type="number" min="0" step="1" placeholder="0" inputmode="numeric" aria-label="Cantidad de boletos">
+      <input class="location" type="text" placeholder="Ej. Preferente" aria-label="Localidad">
+      <div class="money-input"><span>$</span><input class="price" type="number" min="0" step="0.01" placeholder="0.00" inputmode="decimal" aria-label="Valor unitario"></div>
+      <output class="row-total" title="Doble clic para sumar varias cantidades">$827,550.00</output>
+      <button class="remove-row" type="button" aria-label="Eliminar localidad" title="Eliminar">×</button>
+    </div><div class="ticket-row" role="row" tabindex="0" aria-selected="false">
+      <input class="quantity" type="number" min="0" step="1" placeholder="0" inputmode="numeric" aria-label="Cantidad de boletos">
+      <input class="location" type="text" placeholder="Ej. Preferente" aria-label="Localidad">
+      <div class="money-input"><span>$</span><input class="price" type="number" min="0" step="0.01" placeholder="0.00" inputmode="decimal" aria-label="Valor unitario"></div>
+      <output class="row-total" title="Doble clic para sumar varias cantidades">$10,400.00</output>
+      <button class="remove-row" type="button" aria-label="Eliminar localidad" title="Eliminar">×</button>
+    </div><div class="ticket-row" role="row" tabindex="0" aria-selected="false">
+      <input class="quantity" type="number" min="0" step="1" placeholder="0" inputmode="numeric" aria-label="Cantidad de boletos">
+      <input class="location" type="text" placeholder="Ej. Preferente" aria-label="Localidad">
+      <div class="money-input"><span>$</span><input class="price" type="number" min="0" step="0.01" placeholder="0.00" inputmode="decimal" aria-label="Valor unitario"></div>
+      <output class="row-total" title="Doble clic para sumar varias cantidades">$54,000.00</output>
+      <button class="remove-row" type="button" aria-label="Eliminar localidad" title="Eliminar">×</button>
+    </div><div class="ticket-row" role="row" tabindex="0" aria-selected="false">
+      <input class="quantity" type="number" min="0" step="1" placeholder="0" inputmode="numeric" aria-label="Cantidad de boletos">
+      <input class="location" type="text" placeholder="Ej. Preferente" aria-label="Localidad">
+      <div class="money-input"><span>$</span><input class="price" type="number" min="0" step="0.01" placeholder="0.00" inputmode="decimal" aria-label="Valor unitario"></div>
+      <output class="row-total" title="Doble clic para sumar varias cantidades">$424,650.00</output>
+      <button class="remove-row" type="button" aria-label="Eliminar localidad" title="Eliminar">×</button>
+    </div><div class="ticket-row" role="row" tabindex="0" aria-selected="false">
+      <input class="quantity" type="number" min="0" step="1" placeholder="0" inputmode="numeric" aria-label="Cantidad de boletos">
+      <input class="location" type="text" placeholder="Ej. Preferente" aria-label="Localidad">
+      <div class="money-input"><span>$</span><input class="price" type="number" min="0" step="0.01" placeholder="0.00" inputmode="decimal" aria-label="Valor unitario"></div>
+      <output class="row-total" title="Doble clic para sumar varias cantidades">$74,172.31</output>
+      <button class="remove-row" type="button" aria-label="Eliminar localidad" title="Eliminar">×</button>
+    </div><div class="ticket-row" role="row" tabindex="0" aria-selected="false">
+      <input class="quantity" type="number" min="0" step="1" placeholder="0" inputmode="numeric" aria-label="Cantidad de boletos">
+      <input class="location" type="text" placeholder="Ej. Preferente" aria-label="Localidad">
+      <div class="money-input"><span>$</span><input class="price" type="number" min="0" step="0.01" placeholder="0.00" inputmode="decimal" aria-label="Valor unitario"></div>
+      <output class="row-total" title="Doble clic para sumar varias cantidades">$372,300.00</output>
+      <button class="remove-row" type="button" aria-label="Eliminar localidad" title="Eliminar">×</button>
+    </div><div class="ticket-row" role="row" tabindex="0" aria-selected="false">
+      <input class="quantity" type="number" min="0" step="1" placeholder="0" inputmode="numeric" aria-label="Cantidad de boletos">
+      <input class="location" type="text" placeholder="Ej. Preferente" aria-label="Localidad">
+      <div class="money-input"><span>$</span><input class="price" type="number" min="0" step="0.01" placeholder="0.00" inputmode="decimal" aria-label="Valor unitario"></div>
+      <output class="row-total" title="Doble clic para sumar varias cantidades">$36,800.00</output>
+      <button class="remove-row" type="button" aria-label="Eliminar localidad" title="Eliminar">×</button>
+    </div><div class="ticket-row" role="row" tabindex="0" aria-selected="false">
+      <input class="quantity" type="number" min="0" step="1" placeholder="0" inputmode="numeric" aria-label="Cantidad de boletos">
+      <input class="location" type="text" placeholder="Ej. Preferente" aria-label="Localidad">
+      <div class="money-input"><span>$</span><input class="price" type="number" min="0" step="0.01" placeholder="0.00" inputmode="decimal" aria-label="Valor unitario"></div>
+      <output class="row-total" title="Doble clic para sumar varias cantidades">$40,559.94</output>
+      <button class="remove-row" type="button" aria-label="Eliminar localidad" title="Eliminar">×</button>
+    </div><div class="ticket-row" role="row" tabindex="0" aria-selected="false">
+      <input class="quantity" type="number" min="0" step="1" placeholder="0" inputmode="numeric" aria-label="Cantidad de boletos">
+      <input class="location" type="text" placeholder="Ej. Preferente" aria-label="Localidad">
+      <div class="money-input"><span>$</span><input class="price" type="number" min="0" step="0.01" placeholder="0.00" inputmode="decimal" aria-label="Valor unitario"></div>
+      <output class="row-total" title="Doble clic para sumar varias cantidades">$462,861.72</output>
+      <button class="remove-row" type="button" aria-label="Eliminar localidad" title="Eliminar">×</button>
+    </div><div class="ticket-row" role="row" tabindex="0" aria-selected="false">
+      <input class="quantity" type="number" min="0" step="1" placeholder="0" inputmode="numeric" aria-label="Cantidad de boletos">
+      <input class="location" type="text" placeholder="Ej. Preferente" aria-label="Localidad">
+      <div class="money-input"><span>$</span><input class="price" type="number" min="0" step="0.01" placeholder="0.00" inputmode="decimal" aria-label="Valor unitario"></div>
+      <output class="row-total" title="Doble clic para sumar varias cantidades">$857,500.00</output>
+      <button class="remove-row" type="button" aria-label="Eliminar localidad" title="Eliminar">×</button>
+    </div><div class="ticket-row" role="row" tabindex="0" aria-selected="false">
+      <input class="quantity" type="number" min="0" step="1" placeholder="0" inputmode="numeric" aria-label="Cantidad de boletos">
+      <input class="location" type="text" placeholder="Ej. Preferente" aria-label="Localidad">
+      <div class="money-input"><span>$</span><input class="price" type="number" min="0" step="0.01" placeholder="0.00" inputmode="decimal" aria-label="Valor unitario"></div>
+      <output class="row-total" title="Doble clic para sumar varias cantidades">$3,472.20</output>
+      <button class="remove-row" type="button" aria-label="Eliminar localidad" title="Eliminar">×</button>
+    </div><div class="ticket-row" role="row" tabindex="0" aria-selected="false">
+      <input class="quantity" type="number" min="0" step="1" placeholder="0" inputmode="numeric" aria-label="Cantidad de boletos">
+      <input class="location" type="text" placeholder="Ej. Preferente" aria-label="Localidad">
+      <div class="money-input"><span>$</span><input class="price" type="number" min="0" step="0.01" placeholder="0.00" inputmode="decimal" aria-label="Valor unitario"></div>
+      <output class="row-total" title="Doble clic para sumar varias cantidades">$429,760.00</output>
+      <button class="remove-row" type="button" aria-label="Eliminar localidad" title="Eliminar">×</button>
+    </div><div class="ticket-row" role="row" tabindex="0" aria-selected="false">
+      <input class="quantity" type="number" min="0" step="1" placeholder="0" inputmode="numeric" aria-label="Cantidad de boletos">
+      <input class="location" type="text" placeholder="Ej. Preferente" aria-label="Localidad">
+      <div class="money-input"><span>$</span><input class="price" type="number" min="0" step="0.01" placeholder="0.00" inputmode="decimal" aria-label="Valor unitario"></div>
+      <output class="row-total" title="Doble clic para sumar varias cantidades">$5,368.88</output>
+      <button class="remove-row" type="button" aria-label="Eliminar localidad" title="Eliminar">×</button>
+    </div><div class="ticket-row" role="row" tabindex="0" aria-selected="false">
+      <input class="quantity" type="number" min="0" step="1" placeholder="0" inputmode="numeric" aria-label="Cantidad de boletos">
+      <input class="location" type="text" placeholder="Ej. Preferente" aria-label="Localidad">
+      <div class="money-input"><span>$</span><input class="price" type="number" min="0" step="0.01" placeholder="0.00" inputmode="decimal" aria-label="Valor unitario"></div>
+      <output class="row-total" title="Doble clic para sumar varias cantidades">$5,099.94</output>
+      <button class="remove-row" type="button" aria-label="Eliminar localidad" title="Eliminar">×</button>
+    </div><div class="ticket-row" role="row" tabindex="0" aria-selected="false">
+      <input class="quantity" type="number" min="0" step="1" placeholder="0" inputmode="numeric" aria-label="Cantidad de boletos">
+      <input class="location" type="text" placeholder="Ej. Preferente" aria-label="Localidad">
+      <div class="money-input"><span>$</span><input class="price" type="number" min="0" step="0.01" placeholder="0.00" inputmode="decimal" aria-label="Valor unitario"></div>
+      <output class="row-total" title="Doble clic para sumar varias cantidades">$629,750.00</output>
+      <button class="remove-row" type="button" aria-label="Eliminar localidad" title="Eliminar">×</button>
+    </div><div class="ticket-row" role="row" tabindex="0" aria-selected="false">
+      <input class="quantity" type="number" min="0" step="1" placeholder="0" inputmode="numeric" aria-label="Cantidad de boletos">
+      <input class="location" type="text" placeholder="Ej. Preferente" aria-label="Localidad">
+      <div class="money-input"><span>$</span><input class="price" type="number" min="0" step="0.01" placeholder="0.00" inputmode="decimal" aria-label="Valor unitario"></div>
+      <output class="row-total" title="Doble clic para sumar varias cantidades">$256,880.00</output>
+      <button class="remove-row" type="button" aria-label="Eliminar localidad" title="Eliminar">×</button>
+    </div><div class="ticket-row" role="row" tabindex="0" aria-selected="false">
+      <input class="quantity" type="number" min="0" step="1" placeholder="0" inputmode="numeric" aria-label="Cantidad de boletos">
+      <input class="location" type="text" placeholder="Ej. Preferente" aria-label="Localidad">
+      <div class="money-input"><span>$</span><input class="price" type="number" min="0" step="0.01" placeholder="0.00" inputmode="decimal" aria-label="Valor unitario"></div>
+      <output class="row-total" title="Doble clic para sumar varias cantidades">$139,000.00</output>
+      <button class="remove-row" type="button" aria-label="Eliminar localidad" title="Eliminar">×</button>
+    </div><div class="ticket-row" role="row" tabindex="0" aria-selected="false">
+      <input class="quantity" type="number" min="0" step="1" placeholder="0" inputmode="numeric" aria-label="Cantidad de boletos">
+      <input class="location" type="text" placeholder="Ej. Preferente" aria-label="Localidad">
+      <div class="money-input"><span>$</span><input class="price" type="number" min="0" step="0.01" placeholder="0.00" inputmode="decimal" aria-label="Valor unitario"></div>
+      <output class="row-total" title="Doble clic para sumar varias cantidades">$67,160.00</output>
+      <button class="remove-row" type="button" aria-label="Eliminar localidad" title="Eliminar">×</button>
+    </div><div class="ticket-row" role="row" tabindex="0" aria-selected="false">
+      <input class="quantity" type="number" min="0" step="1" placeholder="0" inputmode="numeric" aria-label="Cantidad de boletos">
+      <input class="location" type="text" placeholder="Ej. Preferente" aria-label="Localidad">
+      <div class="money-input"><span>$</span><input class="price" type="number" min="0" step="0.01" placeholder="0.00" inputmode="decimal" aria-label="Valor unitario"></div>
+      <output class="row-total" title="Doble clic para sumar varias cantidades">$330,037.76</output>
+      <button class="remove-row" type="button" aria-label="Eliminar localidad" title="Eliminar">×</button>
+    </div><div class="ticket-row" role="row" tabindex="0" aria-selected="false">
+      <input class="quantity" type="number" min="0" step="1" placeholder="0" inputmode="numeric" aria-label="Cantidad de boletos">
+      <input class="location" type="text" placeholder="Ej. Preferente" aria-label="Localidad">
+      <div class="money-input"><span>$</span><input class="price" type="number" min="0" step="0.01" placeholder="0.00" inputmode="decimal" aria-label="Valor unitario"></div>
+      <output class="row-total" title="Doble clic para sumar varias cantidades">$120,853.90</output>
+      <button class="remove-row" type="button" aria-label="Eliminar localidad" title="Eliminar">×</button>
+    </div><div class="ticket-row" role="row" tabindex="0" aria-selected="false">
+      <input class="quantity" type="number" min="0" step="1" placeholder="0" inputmode="numeric" aria-label="Cantidad de boletos">
+      <input class="location" type="text" placeholder="Ej. Preferente" aria-label="Localidad">
+      <div class="money-input"><span>$</span><input class="price" type="number" min="0" step="0.01" placeholder="0.00" inputmode="decimal" aria-label="Valor unitario"></div>
+      <output class="row-total" title="Doble clic para sumar varias cantidades">$52,400.00</output>
+      <button class="remove-row" type="button" aria-label="Eliminar localidad" title="Eliminar">×</button>
+    </div><div class="ticket-row" role="row" tabindex="0" aria-selected="false">
+      <input class="quantity" type="number" min="0" step="1" placeholder="0" inputmode="numeric" aria-label="Cantidad de boletos">
+      <input class="location" type="text" placeholder="Ej. Preferente" aria-label="Localidad">
+      <div class="money-input"><span>$</span><input class="price" type="number" min="0" step="0.01" placeholder="0.00" inputmode="decimal" aria-label="Valor unitario"></div>
+      <output class="row-total" title="Doble clic para sumar varias cantidades">$57,193.80</output>
+      <button class="remove-row" type="button" aria-label="Eliminar localidad" title="Eliminar">×</button>
+    </div><div class="ticket-row" role="row" tabindex="0" aria-selected="false">
+      <input class="quantity" type="number" min="0" step="1" placeholder="0" inputmode="numeric" aria-label="Cantidad de boletos">
+      <input class="location" type="text" placeholder="Ej. Preferente" aria-label="Localidad">
+      <div class="money-input"><span>$</span><input class="price" type="number" min="0" step="0.01" placeholder="0.00" inputmode="decimal" aria-label="Valor unitario"></div>
+      <output class="row-total" title="Doble clic para sumar varias cantidades">$69,887.45</output>
+      <button class="remove-row" type="button" aria-label="Eliminar localidad" title="Eliminar">×</button>
+    </div><div class="ticket-row" role="row" tabindex="0" aria-selected="false">
+      <input class="quantity" type="number" min="0" step="1" placeholder="0" inputmode="numeric" aria-label="Cantidad de boletos">
+      <input class="location" type="text" placeholder="Ej. Preferente" aria-label="Localidad">
+      <div class="money-input"><span>$</span><input class="price" type="number" min="0" step="0.01" placeholder="0.00" inputmode="decimal" aria-label="Valor unitario"></div>
+      <output class="row-total" title="Doble clic para sumar varias cantidades">$40,805.43</output>
+      <button class="remove-row" type="button" aria-label="Eliminar localidad" title="Eliminar">×</button>
+    </div><div class="ticket-row" role="row" tabindex="0" aria-selected="false">
+      <input class="quantity" type="number" min="0" step="1" placeholder="0" inputmode="numeric" aria-label="Cantidad de boletos">
+      <input class="location" type="text" placeholder="Ej. Preferente" aria-label="Localidad">
+      <div class="money-input"><span>$</span><input class="price" type="number" min="0" step="0.01" placeholder="0.00" inputmode="decimal" aria-label="Valor unitario"></div>
+      <output class="row-total" title="Doble clic para sumar varias cantidades">$124,332.09</output>
+      <button class="remove-row" type="button" aria-label="Eliminar localidad" title="Eliminar">×</button>
+    </div><div class="ticket-row" role="row" tabindex="0" aria-selected="false">
+      <input class="quantity" type="number" min="0" step="1" placeholder="0" inputmode="numeric" aria-label="Cantidad de boletos">
+      <input class="location" type="text" placeholder="Ej. Preferente" aria-label="Localidad">
+      <div class="money-input"><span>$</span><input class="price" type="number" min="0" step="0.01" placeholder="0.00" inputmode="decimal" aria-label="Valor unitario"></div>
+      <output class="row-total" title="Doble clic para sumar varias cantidades">$368,960.00</output>
+      <button class="remove-row" type="button" aria-label="Eliminar localidad" title="Eliminar">×</button>
+    </div><div class="ticket-row" role="row" tabindex="0" aria-selected="false">
+      <input class="quantity" type="number" min="0" step="1" placeholder="0" inputmode="numeric" aria-label="Cantidad de boletos">
+      <input class="location" type="text" placeholder="Ej. Preferente" aria-label="Localidad">
+      <div class="money-input"><span>$</span><input class="price" type="number" min="0" step="0.01" placeholder="0.00" inputmode="decimal" aria-label="Valor unitario"></div>
+      <output class="row-total" title="Doble clic para sumar varias cantidades">$16,488.83</output>
+      <button class="remove-row" type="button" aria-label="Eliminar localidad" title="Eliminar">×</button>
+    </div><div class="ticket-row" role="row" tabindex="0" aria-selected="false">
+      <input class="quantity" type="number" min="0" step="1" placeholder="0" inputmode="numeric" aria-label="Cantidad de boletos">
+      <input class="location" type="text" placeholder="Ej. Preferente" aria-label="Localidad">
+      <div class="money-input"><span>$</span><input class="price" type="number" min="0" step="0.01" placeholder="0.00" inputmode="decimal" aria-label="Valor unitario"></div>
+      <output class="row-total" title="Doble clic para sumar varias cantidades">$98,438.47</output>
+      <button class="remove-row" type="button" aria-label="Eliminar localidad" title="Eliminar">×</button>
+    </div><div class="ticket-row" role="row" tabindex="0" aria-selected="false">
+      <input class="quantity" type="number" min="0" step="1" placeholder="0" inputmode="numeric" aria-label="Cantidad de boletos">
+      <input class="location" type="text" placeholder="Ej. Preferente" aria-label="Localidad">
+      <div class="money-input"><span>$</span><input class="price" type="number" min="0" step="0.01" placeholder="0.00" inputmode="decimal" aria-label="Valor unitario"></div>
+      <output class="row-total" title="Doble clic para sumar varias cantidades">$2,750.00</output>
+      <button class="remove-row" type="button" aria-label="Eliminar localidad" title="Eliminar">×</button>
+    </div><div class="ticket-row" role="row" tabindex="0" aria-selected="false">
+      <input class="quantity" type="number" min="0" step="1" placeholder="0" inputmode="numeric" aria-label="Cantidad de boletos">
+      <input class="location" type="text" placeholder="Ej. Preferente" aria-label="Localidad">
+      <div class="money-input"><span>$</span><input class="price" type="number" min="0" step="0.01" placeholder="0.00" inputmode="decimal" aria-label="Valor unitario"></div>
+      <output class="row-total" title="Doble clic para sumar varias cantidades">$28,666.38</output>
+      <button class="remove-row" type="button" aria-label="Eliminar localidad" title="Eliminar">×</button>
+    </div><div class="ticket-row" role="row" tabindex="0" aria-selected="false">
+      <input class="quantity" type="number" min="0" step="1" placeholder="0" inputmode="numeric" aria-label="Cantidad de boletos">
+      <input class="location" type="text" placeholder="Ej. Preferente" aria-label="Localidad">
+      <div class="money-input"><span>$</span><input class="price" type="number" min="0" step="0.01" placeholder="0.00" inputmode="decimal" aria-label="Valor unitario"></div>
+      <output class="row-total" title="Doble clic para sumar varias cantidades">$99,887.60</output>
+      <button class="remove-row" type="button" aria-label="Eliminar localidad" title="Eliminar">×</button>
+    </div><div class="ticket-row" role="row" tabindex="0" aria-selected="false">
+      <input class="quantity" type="number" min="0" step="1" placeholder="0" inputmode="numeric" aria-label="Cantidad de boletos">
+      <input class="location" type="text" placeholder="Ej. Preferente" aria-label="Localidad">
+      <div class="money-input"><span>$</span><input class="price" type="number" min="0" step="0.01" placeholder="0.00" inputmode="decimal" aria-label="Valor unitario"></div>
+      <output class="row-total" title="Doble clic para sumar varias cantidades">$62,735.07</output>
+      <button class="remove-row" type="button" aria-label="Eliminar localidad" title="Eliminar">×</button>
+    </div></div>
       </div>
       <div class="income-total">
         <span>Ingreso bruto estimado</span>
-        <strong id="grossIncome">$0.00</strong>
+        <strong id="grossIncome">$6,370,171.77</strong>
       </div>
     </section>
 
@@ -75,32 +318,32 @@
           <h2 id="settings-title">Reglas del cálculo</h2>
         </div>
         <label class="variant-picker">Variante
-          <select id="variantSelect" aria-label="Seleccionar variante"><option value="">Configuración actual</option></select>
+          <select id="variantSelect" aria-label="Seleccionar variante"><option value="">Configuración actual</option><option value="1788797466324">40%</option></select>
         </label>
       </div>
 
       <div class="mode-switch" role="radiogroup" aria-label="Modalidad de cálculo">
-        <label><input type="radio" name="mode" value="standard" checked /><span><b>Ordinario</b><small>Impuesto sobre el ingreso total</small></span></label>
-        <label><input type="radio" name="mode" value="agreement" /><span><b>Con convenio</b><small>Impuesto sobre un porcentaje del ingreso</small></span></label>
+        <label><input type="radio" name="mode" value="standard" checked=""><span><b>Ordinario</b><small>Impuesto sobre el ingreso total</small></span></label>
+        <label><input type="radio" name="mode" value="agreement"><span><b>Con convenio</b><small>Impuesto sobre un porcentaje del ingreso</small></span></label>
       </div>
 
       <div class="form-grid">
         <label>Porcentaje del impuesto
-          <div class="input-affix"><input id="taxRate" type="number" min="0" max="100" step="0.01" value="6" inputmode="decimal" /><span>%</span></div>
+          <div class="input-affix"><input id="taxRate" type="number" min="0" max="100" step="0.01" value="6" inputmode="decimal"><span>%</span></div>
         </label>
         <label id="agreementField" class="hidden">Porcentaje del ingreso convenido
-          <div class="input-affix"><input id="agreementRate" type="number" min="0" max="100" step="0.01" value="60" inputmode="decimal" /><span>%</span></div>
+          <div class="input-affix"><input id="agreementRate" type="number" min="0" max="100" step="0.01" value="60" inputmode="decimal"><span>%</span></div>
         </label>
         <label>Honorario por interventor
-          <div class="input-affix prefix"><span>$</span><input id="feeAmount" type="number" min="0" step="0.01" value="1248" inputmode="decimal" /></div>
+          <div class="input-affix prefix"><span>$</span><input id="feeAmount" type="number" min="0" step="0.01" value="1248" inputmode="decimal"></div>
         </label>
         <label>Cantidad de interventores
-          <input id="inspectorCount" type="number" min="0" step="1" value="0" inputmode="numeric" />
+          <input id="inspectorCount" type="number" min="0" step="1" value="0" inputmode="numeric">
         </label>
       </div>
 
       <div class="variant-actions">
-        <input id="variantName" type="text" maxlength="40" placeholder="Nombre de la variante, por ejemplo: Teatro 5%" />
+        <input id="variantName" type="text" maxlength="40" placeholder="Nombre de la variante, por ejemplo: Teatro 5%">
         <button class="button secondary" id="saveVariantBtn" type="button">Guardar variante</button>
         <button class="button text danger hidden" id="deleteVariantBtn" type="button">Eliminar</button>
       </div>
@@ -110,17 +353,22 @@
       <span class="step light">03</span>
       <p class="eyebrow pale">Resultado</p>
       <h2 id="summary-title">Liquidación estimada</h2>
+      <div class="print-summary-event">
+        <span>Nombre del evento</span>
+        <strong id="summaryEventName">Evento sin nombre</strong>
+      </div>
       <div class="summary-hero">
         <span>Total a cobrar</span>
-        <strong id="totalCharge">$0.00</strong>
+        <strong id="totalCharge">$395,938.31</strong>
       </div>
       <dl class="breakdown">
-        <div><dt>Ingreso bruto</dt><dd id="sumGross">$0.00</dd></div>
-        <div id="baseRow"><dt>Base gravable</dt><dd id="sumBase">$0.00</dd></div>
-        <div><dt>Impuesto calculado</dt><dd id="sumTax">$0.00</dd></div>
-        <div><dt>Honorarios</dt><dd id="sumFees">$0.00</dd></div>
+        <div><dt>Aforo total</dt><dd id="sumAttendance">11,233 asistentes</dd></div>
+        <div><dt>Ingreso bruto</dt><dd id="sumGross">$6,370,171.77</dd></div>
+        <div id="baseRow" class="hidden"><dt>Base gravable</dt><dd id="sumBase">$6,370,171.77</dd></div>
+        <div><dt>Impuesto calculado</dt><dd id="sumTax">$382,210.31</dd></div>
+        <div><dt>Honorarios</dt><dd id="sumFees">$13,728.00</dd></div>
       </dl>
-      <div class="formula" id="formulaText">Ingreso bruto × 5% + honorarios</div>
+      <div class="formula" id="formulaText">Ingreso bruto × 6% de impuesto + honorarios</div>
       <button class="button primary" id="printBtn" type="button">Imprimir resumen</button>
       <p class="disclaimer">Cálculo de apoyo. Verifica las tasas y reglas vigentes antes de emitir el cobro.</p>
     </aside>
@@ -129,34 +377,28 @@
       <div class="print-report-heading">
         <div>
           <p>Detalle del cálculo</p>
-          <h2>Boletaje por localidad</h2>
+          <h2 id="printEventName">Evento sin nombre</h2>
+          <small>Boletaje por localidad</small>
         </div>
-        <span id="printDate"></span>
+        <span id="printDate">7 de septiembre de 2026</span>
       </div>
       <table>
-        <thead><tr><th>Localidad</th><th>Boletos</th><th>Precio unitario</th><th>Ingreso</th></tr></thead>
-        <tbody id="printRows"></tbody>
-        <tfoot><tr><th colspan="3">Ingreso bruto total</th><th id="printGross">$0.00</th></tr></tfoot>
+        <thead><tr><th>Boletos</th><th>Localidad</th><th>Valor unitario</th><th>Suma</th></tr></thead>
+        <tbody id="printRows"><tr><td>51</td><td>Platea</td><td>$1,750.00</td><td>$89,250.00</td></tr><tr><td>44</td><td>VIP</td><td>$1,550.00</td><td>$68,200.00</td></tr><tr><td>30</td><td>Platea Corner Norte / Blackroom Corner PF / Blackroom PF</td><td>$1,400.00</td><td>$42,000.00</td></tr><tr><td>613</td><td>Zona 1 / Palcos</td><td>$1,350.00</td><td>$827,550.00</td></tr><tr><td>8</td><td>Platea Corner Sur</td><td>$1,300.00</td><td>$10,400.00</td></tr><tr><td>54</td><td>Blackroom Corner SF / Blackroom SF / Redroom Corner SF / Redroom SF</td><td>$1,000.00</td><td>$54,000.00</td></tr><tr><td>447</td><td>Zona 1 Corner</td><td>$950.00</td><td>$424,650.00</td></tr><tr><td>79</td><td>X Platea&nbsp;XOLOPASS</td><td>$938.89</td><td>$74,172.31</td></tr><tr><td>438</td><td>Zona 2</td><td>$850.00</td><td>$372,300.00</td></tr><tr><td>46</td><td>X VIP&nbsp;XOLOPASS</td><td>$800.00</td><td>$36,800.00</td></tr><tr><td>54</td><td>X Blackroom y redroom PF&nbsp;XOLOPASS</td><td>$751.11</td><td>$40,559.94</td></tr><tr><td>636</td><td>X Palcos /Zona 1&nbsp;XOLOPASS</td><td>$727.77</td><td>$462,861.72</td></tr><tr><td>1,225</td><td>Boxes Zona 2 Plateas / Zona 2 Corner Norte / Zona 2 Corner Sur / Zona Norte Corner</td><td>$700.00</td><td>$857,500.00</td></tr><tr><td>5</td><td>X Blackroom Red Room Corner PF&nbsp;XOLOPASS</td><td>$694.44</td><td>$3,472.20</td></tr><tr><td>632</td><td>Zona 2 Platea / Zona Norte</td><td>$680.00</td><td>$429,760.00</td></tr><tr><td>8</td><td>X Blackroom RedRoom SF&nbsp;XOLOPASS</td><td>$671.11</td><td>$5,368.88</td></tr><tr><td>9</td><td>X Redroom Blackroom Corner SF&nbsp;XOLOPASS</td><td>$566.66</td><td>$5,099.94</td></tr><tr><td>1,145</td><td>Zona 2 Platea Corner</td><td>$550.00</td><td>$629,750.00</td></tr><tr><td>494</td><td>Zona Sur Corner</td><td>$520.00</td><td>$256,880.00</td></tr><tr><td>278</td><td>X Zona 1 Corner&nbsp;XOLOPASS</td><td>$500.00</td><td>$139,000.00</td></tr><tr><td>146</td><td>Zona Sur</td><td>$460.00</td><td>$67,160.00</td></tr><tr><td>752</td><td>X Zona 2&nbsp;XOLOPASS</td><td>$438.88</td><td>$330,037.76</td></tr><tr><td>298</td><td>X Zona 2 Corner&nbsp;XOLOPASS</td><td>$405.55</td><td>$120,853.90</td></tr><tr><td>131</td><td>Blackroom General / Redroom General</td><td>$400.00</td><td>$52,400.00</td></tr><tr><td>145</td><td>X Zona Norte Corner&nbsp;XOLOPASS</td><td>$394.44</td><td>$57,193.80</td></tr><tr><td>185</td><td>X Zona Norte&nbsp;XOLOPASS</td><td>$377.77</td><td>$69,887.45</td></tr><tr><td>113</td><td>X Zona 2 platea&nbsp;XOLOPASS</td><td>$361.11</td><td>$40,805.43</td></tr><tr><td>373</td><td>X Zona Sur Corner&nbsp;XOLOPASS</td><td>$333.33</td><td>$124,332.09</td></tr><tr><td>1,153</td><td>Cabecera Sur / Cabecera Norte</td><td>$320.00</td><td>$368,960.00</td></tr><tr><td>53</td><td>X Zona 2 Platea Corner&nbsp;XOLOPASS</td><td>$311.11</td><td>$16,488.83</td></tr><tr><td>377</td><td>X Zona Sur&nbsp;XOLOPASS</td><td>$261.11</td><td>$98,438.47</td></tr><tr><td>11</td><td>Cabecera Norte Corner</td><td>$250.00</td><td>$2,750.00</td></tr><tr><td>129</td><td>X Masakre&nbsp;XOLOPASS</td><td>$222.22</td><td>$28,666.38</td></tr><tr><td>580</td><td>X Cabecera Norte /Sur&nbsp;XOLOPASS</td><td>$172.22</td><td>$99,887.60</td></tr><tr><td>491</td><td>X Cabecera Norte Corner&nbsp;XOLOPASS</td><td>$127.77</td><td>$62,735.07</td></tr></tbody>
+        <tfoot><tr><th colspan="3">Ingreso bruto total</th><th id="printGross">$6,370,171.77</th></tr></tfoot>
       </table>
       <div class="print-totals">
+        <div><span>Aforo total</span><strong id="printAttendance">11,233 asistentes</strong></div>
         <div><span>Modalidad</span><strong id="printMode">Ordinario</strong></div>
-        <div><span>Base gravable</span><strong id="printBase">$0.00</strong></div>
-        <div><span>Impuesto</span><strong id="printTax">$0.00</strong></div>
-        <div><span>Honorarios</span><strong id="printFees">$0.00</strong></div>
-        <div class="grand"><span>Total a cobrar</span><strong id="printTotal">$0.00</strong></div>
+        <div><span>Base gravable</span><strong id="printBase">$6,370,171.77</strong></div>
+        <div><span>Impuesto</span><strong id="printTax">$382,210.31</strong></div>
+        <div><span>Honorarios</span><strong id="printFees">$13,728.00</strong></div>
+        <div class="grand"><span>Total a cobrar</span><strong id="printTotal">$395,938.31</strong></div>
       </div>
     </section>
   </main>
 
-  <template id="ticketRowTemplate">
-    <div class="ticket-row" role="row">
-      <input class="location" type="text" placeholder="Ej. Preferente" aria-label="Localidad" />
-      <input class="quantity" type="number" min="0" step="1" placeholder="0" inputmode="numeric" aria-label="Cantidad de boletos" />
-      <div class="money-input"><span>$</span><input class="price" type="number" min="0" step="0.01" placeholder="0.00" inputmode="decimal" aria-label="Precio unitario" /></div>
-      <output class="row-total" title="Doble clic para sumar varias cantidades">$0.00</output>
-      <button class="remove-row" type="button" aria-label="Eliminar localidad" title="Eliminar">×</button>
-    </div>
-  </template>
+  <template id="ticketRowTemplate"></template>
   <dialog class="number-dialog" id="numberDialog" aria-labelledby="numberDialogTitle">
     <form method="dialog">
       <div class="dialog-heading">
@@ -168,7 +410,8 @@
         <button class="dialog-close" value="apply" aria-label="Cerrar y sumar" title="Cerrar y sumar">×</button>
       </div>
       <label for="bulkNumbers">Cantidades a agregar</label>
-      <textarea id="bulkNumbers" rows="6" inputmode="numeric" placeholder="Ejemplo: 25, 40, 15&#10;Puedes separarlas con coma, espacio o un renglón nuevo."></textarea>
+      <textarea id="bulkNumbers" rows="6" inputmode="numeric" placeholder="Ejemplo: 25, 40, 15
+Puedes separarlas con coma, espacio o un renglón nuevo."></textarea>
       <div class="number-summary" aria-live="polite">
         <span><small>Cantidades capturadas</small><strong id="numbersCount">0</strong></span>
         <span><small>Suma a agregar</small><strong id="numbersSum">0</strong></span>
@@ -186,8 +429,8 @@
         <div><span class="step">Este dispositivo</span><h2 id="saveDialogTitle">Guardar evento</h2><p>Podrás recuperarlo aunque cierres la página.</p></div>
         <button class="dialog-close" value="close" aria-label="Cerrar">×</button>
       </div>
-      <label for="calculationName">Nombre del cálculo</label>
-      <input class="dialog-input" id="calculationName" maxlength="60" placeholder="Ej. Concierto 15 de septiembre" />
+      <label for="calculationName">Nombre del evento</label>
+      <input class="dialog-input" id="calculationName" maxlength="60" placeholder="Ej. Concierto 15 de septiembre">
       <div class="dialog-actions"><button class="button text" value="close">Cancelar</button><button class="button primary" id="saveCalculationBtn" type="button">Guardar</button></div>
     </form>
   </dialog>
@@ -199,8 +442,8 @@
       </div>
       <div class="saved-list" id="savedCalculations"></div>
       <div class="load-options">
-        <label class="option-check"><input id="loadTickets" type="checkbox" checked /><span><b>Boletaje</b><small>Localidades, cantidades y precios</small></span></label>
-        <label class="option-check"><input id="loadSettings" type="checkbox" checked /><span><b>Reglas</b><small>Impuesto, convenio y honorarios</small></span></label>
+        <label class="option-check"><input id="loadTickets" type="checkbox" checked=""><span><b>Boletaje</b><small>Nombre del evento, localidades, cantidades y precios</small></span></label>
+        <label class="option-check"><input id="loadSettings" type="checkbox" checked=""><span><b>Reglas</b><small>Impuesto, convenio y honorarios</small></span></label>
       </div>
       <div class="dialog-actions"><button class="button text" value="close">Cancelar</button><button class="button primary" id="loadSelectedBtn" type="button">Cargar seleccionado</button></div>
     </form>
@@ -213,28 +456,29 @@
       </div>
       <div class="import-sources">
         <button class="import-source-card" id="chooseImportFileBtn" type="button"><b>Seleccionar archivo</b><small>Imagen, Excel, CSV o TSV</small></button>
-        <input class="hidden" id="importFileInput" type="file" accept="image/*,.xlsx,.xls,.csv,.tsv,text/csv,text/tab-separated-values" />
+        <input class="hidden" id="importFileInput" type="file" accept="image/*,.xlsx,.xls,.csv,.tsv,text/csv,text/tab-separated-values">
         <div class="paste-source">
           <label for="pastedTable">O pega aquí una tabla de Excel o Google Sheets</label>
-          <textarea id="pastedTable" rows="4" placeholder="Localidad&#9;Boletos&#9;Precio unitario&#10;General&#9;100&#9;250"></textarea>
+          <textarea id="pastedTable" rows="4" placeholder="Boletos	Localidad	Valor unitario
+100	General	250"></textarea>
           <button class="button secondary" id="processPasteBtn" type="button">Analizar datos pegados</button>
         </div>
       </div>
       <div class="import-progress hidden" id="importProgress"><span></span><div><b id="importProgressTitle">Leyendo archivo…</b><small id="importProgressText">Espera un momento</small></div></div>
       <div class="import-preview hidden" id="importPreview">
         <div class="preview-heading"><div><b>Vista previa</b><small id="importFileName"></small></div><button class="button text" id="clearImportBtn" type="button">Limpiar</button></div>
-        <div class="preview-table-wrap"><table class="preview-table"><thead><tr><th>Localidad</th><th>Boletos</th><th>Precio unitario</th><th></th></tr></thead><tbody id="importPreviewRows"></tbody></table></div>
+        <div class="preview-table-wrap"><table class="preview-table"><thead><tr><th><button class="sort-button" type="button" data-import-sort="quantity">Boletos</button></th><th><button class="sort-button" type="button" data-import-sort="location">Localidad</button></th><th><button class="sort-button" type="button" data-import-sort="price">Valor unitario</button></th><th><button class="sort-button" type="button" data-import-sort="total">Suma</button></th><th></th></tr></thead><tbody id="importPreviewRows"></tbody></table></div>
         <button class="button secondary add-preview-row" id="addPreviewRowBtn" type="button">+ Agregar fila a la vista previa</button>
         <div class="import-mode">
-          <label class="option-check"><input type="radio" name="importMode" value="replace" checked><span><b>Reemplazar</b><small>Sustituir el boletaje actual</small></span></label>
+          <label class="option-check"><input type="radio" name="importMode" value="replace" checked=""><span><b>Reemplazar</b><small>Sustituir el boletaje actual</small></span></label>
           <label class="option-check"><input type="radio" name="importMode" value="append"><span><b>Agregar</b><small>Conservar y añadir nuevas filas</small></span></label>
         </div>
       </div>
       <p class="sheet-note">En imágenes, revisa la vista previa: la precisión depende de la claridad, iluminación y alineación de la tabla.</p>
-      <div class="dialog-actions"><button class="button text" value="close">Cancelar</button><button class="button primary" id="applyImportBtn" type="button" disabled>Cargar datos</button></div>
+      <div class="dialog-actions"><button class="button text" value="close">Cancelar</button><button class="button primary" id="applyImportBtn" type="button" disabled="">Cargar datos</button></div>
     </form>
   </dialog>
-  <input class="hidden" id="backupFileInput" type="file" accept="application/json,.json" />
+  <input class="hidden" id="backupFileInput" type="file" accept="application/json,.json">
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
   <script>
 const $ = (selector, root = document) => root.querySelector(selector);
@@ -251,12 +495,31 @@ let dialogRow = null;
 let restoring = false;
 let loadedCalculationsCache = [];
 let importedRows = [];
+let currentEventName = '';
+let pendingEventName = null;
+let rowSort = { key: '', direction: 'asc' };
+let importSort = { key: '', direction: 'asc' };
 const XLSX_URL = 'https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js';
 const OCR_URL = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
 
 function number(value) { return Math.max(0, Number.parseFloat(value) || 0); }
 function pct(value) { return Math.min(100, number(value)); }
 function currentMode() { return $('input[name="mode"]:checked').value; }
+function attendanceLabel(value) {
+  const attendance = number(value);
+  return `${attendance.toLocaleString('es-MX')} ${attendance === 1 ? 'asistente' : 'asistentes'}`;
+}
+function fileNameWithoutExtension(name) {
+  const leaf = String(name || '').split(/[\\/]/).pop().trim();
+  return leaf.replace(/\.[^.]+$/, '').trim() || leaf;
+}
+function setEventName(name = '') {
+  currentEventName = String(name || '').trim();
+  const visibleName = currentEventName || 'Evento sin nombre';
+  $('#eventNameDisplay').textContent = visibleName;
+  $('#summaryEventName').textContent = visibleName;
+  $('#printEventName').textContent = visibleName;
+}
 
 function addRow(data = {}) {
   const row = template.content.firstElementChild.cloneNode(true);
@@ -294,6 +557,44 @@ function selectRow(row) {
     item.setAttribute('aria-selected', String(active));
   });
   selectedRow = row;
+}
+
+function nextSort(current, key) {
+  return { key, direction: current.key === key && current.direction === 'asc' ? 'desc' : 'asc' };
+}
+
+function updateSortIndicators(selector, activeSort) {
+  $$(selector).forEach(button => {
+    const key = button.dataset.sort || button.dataset.importSort;
+    const active = key === activeSort.key;
+    if (active) button.dataset.dir = activeSort.direction;
+    else delete button.dataset.dir;
+    const header = button.closest('[role="columnheader"], th');
+    if (header) header.setAttribute('aria-sort', active ? (activeSort.direction === 'asc' ? 'ascending' : 'descending') : 'none');
+  });
+}
+
+function compareValues(a, b, direction) {
+  const result = typeof a === 'string'
+    ? a.localeCompare(b, 'es', { sensitivity: 'base', numeric: true })
+    : a - b;
+  return direction === 'asc' ? result : -result;
+}
+
+function sortTicketRows(key) {
+  rowSort = nextSort(rowSort, key);
+  const valueFor = row => {
+    if (key === 'location') return $('.location', row).value.trim();
+    const quantity = number($('.quantity', row).value);
+    const price = number($('.price', row).value);
+    return key === 'quantity' ? quantity : key === 'price' ? price : quantity * price;
+  };
+  $$('.ticket-row', rows)
+    .map((row, index) => ({ row, index, value: valueFor(row) }))
+    .sort((a, b) => compareValues(a.value, b.value, rowSort.direction) || a.index - b.index)
+    .forEach(item => rows.append(item.row));
+  updateSortIndicators('[data-sort]', rowSort);
+  calculate();
 }
 
 function parsedNumbers() {
@@ -334,6 +635,7 @@ function applyDialogSum() {
 
 function calculate() {
   let gross = 0;
+  let totalAttendance = 0;
   const printItems = [];
   $$('.ticket-row', rows).forEach(row => {
     const quantity = number($('.quantity', row).value);
@@ -341,6 +643,7 @@ function calculate() {
     const total = quantity * price;
     $('.row-total', row).textContent = money.format(total);
     gross += total;
+    totalAttendance += quantity;
     if ($('.location', row).value.trim() || quantity || price) printItems.push({
       location: $('.location', row).value.trim() || 'Sin especificar', quantity, price, total
     });
@@ -352,6 +655,7 @@ function calculate() {
   const fees = number($('#feeAmount').value) * Math.floor(number($('#inspectorCount').value));
   const total = tax + fees;
   $('#grossIncome').textContent = money.format(gross);
+  $('#sumAttendance').textContent = attendanceLabel(totalAttendance);
   $('#sumGross').textContent = money.format(gross);
   $('#sumBase').textContent = money.format(taxBase);
   $('#sumTax').textContent = money.format(tax);
@@ -363,9 +667,10 @@ function calculate() {
     ? `Ingreso bruto × ${agreementRate}% convenido × ${taxRate}% de impuesto + honorarios`
     : `Ingreso bruto × ${taxRate}% de impuesto + honorarios`;
   $('#printRows').innerHTML = printItems.length
-    ? printItems.map(item => `<tr><td>${escapeHtml(item.location)}</td><td>${item.quantity.toLocaleString('es-MX')}</td><td>${money.format(item.price)}</td><td>${money.format(item.total)}</td></tr>`).join('')
+    ? printItems.map(item => `<tr><td>${item.quantity.toLocaleString('es-MX')}</td><td>${escapeHtml(item.location)}</td><td>${money.format(item.price)}</td><td>${money.format(item.total)}</td></tr>`).join('')
     : '<tr><td colspan="4">No se capturaron localidades.</td></tr>';
   $('#printGross').textContent = money.format(gross);
+  $('#printAttendance').textContent = attendanceLabel(totalAttendance);
   $('#printMode').textContent = currentMode() === 'agreement' ? `Convenio (${agreementRate}% del ingreso)` : 'Ordinario';
   $('#printBase').textContent = money.format(taxBase);
   $('#printTax').textContent = money.format(tax);
@@ -426,6 +731,7 @@ function readLocal(key, fallback) {
 
 function currentSnapshot() {
   return {
+    eventName: currentEventName,
     tickets: $$('.ticket-row', rows).map(row => ({
       location: $('.location', row).value.trim(),
       quantity: number($('.quantity', row).value),
@@ -447,6 +753,7 @@ function applySnapshot(data, options = { tickets: true, settings: true }) {
   const previousRestoring = restoring;
   restoring = true;
   if (options.tickets && Array.isArray(data.tickets)) {
+    setEventName(data.eventName ?? data.name ?? '');
     selectedRow = null;
     rows.innerHTML = '';
     const ticketData = data.tickets.length ? data.tickets : [{ location: 'General' }, {}];
@@ -470,11 +777,13 @@ function savedCalculations() { return readLocal(calculationsKey, []); }
 
 function saveCalculation() {
   const name = $('#calculationName').value.trim();
-  if (!name) { $('#calculationName').focus(); return showToast('Escribe un nombre para el cálculo'); }
+  if (!name) { $('#calculationName').focus(); return showToast('Escribe un nombre para el evento'); }
+  setEventName(name);
   const snapshot = currentSnapshot();
   const event = { id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()), name, savedAt: new Date().toISOString(), ...snapshot, totals: snapshotTotals(snapshot) };
   const items = savedCalculations(); items.unshift(event);
   localStorage.setItem(calculationsKey, JSON.stringify(items));
+  saveDraft();
   $('#saveDialog').close();
   showToast('Evento guardado en este dispositivo');
 }
@@ -515,11 +824,12 @@ function loadSelectedCalculation() {
 }
 
 function snapshotTotals(data) {
+  const attendance = data.tickets.reduce((sum, item) => sum + number(item.quantity), 0);
   const gross = data.tickets.reduce((sum, item) => sum + number(item.quantity) * number(item.price), 0);
   const base = gross * (data.settings.mode === 'agreement' ? pct(data.settings.agreementRate) : 100) / 100;
   const tax = base * pct(data.settings.taxRate) / 100;
   const fees = number(data.settings.feeAmount) * Math.floor(number(data.settings.inspectorCount));
-  return { gross, base, tax, fees, total: tax + fees };
+  return { attendance, gross, base, tax, fees, total: tax + fees };
 }
 
 function downloadText(content, type, filename) {
@@ -583,8 +893,8 @@ function rowsFromMatrix(matrix) {
   const priceIndex = headers.findIndex(value => /precio|unitario|costo|importe/.test(value));
   const hasHeaders = quantityIndex >= 0 || priceIndex >= 0 || locationIndex >= 0;
   const start = hasHeaders ? 1 : 0;
-  const loc = locationIndex >= 0 ? locationIndex : 0;
-  const qty = quantityIndex >= 0 ? quantityIndex : 1;
+  const loc = locationIndex >= 0 ? locationIndex : 1;
+  const qty = quantityIndex >= 0 ? quantityIndex : 0;
   const price = priceIndex >= 0 ? priceIndex : 2;
   return clean.slice(start).map(row => ({
     location: String(row[loc] ?? '').trim(), quantity: Math.floor(importedNumber(row[qty])), price: importedNumber(row[price])
@@ -623,7 +933,12 @@ function renderImportPreview(items, sourceName = '') {
   $('#importPreview').classList.toggle('hidden', !items.length);
   $('#applyImportBtn').disabled = !items.length;
   $('#importFileName').textContent = sourceName || `${items.length} filas detectadas`;
-  $('#importPreviewRows').innerHTML = items.map((item, index) => `<tr><td><input class="preview-location" value="${escapeHtml(item.location || '')}" aria-label="Localidad"></td><td><input class="preview-quantity" type="number" min="0" step="1" value="${Math.floor(number(item.quantity))}" aria-label="Boletos"></td><td><input class="preview-price" type="number" min="0" step="0.01" value="${number(item.price)}" aria-label="Precio unitario"></td><td><button class="remove-preview" type="button" data-preview-index="${index}" aria-label="Quitar fila">×</button></td></tr>`).join('');
+  $('#importPreviewRows').innerHTML = items.map((item, index) => `<tr><td><input class="preview-quantity" type="number" min="0" step="1" value="${Math.floor(number(item.quantity))}" aria-label="Boletos"></td><td><input class="preview-location" value="${escapeHtml(item.location || '')}" aria-label="Localidad"></td><td><input class="preview-price" type="number" min="0" step="0.01" value="${number(item.price)}" aria-label="Valor unitario"></td><td><output class="preview-total">${money.format(number(item.quantity) * number(item.price))}</output></td><td><button class="remove-preview" type="button" data-preview-index="${index}" aria-label="Quitar fila">×</button></td></tr>`).join('');
+  $$('#importPreviewRows tr').forEach(row => {
+    const updateTotal = () => $('.preview-total', row).textContent = money.format(number($('.preview-quantity', row).value) * number($('.preview-price', row).value));
+    $('.preview-quantity', row).addEventListener('input', updateTotal);
+    $('.preview-price', row).addEventListener('input', updateTotal);
+  });
   $$('.remove-preview', $('#importPreviewRows')).forEach(button => button.addEventListener('click', () => {
     syncImportPreview(); importedRows.splice(Number(button.dataset.previewIndex), 1); renderImportPreview(importedRows, sourceName);
   }));
@@ -636,8 +951,25 @@ function syncImportPreview() {
   return importedRows;
 }
 
+function sortImportRows(key) {
+  syncImportPreview();
+  importSort = nextSort(importSort, key);
+  const valueFor = item => key === 'location'
+    ? item.location
+    : key === 'total' ? number(item.quantity) * number(item.price) : number(item[key]);
+  importedRows = importedRows
+    .map((item, index) => ({ item, index }))
+    .sort((a, b) => compareValues(valueFor(a.item), valueFor(b.item), importSort.direction) || a.index - b.index)
+    .map(entry => entry.item);
+  renderImportPreview(importedRows, $('#importFileName').textContent);
+  updateSortIndicators('[data-import-sort]', importSort);
+}
+
 function resetImportDialog() {
   importedRows = [];
+  pendingEventName = null;
+  importSort = { key: '', direction: 'asc' };
+  updateSortIndicators('[data-import-sort]', importSort);
   $('#pastedTable').value = '';
   $('#importFileInput').value = '';
   $('#importPreviewRows').innerHTML = '';
@@ -647,6 +979,7 @@ function resetImportDialog() {
 }
 
 async function processImportFile(file) {
+  pendingEventName = null;
   setImportProgress(true, 'Leyendo archivo…', file.name);
   try {
     let detected;
@@ -666,6 +999,7 @@ async function processImportFile(file) {
     }
     setImportProgress(false);
     if (!detected.length) return showToast('No se detectaron filas; prueba pegando la tabla');
+    pendingEventName = fileNameWithoutExtension(file.name);
     renderImportPreview(detected, `${file.name} · ${detected.length} filas`);
   } catch {
     setImportProgress(false);
@@ -679,6 +1013,7 @@ function applyImportedRows() {
   const currentIsBlank = $$('.ticket-row', rows).every(row => !$('.location', row).value.trim() && !number($('.quantity', row).value) && !number($('.price', row).value));
   if ($('input[name="importMode"]:checked').value === 'replace' || currentIsBlank) rows.innerHTML = '';
   items.forEach(item => addRow(item));
+  if (pendingEventName !== null) setEventName(pendingEventName);
   calculate();
   $('#importDialog').close();
   showToast(`${items.length} localidades cargadas`);
@@ -686,6 +1021,9 @@ function applyImportedRows() {
 
 function reset() {
   selectedRow = null;
+  setEventName('');
+  rowSort = { key: '', direction: 'asc' };
+  updateSortIndicators('[data-sort]', rowSort);
   rows.innerHTML = ''; addRow(); addRow();
   $('input[name="mode"][value="standard"]').checked = true;
   $('#taxRate').value = 6; $('#agreementRate').value = 60;
@@ -698,7 +1036,9 @@ function showToast(message) {
   clearTimeout(toastTimer); toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
 }
 
-$('#addRowBtn').addEventListener('click', () => { addRow(); $$('.location', rows).at(-1).focus(); });
+$('#addRowBtn').addEventListener('click', () => { addRow(); $$('.quantity', rows).at(-1).focus(); });
+$$('[data-sort]').forEach(button => button.addEventListener('click', () => sortTicketRows(button.dataset.sort)));
+$$('[data-import-sort]').forEach(button => button.addEventListener('click', () => sortImportRows(button.dataset.importSort)));
 $('#resetBtn').addEventListener('click', reset);
 $('#printBtn').addEventListener('click', () => window.print());
 $('#saveVariantBtn').addEventListener('click', saveVariant);
@@ -727,7 +1067,7 @@ $('#menuPanel').addEventListener('click', event => event.stopPropagation());
 document.addEventListener('click', () => { $('#menuPanel').classList.add('hidden'); $('#menuBtn').setAttribute('aria-expanded', 'false'); });
 $('#openSaveBtn').addEventListener('click', () => {
   $('#menuPanel').classList.add('hidden');
-  $('#calculationName').value = '';
+  $('#calculationName').value = currentEventName;
   $('#saveDialog').showModal();
   setTimeout(() => $('#calculationName').focus(), 0);
 });
@@ -745,11 +1085,12 @@ $('#importFileInput').addEventListener('change', event => {
 $('#processPasteBtn').addEventListener('click', () => {
   const detected = rowsFromPastedText($('#pastedTable').value);
   if (!detected.length) return showToast('No se reconocieron filas en los datos pegados');
+  pendingEventName = null;
   renderImportPreview(detected, `${detected.length} filas pegadas`);
 });
 $('#addPreviewRowBtn').addEventListener('click', () => {
   syncImportPreview(); importedRows.push({ location: '', quantity: 0, price: 0 }); renderImportPreview(importedRows, $('#importFileName').textContent);
-  $$('.preview-location', $('#importPreviewRows')).at(-1).focus();
+  $$('.preview-quantity', $('#importPreviewRows')).at(-1).focus();
 });
 $('#clearImportBtn').addEventListener('click', resetImportDialog);
 $('#applyImportBtn').addEventListener('click', applyImportedRows);
@@ -769,6 +1110,7 @@ fields.forEach(field => $(`#${field}`).addEventListener('input', calculate));
 
 function initialize() {
   renderVariants();
+  setEventName('');
   const draft = readLocal(draftKey, null);
   if (draft?.tickets && draft?.settings) applySnapshot(draft, { tickets: true, settings: true });
   else { addRow({ location: 'General' }); addRow(); calculate(); }
@@ -777,5 +1119,6 @@ function initialize() {
 initialize();
 
   </script>
-</body>
-</html>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a378d0d90eb3d7a4',t:'MTc4ODgxNjYzOA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><iframe height="1" width="1" style="position: absolute; top: 0px; left: 0px; border-width: medium; border-style: none; border-color: currentcolor; border-image: none; visibility: hidden;" src="./Cálculo de impuestos municipales_files/saved_resource.html"></iframe>
+
+</body></html>
